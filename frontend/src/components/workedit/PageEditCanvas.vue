@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 
 const initialScale = 0.25;
 
@@ -41,114 +42,24 @@ const canvasStyle = computed(() => {
   };
 });
 
-function dist(x1: number, y1: number, x2: number, y2: number) {
-  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
-}
+const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY, canvasScale);
 
-function touchdist(p1: PointerEvent, p2: PointerEvent) {
-  return dist(p1.clientX, p1.clientY, p2.clientX, p2.clientY);
-}
-
-type PointerData = {
-  evfirst: PointerEvent;
-  evlast: PointerEvent;
-};
-
-const fingertouches = new Map<number, PointerData>();
-const pentouches = new Map<number, PointerData>();
-let canvasScrollBaseX = 0;
-let canvasScrollBaseY = 0;
-let canvasZoomBaseScale = 1;
-let canvasBaseTouch: Array<PointerEvent> | null = null;
-
-function finger1setup() {
-  canvasScrollBaseX = canvasCenterX.value;
-  canvasScrollBaseY = canvasCenterY.value;
-  canvasBaseTouch = Array.from(fingertouches).map((touch) => touch[1].evlast);
-}
-
-function finger2setup() {
-  canvasScrollBaseX = canvasCenterX.value;
-  canvasScrollBaseY = canvasCenterY.value;
-  canvasZoomBaseScale = canvasScale.value;
-  canvasBaseTouch = Array.from(fingertouches).map((touch) => touch[1].evlast);
-}
-
-const onfingerdown = (e: PointerEvent) => {
-  fingertouches.set(e.pointerId, {
-    evfirst: e,
-    evlast: e
-  });
-  if (fingertouches.size == 1) {
-    finger1setup();
-  } else if (fingertouches.size == 2) {
-    finger2setup();
-  }
-};
-const onfingermove = (e: PointerEvent) => {
-  const touch = fingertouches.get(e.pointerId);
-  if (!touch) return;
-
-  if (fingertouches.size == 1 && canvasBaseTouch) {
-    canvasCenterX.value = canvasScrollBaseX + e.clientX - canvasBaseTouch[0].clientX;
-    canvasCenterY.value = canvasScrollBaseY + e.clientY - canvasBaseTouch[0].clientY;
-  } else if (fingertouches.size == 2 && canvasBaseTouch) {
-    const touches = Array.from(fingertouches).map((touch) => touch[1].evlast);
-
-    const scalediff =
-      touchdist(touches[0], touches[1]) / touchdist(canvasBaseTouch[0], canvasBaseTouch[1]);
-    const touchdiffX = [
-      touches[0].clientX - canvasBaseTouch[0].clientX,
-      touches[1].clientX - canvasBaseTouch[1].clientX
-    ];
-    const touchdiffY = [
-      touches[0].clientY - canvasBaseTouch[0].clientY,
-      touches[1].clientY - canvasBaseTouch[1].clientY
-    ];
-    canvasCenterX.value = canvasScrollBaseX + (touchdiffX[0] + touchdiffX[1]) / 2;
-    canvasCenterY.value = canvasScrollBaseY + (touchdiffY[0] + touchdiffY[1]) / 2;
-    canvasScale.value = canvasZoomBaseScale * scalediff;
-  }
-
-  touch.evlast = e;
-};
-const onfingerup = (e: PointerEvent) => {
-  fingertouches.delete(e.pointerId);
-  if (fingertouches.size == 1) {
-    finger1setup();
-  } else if (fingertouches.size == 2) {
-    finger2setup();
-  }
-};
-
-const onpendown = (e: PointerEvent) => {
-  pentouches.set(e.pointerId, {
-    evfirst: e,
-    evlast: e
-  });
-};
-const onpenmove = (e: PointerEvent) => {
-  const touch = pentouches.get(e.pointerId);
-  if (!touch) return;
-
-  touch.evlast = e;
-};
-const onpenup = (e: PointerEvent) => {
-  pentouches.delete(e.pointerId);
-};
+const onpendown = (e: PointerEvent) => {};
+const onpenmove = (e: PointerEvent) => {};
+const onpenup = (e: PointerEvent) => {};
 
 const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
 
 const onpointerup = (e: PointerEvent) => {
-  if (isFinger(e)) onfingerup(e);
+  if (isFinger(e)) touchManager.onfingerup(e);
   else onpenup(e);
 };
 const onpointermove = (e: PointerEvent) => {
-  if (isFinger(e)) onfingermove(e);
+  if (isFinger(e)) touchManager.onfingermove(e);
   else onpenmove(e);
 };
 const onpointerdown = (e: PointerEvent) => {
-  if (isFinger(e)) onfingerdown(e);
+  if (isFinger(e)) touchManager.onfingerdown(e);
   else onpendown(e);
 };
 </script>
