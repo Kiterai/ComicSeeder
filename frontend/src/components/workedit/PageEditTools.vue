@@ -1,10 +1,11 @@
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 
 <template>
-    pageeditTools
-    
+  <div :class="$style.tools">pageeditTools</div>
 </template>
 
-<style scoped lang="scss"></style>
+<style module>
+.tools {
+    position: fixed;
+}
+</style>

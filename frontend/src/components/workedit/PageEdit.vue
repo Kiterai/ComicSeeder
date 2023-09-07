@@ -9,7 +9,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    pageedit
     <PageEditCanvas></PageEditCanvas>
     <PageEditTools></PageEditTools>
 </template>

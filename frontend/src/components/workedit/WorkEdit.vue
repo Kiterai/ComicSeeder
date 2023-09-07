@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import PageList from './PageList.vue'
-import PageEdit from './PageEdit.vue'
+import PageList from './PageList.vue';
+import PageEdit from './PageEdit.vue';
 </script>
 
 <template>
-  workedit
-  <PageList></PageList>
-  <PageEdit :pageId="null"></PageEdit>
+  <div :class="$style.workedit">
+    <PageList></PageList>
+    <PageEdit :pageId="null"></PageEdit>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style module>
+.workedit {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+</style>

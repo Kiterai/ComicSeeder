@@ -1,8 +1,11 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-    pagelist
+  <div :class="$style.pagelist">pagelist</div>
 </template>
 
-<style scoped lang="scss"></style>
+<style module>
+.pagelist {
+  position: fixed;
+}
+</style>

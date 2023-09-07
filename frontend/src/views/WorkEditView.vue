@@ -2,15 +2,19 @@
 import WorkEdit from '@/components/workedit/WorkEdit.vue';
 
 const props = defineProps<{
-  id: string
-}>()
+  id: string;
+}>();
 </script>
 
 <template>
-  <div>WorksEdit: {{ props.id }}</div>
-  <RouterLink to="/works">Return to WorkList</RouterLink>
+  <RouterLink to="/works" :class="$style.menu">Return to WorkList</RouterLink>
 
   <WorkEdit></WorkEdit>
 </template>
 
-<style></style>
+<style module>
+.menu {
+  position: fixed;
+  z-index: 1;
+}
+</style>
