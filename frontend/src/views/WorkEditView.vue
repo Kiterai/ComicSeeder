@@ -6,6 +6,7 @@ const props = defineProps<{
 
 <template>
   <div>WorksEdit: {{ props.id }}</div>
+  <RouterLink to="/works">Return to WorkList</RouterLink>
 </template>
 
 <style></style>
