@@ -41,20 +41,72 @@ const canvasStyle = computed(() => {
   };
 });
 
-const touched = new Map<number, PointerEvent>();
-
-const onpointerup = (e: PointerEvent) => {
-  touched.delete(e.pointerId);
+type PointerData = {
+  evfirst: PointerEvent;
+  evlast: PointerEvent;
 };
-const onpointermove = (e: PointerEvent) => {
-  if (!touched.has(e.pointerId)) {
-    return;
+
+const fingertouches = new Map<number, PointerData>();
+const pentouches = new Map<number, PointerData>();
+const canvasScrollBaseX = ref(0);
+const canvasScrollBaseY = ref(0);
+
+const onfingerdown = (e: PointerEvent) => {
+  fingertouches.set(e.pointerId, {
+    evfirst: e,
+    evlast: e
+  });
+  if (fingertouches.size == 1) {
+    canvasScrollBaseX.value = canvasCenterX.value;
+    canvasScrollBaseY.value = canvasCenterY.value;
+  }
+};
+const onfingermove = (e: PointerEvent) => {
+  const touch = fingertouches.get(e.pointerId);
+  if (!touch) return;
+
+  if (fingertouches.size == 1) {
+    canvasCenterX.value = canvasScrollBaseX.value + e.clientX - touch.evfirst.clientX;
+    canvasCenterY.value = canvasScrollBaseY.value + e.clientY - touch.evfirst.clientY;
+  } else if (fingertouches.size == 2) {
+    Array.from(fingertouches);
   }
 
-  touched.set(e.pointerId, e);
+  touch.evlast = e;
+};
+const onfingerup = (e: PointerEvent) => {
+  fingertouches.delete(e.pointerId);
+};
+
+const onpendown = (e: PointerEvent) => {
+  pentouches.set(e.pointerId, {
+    evfirst: e,
+    evlast: e
+  });
+};
+const onpenmove = (e: PointerEvent) => {
+  const touch = pentouches.get(e.pointerId);
+  if (!touch) return;
+
+  touch.evlast = e;
+};
+const onpenup = (e: PointerEvent) => {
+  pentouches.delete(e.pointerId);
+};
+
+const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
+
+const onpointerup = (e: PointerEvent) => {
+  if (isFinger(e)) onfingerup(e);
+  else onpenup(e);
+};
+const onpointermove = (e: PointerEvent) => {
+  if (isFinger(e)) onfingermove(e);
+  else onpenmove(e);
 };
 const onpointerdown = (e: PointerEvent) => {
-  touched.set(e.pointerId, e);
+  if (isFinger(e)) onfingerdown(e);
+  else onpendown(e);
 };
 </script>
 
