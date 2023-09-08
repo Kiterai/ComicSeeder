@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 
+// show implementation
 const initialScale = 0.25;
 
 function onresize() {
@@ -38,14 +39,37 @@ const canvasStyle = computed(() => {
   };
 });
 
+const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
 const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY, canvasScale);
+const wheelZoom = (e: WheelEvent) => {
+  const minScale = 1 / 50;
+
+  const beforeScale = canvasScale.value;
+  const afterScale = Math.max(minScale, canvasScale.value - e.deltaY * 0.01);
+
+  canvasCenterX.value = e.clientX + ((canvasCenterX.value - e.clientX) * afterScale) / beforeScale;
+  canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
+  canvasScale.value = afterScale;
+};
+
+// drawing implementation
+const tmpCanvasRef = ref(null);
+const mainCanvasRef = ref(null);
+
+onMounted(() => {
+  const tmpCanvas = tmpCanvasRef.value as any;
+  const mainCanvas = mainCanvasRef.value as any;
+  if (!(tmpCanvas instanceof HTMLCanvasElement)) return;
+  if (!(mainCanvas instanceof HTMLCanvasElement)) return;
+
+  tmpCanvas.getContext('2d');
+});
 
 const onpendown = (e: PointerEvent) => {};
 const onpenmove = (e: PointerEvent) => {};
 const onpenup = (e: PointerEvent) => {};
 
-const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
-
+// event handlers
 const onpointerup = (e: PointerEvent) => {
   if (isFinger(e)) touchManager.onfingerup(e);
   else onpenup(e);
@@ -58,31 +82,10 @@ const onpointerdown = (e: PointerEvent) => {
   if (isFinger(e)) touchManager.onfingerdown(e);
   else onpendown(e);
 };
-
 const onwheel = (e: WheelEvent) => {
-  const minScale = 1/50;
-
-  const beforeScale = canvasScale.value;
-  const afterScale = Math.max(minScale, canvasScale.value - e.deltaY * 0.01);
-
-  canvasCenterX.value = e.clientX + ((canvasCenterX.value - e.clientX) * afterScale) / beforeScale;
-  canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
-  canvasScale.value = afterScale;
-
+  wheelZoom(e);
   e.preventDefault();
 };
-
-const tmpCanvasRef = ref(null);
-const mainCanvasRef = ref(null);
-
-onMounted(() => {
-  const tmpCanvas = tmpCanvasRef.value as any;
-  const mainCanvas = mainCanvasRef.value as any;
-  if (!(tmpCanvas instanceof HTMLCanvasElement)) return;
-  if (!(mainCanvas instanceof HTMLCanvasElement)) return;
-
-  tmpCanvas.getContext('2d');
-});
 </script>
 
 <template>
