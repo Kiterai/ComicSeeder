@@ -5,16 +5,25 @@ import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 // show implementation
 const initialScale = 0.25;
 
-function onresize() {
-  windowWidth.value = window.innerWidth;
-  windowHeight.value = window.innerHeight;
+function initView() {
   canvasCenterX.value = windowWidth.value / 2;
   canvasCenterY.value = windowHeight.value / 2;
   canvasScale.value = initialScale;
 }
 
-onMounted(() => {
+function onresize() {
+  windowWidth.value = window.innerWidth;
+  windowHeight.value = window.innerHeight;
+  initView();
+}
+
+function keydownViewChange(e: KeyboardEvent) {
+  if (e.code == 'KeyF') initView();
+}
+
+onMounted(() => { 
   window.addEventListener('resize', onresize);
+  window.addEventListener('keydown', keydownViewChange);
 });
 
 onUnmounted(() => {
