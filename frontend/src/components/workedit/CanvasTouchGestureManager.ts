@@ -75,16 +75,13 @@ export class CanvasTouchGestureManager {
       const scalediff =
         touchdist(touches[0], touches[1]) /
         touchdist(this.canvasBaseTouch[0], this.canvasBaseTouch[1]);
-      const touchdiffX = [
-        touches[0].clientX - this.canvasBaseTouch[0].clientX,
-        touches[1].clientX - this.canvasBaseTouch[1].clientX
-      ];
-      const touchdiffY = [
-        touches[0].clientY - this.canvasBaseTouch[0].clientY,
-        touches[1].clientY - this.canvasBaseTouch[1].clientY
-      ];
-      this.canvasCenterX.value = this.canvasScrollBaseX + (touchdiffX[0] + touchdiffX[1]) / 2;
-      this.canvasCenterY.value = this.canvasScrollBaseY + (touchdiffY[0] + touchdiffY[1]) / 2;
+
+      const touchCenterX = (touches[0].clientX + touches[1].clientX) / 2;
+      const baseTouchCenterX = (this.canvasBaseTouch[0].clientX + this.canvasBaseTouch[1].clientX) / 2;
+      const touchCenterY = (touches[0].clientY + touches[1].clientY) / 2;
+      const baseTouchCenterY = (this.canvasBaseTouch[0].clientY + this.canvasBaseTouch[1].clientY) / 2;
+      this.canvasCenterX.value = touchCenterX + (this.canvasScrollBaseX - baseTouchCenterX) * scalediff;
+      this.canvasCenterY.value = touchCenterY + (this.canvasScrollBaseY - baseTouchCenterY) * scalediff;
       this.canvasScale.value = this.canvasZoomBaseScale * scalediff;
     }
 
