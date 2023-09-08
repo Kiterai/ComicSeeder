@@ -56,18 +56,37 @@ const wheelZoom = (e: WheelEvent) => {
 const tmpCanvasRef = ref(null);
 const mainCanvasRef = ref(null);
 
+let drawing: {
+  tmpCanvas: HTMLCanvasElement;
+  mainCanvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+} | null = null;
+
 onMounted(() => {
   const tmpCanvas = tmpCanvasRef.value as any;
   const mainCanvas = mainCanvasRef.value as any;
   if (!(tmpCanvas instanceof HTMLCanvasElement)) return;
   if (!(mainCanvas instanceof HTMLCanvasElement)) return;
 
-  tmpCanvas.getContext('2d');
+  const tmpctx = tmpCanvas.getContext('2d');
+  if (!tmpctx) return;
+
+  drawing = {
+    tmpCanvas: tmpCanvas,
+    mainCanvas: mainCanvas,
+    ctx: tmpctx
+  };
 });
 
-const onpendown = (e: PointerEvent) => {};
-const onpenmove = (e: PointerEvent) => {};
-const onpenup = (e: PointerEvent) => {};
+const onpendown = (e: PointerEvent) => {
+  if (!drawing) return;
+};
+const onpenmove = (e: PointerEvent) => {
+  if (!drawing) return;
+};
+const onpenup = (e: PointerEvent) => {
+  if (!drawing) return;
+};
 
 // event handlers
 const onpointerup = (e: PointerEvent) => {
