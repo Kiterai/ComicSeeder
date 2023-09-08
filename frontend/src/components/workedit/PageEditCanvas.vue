@@ -102,6 +102,12 @@ const onpendown = (e: PointerEvent) => {
 };
 const onpenmove = (e: PointerEvent) => {
   if (!drawing) return;
+  if (e.pressure > 0) {
+    const p = ClientToCanvas(e.clientX, e.clientY);
+    drawing.tmpctx.beginPath();
+    drawing.tmpctx.arc(p.x, p.y, e.pressure * 20, 0, 2 * Math.PI);
+    drawing.tmpctx.fill();
+  }
 };
 const onpenup = (e: PointerEvent) => {
   if (!drawing) return;
