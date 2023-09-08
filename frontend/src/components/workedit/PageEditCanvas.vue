@@ -60,6 +60,7 @@ let drawing: {
   tmpCanvas: HTMLCanvasElement;
   mainCanvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  tmpctx: CanvasRenderingContext2D;
 } | null = null;
 
 onMounted(() => {
@@ -70,11 +71,14 @@ onMounted(() => {
 
   const tmpctx = tmpCanvas.getContext('2d');
   if (!tmpctx) return;
+  const ctx = mainCanvas.getContext('2d');
+  if (!ctx) return;
 
   drawing = {
     tmpCanvas: tmpCanvas,
     mainCanvas: mainCanvas,
-    ctx: tmpctx
+    ctx: ctx,
+    tmpctx: tmpctx
   };
 });
 
@@ -111,17 +115,24 @@ const onwheel = (e: WheelEvent) => {
   <div :class="$style.canvasSystem">
     <canvas
       :style="canvasStyle"
-      :class="$style.tmpCanvas"
+      :class="$style.mainCanvas"
       :width="canvasWidth"
       :height="canvasHeight"
-      ref="tmpCanvas"
+      ref="mainCanvasRef"
     ></canvas>
     <canvas
       :style="canvasStyle"
       :class="$style.mainCanvas"
       :width="canvasWidth"
       :height="canvasHeight"
-      ref="mainCanvas"
+      ref="mainCanvasRef"
+    ></canvas>
+    <canvas
+      :style="canvasStyle"
+      :class="$style.tmpCanvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
+      ref="tmpCanvasRef"
     ></canvas>
     <div
       :class="$style.surface"
