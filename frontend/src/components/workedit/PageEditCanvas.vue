@@ -7,8 +7,8 @@ const initialScale = 0.25;
 function onresize() {
   windowWidth.value = window.innerWidth;
   windowHeight.value = window.innerHeight;
-  canvasCenterX.value = 0;
-  canvasCenterY.value = 0;
+  canvasCenterX.value = windowWidth.value / 2;
+  canvasCenterY.value = windowHeight.value / 2;
   canvasScale.value = initialScale;
 }
 
@@ -25,18 +25,14 @@ const windowHeight = ref(window.innerHeight);
 const canvasWidth = ref(2000);
 const canvasHeight = ref(2000);
 
-const canvasCenterX = ref(0);
-const canvasCenterY = ref(0);
+const canvasCenterX = ref(windowWidth.value / 2);
+const canvasCenterY = ref(windowHeight.value / 2);
 const canvasScale = ref(initialScale);
 
 const canvasStyle = computed(() => {
   return {
-    left: `${
-      canvasCenterX.value + (windowWidth.value - canvasWidth.value * canvasScale.value) / 2
-    }px`,
-    top: `${
-      canvasCenterY.value + (windowHeight.value - canvasHeight.value * canvasScale.value) / 2
-    }px`,
+    left: `${canvasCenterX.value + (-canvasWidth.value * canvasScale.value) / 2}px`,
+    top: `${canvasCenterY.value + (-canvasHeight.value * canvasScale.value) / 2}px`,
     width: `${canvasWidth.value * canvasScale.value}px`,
     height: `${canvasHeight.value * canvasScale.value}px`
   };
@@ -61,6 +57,19 @@ const onpointermove = (e: PointerEvent) => {
 const onpointerdown = (e: PointerEvent) => {
   if (isFinger(e)) touchManager.onfingerdown(e);
   else onpendown(e);
+};
+
+const onwheel = (e: WheelEvent) => {
+  const minScale = 1/50;
+
+  const beforeScale = canvasScale.value;
+  const afterScale = Math.max(minScale, canvasScale.value - e.deltaY * 0.01);
+
+  canvasCenterX.value = e.clientX + ((canvasCenterX.value - e.clientX) * afterScale) / beforeScale;
+  canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
+  canvasScale.value = afterScale;
+
+  e.preventDefault();
 };
 
 const tmpCanvasRef = ref(null);
@@ -100,6 +109,7 @@ onMounted(() => {
       :onpointercancel="onpointerup"
       :onpointerout="onpointerup"
       :onpointerleave="onpointerup"
+      :onwheel="onwheel"
     ></div>
   </div>
 </template>
