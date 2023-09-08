@@ -62,12 +62,36 @@ const onpointerdown = (e: PointerEvent) => {
   if (isFinger(e)) touchManager.onfingerdown(e);
   else onpendown(e);
 };
+
+const tmpCanvasRef = ref(null);
+const mainCanvasRef = ref(null);
+
+onMounted(() => {
+  const tmpCanvas = tmpCanvasRef.value as any;
+  const mainCanvas = mainCanvasRef.value as any;
+  if (!(tmpCanvas instanceof HTMLCanvasElement)) return;
+  if (!(mainCanvas instanceof HTMLCanvasElement)) return;
+
+  tmpCanvas.getContext('2d');
+});
 </script>
 
 <template>
   <div :class="$style.canvasSystem">
-    <canvas :style="canvasStyle" :class="$style.tmpCanvas"></canvas>
-    <canvas :style="canvasStyle" :class="$style.mainCanvas"></canvas>
+    <canvas
+      :style="canvasStyle"
+      :class="$style.tmpCanvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
+      ref="tmpCanvas"
+    ></canvas>
+    <canvas
+      :style="canvasStyle"
+      :class="$style.mainCanvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
+      ref="mainCanvas"
+    ></canvas>
     <div
       :class="$style.surface"
       :onpointerdown="onpointerdown"
