@@ -21,7 +21,7 @@ function keydownViewChange(e: KeyboardEvent) {
   if (e.code == 'KeyF') initView();
 }
 
-onMounted(() => { 
+onMounted(() => {
   window.addEventListener('resize', onresize);
   window.addEventListener('keydown', keydownViewChange);
 });
@@ -60,6 +60,12 @@ const wheelZoom = (e: WheelEvent) => {
   canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
   canvasScale.value = afterScale;
 };
+
+function ClientToCanvas(cliX: number, cliY: number) {
+  const x = canvasWidth.value / 2 + (cliX - canvasCenterX.value) / canvasScale.value;
+  const y = canvasHeight.value / 2 + (cliY - canvasCenterY.value) / canvasScale.value;
+  return { x, y };
+}
 
 // drawing implementation
 const tmpCanvasRef = ref(null);
