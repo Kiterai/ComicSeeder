@@ -53,7 +53,7 @@ const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY,
 const wheelZoom = (e: WheelEvent) => {
   const minScale = 1 / 50;
 
-  const deltaScale = 0.02
+  const deltaScale = 0.02;
   const beforeScale = canvasScale.value;
   const afterScale = Math.max(minScale, canvasScale.value * Math.exp(-e.deltaY * deltaScale));
 
@@ -103,20 +103,42 @@ onMounted(() => {
   };
 });
 
+type PenInput = {
+  x: number;
+  y: number;
+  pressure: number;
+};
+
+let penHistory: Array<PenInput> = [];
+const drawStroke = (ctx: CanvasRenderingContext2D, penHistory: Array<PenInput>) => {
+  //
+};
+
+const eventToPenInput = (e: PointerEvent) => {
+  const p = ClientToCanvas(e.clientX, e.clientY);
+  return {
+    x: p.x,
+    y: p.y,
+    pressure: e.pressure
+  };
+};
+
 const onpendown = (e: PointerEvent) => {
   if (!drawing) return;
+  penHistory = [];
 };
 const onpenmove = (e: PointerEvent) => {
   if (!drawing) return;
   if (e.pressure > 0) {
-    const p = ClientToCanvas(e.clientX, e.clientY);
-    drawing.tmpctx.beginPath();
-    drawing.tmpctx.arc(p.x, p.y, e.pressure * 20, 0, 2 * Math.PI);
-    drawing.tmpctx.fill();
+    penHistory.push(eventToPenInput(e));
+    drawing.tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
+    drawStroke(drawing.tmpctx, penHistory);
   }
 };
 const onpenup = (e: PointerEvent) => {
   if (!drawing) return;
+  drawing.tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
+  drawStroke(drawing.ctx, penHistory);
 };
 
 // event handlers
