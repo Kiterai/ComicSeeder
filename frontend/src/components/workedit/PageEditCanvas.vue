@@ -60,6 +60,11 @@ const wheelZoom = (e: WheelEvent) => {
   canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
   canvasScale.value = afterScale;
 };
+const wheelScroll = (e: WheelEvent) => {
+  const deltaScale = 0.3;
+  canvasCenterX.value -= e.deltaX * deltaScale;
+  canvasCenterY.value -= e.deltaY * deltaScale;
+};
 
 function ClientToCanvas(cliX: number, cliY: number) {
   const x = canvasWidth.value / 2 + (cliX - canvasCenterX.value) / canvasScale.value;
@@ -127,7 +132,8 @@ const onpointerdown = (e: PointerEvent) => {
   else onpendown(e);
 };
 const onwheel = (e: WheelEvent) => {
-  wheelZoom(e);
+  if (e.ctrlKey) wheelZoom(e);
+  else wheelScroll(e);
   e.preventDefault();
 };
 </script>
