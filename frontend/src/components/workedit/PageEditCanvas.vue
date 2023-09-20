@@ -53,8 +53,9 @@ const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY,
 const wheelZoom = (e: WheelEvent) => {
   const minScale = 1 / 50;
 
+  const deltaScale = 0.02
   const beforeScale = canvasScale.value;
-  const afterScale = Math.max(minScale, canvasScale.value - e.deltaY * 0.01);
+  const afterScale = Math.max(minScale, canvasScale.value * Math.exp(-e.deltaY * deltaScale));
 
   canvasCenterX.value = e.clientX + ((canvasCenterX.value - e.clientX) * afterScale) / beforeScale;
   canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
