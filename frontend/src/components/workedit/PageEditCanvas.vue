@@ -33,7 +33,7 @@ onUnmounted(() => {
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
-const canvasWidth = ref(1240);  // A4, 150dpi
+const canvasWidth = ref(1240); // A4, 150dpi
 const canvasHeight = ref(1754);
 
 const canvasCenterX = ref(windowWidth.value / 2);
@@ -135,17 +135,35 @@ type ToolHandler = {
 
 const toolHandlers = {
   move: {
-    up: (e: PointerEvent) => {
-      touchManager.onfingerup(e);
+    down: (e: PointerEvent) => {
+      touchManager.onfingerdown(e);
     },
     move: (e: PointerEvent) => {
       touchManager.onfingermove(e);
     },
-    down: (e: PointerEvent) => {
-      touchManager.onfingerdown(e);
+    up: (e: PointerEvent) => {
+      touchManager.onfingerup(e);
     }
   },
   pen: {
+    down: (e: PointerEvent) => {
+      penHistory = [];
+      lastPenInput = eventToPenInput(e);
+      penHistory.push(lastPenInput);
+    },
+    move: (e: PointerEvent) => {
+      const newPenInput = eventToPenInput(e);
+      const ctx = drawing!.tmpctx;
+      ctx.strokeStyle = '#888';
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+      ctx.lineTo(newPenInput!.x, newPenInput!.y);
+      ctx.stroke();
+      lastPenInput = newPenInput;
+      penHistory.push(lastPenInput);
+    },
     up: (e: PointerEvent) => {
       const tmpctx = drawing!.tmpctx;
       const ctx = drawing!.ctx;
@@ -164,30 +182,12 @@ const toolHandlers = {
         ctx.lineTo(penInput.x, penInput.y);
       }
       ctx.stroke();
-    },
-    move: (e: PointerEvent) => {
-      const newPenInput = eventToPenInput(e);
-      const ctx = drawing!.tmpctx;
-      ctx.strokeStyle = '#888';
-      ctx.lineCap = 'round';
-      ctx.lineWidth = 10;
-      ctx.beginPath();
-      ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
-      ctx.lineTo(newPenInput!.x, newPenInput!.y);
-      ctx.stroke();
-      lastPenInput = newPenInput;
-      penHistory.push(lastPenInput);
-    },
-    down: (e: PointerEvent) => {
-      penHistory = [];
-      lastPenInput = eventToPenInput(e);
-      penHistory.push(lastPenInput);
     }
   },
   eraser: {
-    up: (e: PointerEvent) => {},
+    down: (e: PointerEvent) => {},
     move: (e: PointerEvent) => {},
-    down: (e: PointerEvent) => {}
+    up: (e: PointerEvent) => {}
   }
 };
 
