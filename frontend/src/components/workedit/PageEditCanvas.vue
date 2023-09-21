@@ -151,13 +151,13 @@ const toolHandlers = {
 };
 
 const penDownHandler = (e: PointerEvent) => {
-  toolHandlers[drawModeStore.mode].up(e);
+  toolHandlers[drawModeStore.mode].down(e);
 };
 const penMoveHandler = (e: PointerEvent) => {
   toolHandlers[drawModeStore.mode].move(e);
 };
 const penUpHandler = (e: PointerEvent) => {
-  toolHandlers[drawModeStore.mode].down(e);
+  toolHandlers[drawModeStore.mode].up(e);
 };
 
 const onpendown = (e: PointerEvent) => {
