@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
+import { useDrawMode } from '@/stores/drawMode';
 
 // show implementation
 const initialScale = 0.25;
@@ -122,6 +123,8 @@ const eventToPenInput = (e: PointerEvent) => {
     pressure: e.pressure
   };
 };
+
+const drawModeStore = useDrawMode();
 
 const onpendown = (e: PointerEvent) => {
   if (!drawing) return;
