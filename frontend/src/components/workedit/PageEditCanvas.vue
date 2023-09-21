@@ -134,9 +134,16 @@ type ToolHandler = {
 
 const toolHandlers = {
   move: {
-    up: (e: PointerEvent) => {},
-    move: (e: PointerEvent) => {},
-    down: (e: PointerEvent) => {}
+    up: (e: PointerEvent) => {
+      touchManager.onfingerup(e);
+    },
+    move: (e: PointerEvent) => {
+      touchManager.onfingermove(e);
+    },
+    down: (e: PointerEvent) => {
+      console.log('a');
+      touchManager.onfingerdown(e);
+    }
   },
   pen: {
     up: (e: PointerEvent) => {},
