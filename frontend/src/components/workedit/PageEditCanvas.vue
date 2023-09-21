@@ -175,13 +175,6 @@ const onwheel = (e: WheelEvent) => {
     ></canvas>
     <canvas
       :style="canvasStyle"
-      :class="$style.mainCanvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
-      ref="mainCanvasRef"
-    ></canvas>
-    <canvas
-      :style="canvasStyle"
       :class="$style.tmpCanvas"
       :width="canvasWidth"
       :height="canvasHeight"
