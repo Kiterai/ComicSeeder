@@ -126,22 +126,55 @@ const eventToPenInput = (e: PointerEvent) => {
 
 const drawModeStore = useDrawMode();
 
+type ToolHandler = {
+  up: (e: PointerEvent) => void;
+  move: (e: PointerEvent) => void;
+  down: (e: PointerEvent) => void;
+};
+
+const toolHandlers = {
+  move: {
+    up: (e: PointerEvent) => {},
+    move: (e: PointerEvent) => {},
+    down: (e: PointerEvent) => {}
+  },
+  pen: {
+    up: (e: PointerEvent) => {},
+    move: (e: PointerEvent) => {},
+    down: (e: PointerEvent) => {}
+  },
+  eraser: {
+    up: (e: PointerEvent) => {},
+    move: (e: PointerEvent) => {},
+    down: (e: PointerEvent) => {}
+  }
+};
+
+const penDownHandler = (e: PointerEvent) => {
+  toolHandlers[drawModeStore.mode].up(e);
+};
+const penMoveHandler = (e: PointerEvent) => {
+  toolHandlers[drawModeStore.mode].move(e);
+};
+const penUpHandler = (e: PointerEvent) => {
+  toolHandlers[drawModeStore.mode].down(e);
+};
+
 const onpendown = (e: PointerEvent) => {
   if (!drawing) return;
   penHistory = [];
+  penDownHandler(e);
 };
 const onpenmove = (e: PointerEvent) => {
   if (!drawing) return;
   if (e.pressure > 0) {
     penHistory.push(eventToPenInput(e));
-    drawing.tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
-    drawStroke(drawing.tmpctx, penHistory);
+    penMoveHandler(e);
   }
 };
 const onpenup = (e: PointerEvent) => {
   if (!drawing) return;
-  drawing.tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
-  drawStroke(drawing.ctx, penHistory);
+  penUpHandler(e);
 };
 
 // event handlers
