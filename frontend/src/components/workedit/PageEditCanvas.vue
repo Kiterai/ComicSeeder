@@ -33,8 +33,8 @@ onUnmounted(() => {
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
-const canvasWidth = ref(2000);
-const canvasHeight = ref(2000);
+const canvasWidth = ref(1240);  // A4, 150dpi
+const canvasHeight = ref(1754);
 
 const canvasCenterX = ref(windowWidth.value / 2);
 const canvasCenterY = ref(windowHeight.value / 2);
