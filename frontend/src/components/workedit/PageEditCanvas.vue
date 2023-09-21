@@ -151,10 +151,10 @@ const toolHandlers = {
       const ctx = drawing!.ctx;
       tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
       let tmpLastPenInput: PenInput | null = null;
-      ctx.beginPath();
       ctx.strokeStyle = '#888';
       ctx.lineCap = 'round';
       ctx.lineWidth = 10;
+      ctx.beginPath();
       for (const penInput of penHistory) {
         if (!tmpLastPenInput) {
           tmpLastPenInput = penInput;
