@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 import { useDrawMode } from '@/stores/drawMode';
+import { useKeyboard } from '@/composables/useKeyboard';
 
 // show implementation
 const initialScale = 0.25;
@@ -18,13 +19,15 @@ function onresize() {
   initView();
 }
 
-function keydownViewChange(e: KeyboardEvent) {
+function onkeydown(e: KeyboardEvent) {
   if (e.code == 'KeyF') initView();
 }
+function onkeyup(e: KeyboardEvent) {}
+
+useKeyboard(onkeydown, onkeyup);
 
 onMounted(() => {
   window.addEventListener('resize', onresize);
-  window.addEventListener('keydown', keydownViewChange);
 });
 
 onUnmounted(() => {
