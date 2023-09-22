@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 import { useDrawMode } from '@/stores/drawMode';
+import { useDrawState } from '@/stores/drawState';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useResize } from '@/composables/useResize';
 
@@ -127,6 +128,7 @@ const eventToPenInput = (e: PointerEvent) => {
 };
 
 const drawModeStore = useDrawMode();
+const drawStateStore = useDrawState();
 
 type ToolHandler = {
   up: (e: PointerEvent) => void;
@@ -155,9 +157,9 @@ const toolHandlers = {
     move: (e: PointerEvent) => {
       const newPenInput = eventToPenInput(e);
       const ctx = drawing!.tmpctx;
-      ctx.strokeStyle = '#888';
+      ctx.strokeStyle = drawStateStore.penColor;
       ctx.lineCap = 'round';
-      ctx.lineWidth = 10;
+      ctx.lineWidth = drawStateStore.penWidth;
       ctx.globalCompositeOperation = 'source-over';
       ctx.beginPath();
       ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
@@ -172,9 +174,9 @@ const toolHandlers = {
       tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
       let tmpLastPenInput: PenInput | null = null;
       ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = '#888';
+      ctx.strokeStyle = drawStateStore.penColor;
       ctx.lineCap = 'round';
-      ctx.lineWidth = 10;
+      ctx.lineWidth = drawStateStore.penWidth;
       ctx.beginPath();
       for (const penInput of penHistory) {
         if (!tmpLastPenInput) {
@@ -197,7 +199,7 @@ const toolHandlers = {
       const newPenInput = eventToPenInput(e);
       const ctx = drawing!.ctx;
       ctx.lineCap = 'round';
-      ctx.lineWidth = 10;
+      ctx.lineWidth = drawStateStore.eraserWidth;
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
       ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
