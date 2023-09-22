@@ -158,6 +158,7 @@ const toolHandlers = {
       ctx.strokeStyle = '#888';
       ctx.lineCap = 'round';
       ctx.lineWidth = 10;
+      ctx.globalCompositeOperation = 'source-over';
       ctx.beginPath();
       ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
       ctx.lineTo(newPenInput!.x, newPenInput!.y);
@@ -170,7 +171,7 @@ const toolHandlers = {
       const ctx = drawing!.ctx;
       tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
       let tmpLastPenInput: PenInput | null = null;
-      ctx.globalCompositeOperation = e.ctrlKey ? 'destination-out' : 'source-over';
+      ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = '#888';
       ctx.lineCap = 'round';
       ctx.lineWidth = 10;
@@ -187,8 +188,24 @@ const toolHandlers = {
     }
   },
   eraser: {
-    down: (e: PointerEvent) => {},
-    move: (e: PointerEvent) => {},
+    down: (e: PointerEvent) => {
+      penHistory = [];
+      lastPenInput = eventToPenInput(e);
+      penHistory.push(lastPenInput);
+    },
+    move: (e: PointerEvent) => {
+      const newPenInput = eventToPenInput(e);
+      const ctx = drawing!.ctx;
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 10;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+      ctx.lineTo(newPenInput!.x, newPenInput!.y);
+      ctx.stroke();
+      lastPenInput = newPenInput;
+      penHistory.push(lastPenInput);
+    },
     up: (e: PointerEvent) => {}
   }
 };
