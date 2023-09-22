@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
 import { useDrawMode } from '@/stores/drawMode';
 import { useKeyboard } from '@/composables/useKeyboard';
+import { useResize } from '@/composables/useResize';
 
 // show implementation
 const initialScale = 0.25;
@@ -25,14 +26,7 @@ function onkeydown(e: KeyboardEvent) {
 function onkeyup(e: KeyboardEvent) {}
 
 useKeyboard(onkeydown, onkeyup);
-
-onMounted(() => {
-  window.addEventListener('resize', onresize);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', onresize);
-});
+useResize(onresize);
 
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
