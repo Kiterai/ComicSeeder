@@ -39,10 +39,14 @@ const canvasScale = ref(initialScale);
 
 const canvasStyle = computed(() => {
   return {
-    left: `${canvasCenterX.value + (-canvasWidth.value * canvasScale.value) / 2}px`,
-    top: `${canvasCenterY.value + (-canvasHeight.value * canvasScale.value) / 2}px`,
-    width: `${canvasWidth.value * canvasScale.value}px`,
-    height: `${canvasHeight.value * canvasScale.value}px`
+    left: 0,
+    top: 0,
+    transformOrigin: 'top left',
+    transform: `translate(${
+      canvasCenterX.value + (-canvasWidth.value * canvasScale.value) / 2
+    }px, ${canvasCenterY.value + (-canvasHeight.value * canvasScale.value) / 2}px) scale(${
+      canvasScale.value
+    })`
   };
 });
 
