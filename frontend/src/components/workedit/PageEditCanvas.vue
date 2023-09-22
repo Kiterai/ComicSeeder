@@ -170,6 +170,7 @@ const toolHandlers = {
       const ctx = drawing!.ctx;
       tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
       let tmpLastPenInput: PenInput | null = null;
+      ctx.globalCompositeOperation = e.ctrlKey ? 'destination-out' : 'source-over';
       ctx.strokeStyle = '#888';
       ctx.lineCap = 'round';
       ctx.lineWidth = 10;
