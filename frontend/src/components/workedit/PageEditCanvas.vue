@@ -46,9 +46,6 @@ type PenInput = {
 
 let penHistory: Array<PenInput> = [];
 let lastPenInput: PenInput | null = null;
-const drawStroke = (ctx: CanvasRenderingContext2D, penHistory: Array<PenInput>) => {
-  //
-};
 
 const eventToPenInput = (e: PointerEvent) => {
   const p = canvasSizing.clientToCanvas(e.clientX, e.clientY);
@@ -63,85 +60,91 @@ const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
 type ToolHandler = {
-  up: (e: PointerEvent) => void;
-  move: (e: PointerEvent) => void;
   down: (e: PointerEvent) => void;
+  move: (e: PointerEvent) => void;
+  up: (e: PointerEvent) => void;
+};
+
+const moveToolHandler: ToolHandler = {
+  down: (e: PointerEvent) => {
+    canvasSizing.touchManager.onfingerdown(e);
+  },
+  move: (e: PointerEvent) => {
+    canvasSizing.touchManager.onfingermove(e);
+  },
+  up: (e: PointerEvent) => {
+    canvasSizing.touchManager.onfingerup(e);
+  }
+};
+
+const penToolHandler: ToolHandler = {
+  down: (e: PointerEvent) => {
+    penHistory = [];
+    lastPenInput = eventToPenInput(e);
+    penHistory.push(lastPenInput);
+  },
+  move: (e: PointerEvent) => {
+    const newPenInput = eventToPenInput(e);
+    const ctx = drawing!.tmpctx;
+    ctx.strokeStyle = drawStateStore.penColor;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = drawStateStore.penWidth;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+    ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+    ctx.lineTo(newPenInput!.x, newPenInput!.y);
+    ctx.stroke();
+    lastPenInput = newPenInput;
+    penHistory.push(lastPenInput);
+  },
+  up: (e: PointerEvent) => {
+    const tmpctx = drawing!.tmpctx;
+    const ctx = drawing!.ctx;
+    tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+    let tmpLastPenInput: PenInput | null = null;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = drawStateStore.penColor;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = drawStateStore.penWidth;
+    ctx.beginPath();
+    for (const penInput of penHistory) {
+      if (!tmpLastPenInput) {
+        tmpLastPenInput = penInput;
+        ctx.moveTo(penInput.x, penInput.y);
+        continue;
+      }
+      ctx.lineTo(penInput.x, penInput.y);
+    }
+    ctx.stroke();
+  }
+};
+
+const eraserToolHandler: ToolHandler = {
+  down: (e: PointerEvent) => {
+    penHistory = [];
+    lastPenInput = eventToPenInput(e);
+    penHistory.push(lastPenInput);
+  },
+  move: (e: PointerEvent) => {
+    const newPenInput = eventToPenInput(e);
+    const ctx = drawing!.ctx;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = drawStateStore.eraserWidth;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+    ctx.lineTo(newPenInput!.x, newPenInput!.y);
+    ctx.stroke();
+    lastPenInput = newPenInput;
+    penHistory.push(lastPenInput);
+  },
+  up: (e: PointerEvent) => {}
 };
 
 const toolHandlers = {
-  move: {
-    down: (e: PointerEvent) => {
-      canvasSizing.touchManager.onfingerdown(e);
-    },
-    move: (e: PointerEvent) => {
-      canvasSizing.touchManager.onfingermove(e);
-    },
-    up: (e: PointerEvent) => {
-      canvasSizing.touchManager.onfingerup(e);
-    }
-  },
-  pen: {
-    down: (e: PointerEvent) => {
-      penHistory = [];
-      lastPenInput = eventToPenInput(e);
-      penHistory.push(lastPenInput);
-    },
-    move: (e: PointerEvent) => {
-      const newPenInput = eventToPenInput(e);
-      const ctx = drawing!.tmpctx;
-      ctx.strokeStyle = drawStateStore.penColor;
-      ctx.lineCap = 'round';
-      ctx.lineWidth = drawStateStore.penWidth;
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.beginPath();
-      ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
-      ctx.lineTo(newPenInput!.x, newPenInput!.y);
-      ctx.stroke();
-      lastPenInput = newPenInput;
-      penHistory.push(lastPenInput);
-    },
-    up: (e: PointerEvent) => {
-      const tmpctx = drawing!.tmpctx;
-      const ctx = drawing!.ctx;
-      tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
-      let tmpLastPenInput: PenInput | null = null;
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = drawStateStore.penColor;
-      ctx.lineCap = 'round';
-      ctx.lineWidth = drawStateStore.penWidth;
-      ctx.beginPath();
-      for (const penInput of penHistory) {
-        if (!tmpLastPenInput) {
-          tmpLastPenInput = penInput;
-          ctx.moveTo(penInput.x, penInput.y);
-          continue;
-        }
-        ctx.lineTo(penInput.x, penInput.y);
-      }
-      ctx.stroke();
-    }
-  },
-  eraser: {
-    down: (e: PointerEvent) => {
-      penHistory = [];
-      lastPenInput = eventToPenInput(e);
-      penHistory.push(lastPenInput);
-    },
-    move: (e: PointerEvent) => {
-      const newPenInput = eventToPenInput(e);
-      const ctx = drawing!.ctx;
-      ctx.lineCap = 'round';
-      ctx.lineWidth = drawStateStore.eraserWidth;
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
-      ctx.lineTo(newPenInput!.x, newPenInput!.y);
-      ctx.stroke();
-      lastPenInput = newPenInput;
-      penHistory.push(lastPenInput);
-    },
-    up: (e: PointerEvent) => {}
-  }
+  move: moveToolHandler,
+  pen: penToolHandler,
+  eraser: eraserToolHandler
 };
 
 const penDownHandler = (e: PointerEvent) => {
