@@ -1,80 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { CanvasTouchGestureManager } from './CanvasTouchGestureManager';
+import { onMounted, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
-import { useKeyboard } from '@/composables/useKeyboard';
-import { useResize } from '@/composables/useResize';
+import { useCanvasSizing } from '@/composables/useCanvasSizing';
 
 // show implementation
-const initialScale = 0.25;
-
-function initView() {
-  canvasCenterX.value = windowWidth.value / 2;
-  canvasCenterY.value = windowHeight.value / 2;
-  canvasScale.value = initialScale;
-}
-
-function onresize() {
-  windowWidth.value = window.innerWidth;
-  windowHeight.value = window.innerHeight;
-  initView();
-}
-
-function onkeydown(e: KeyboardEvent) {
-  if (e.code == 'KeyF') initView();
-}
-function onkeyup(e: KeyboardEvent) {}
-
-useKeyboard(onkeydown, onkeyup);
-useResize(onresize);
-
-const windowWidth = ref(window.innerWidth);
-const windowHeight = ref(window.innerHeight);
-const canvasWidth = ref(1240); // A4, 150dpi
-const canvasHeight = ref(1754);
-
-const canvasCenterX = ref(windowWidth.value / 2);
-const canvasCenterY = ref(windowHeight.value / 2);
-const canvasScale = ref(initialScale);
-
-const canvasStyle = computed(() => {
-  return {
-    left: 0,
-    top: 0,
-    transformOrigin: 'top left',
-    transform: `translate(${
-      canvasCenterX.value + (-canvasWidth.value * canvasScale.value) / 2
-    }px, ${canvasCenterY.value + (-canvasHeight.value * canvasScale.value) / 2}px) scale(${
-      canvasScale.value
-    })`
-  };
-});
-
+const canvasSizing = useCanvasSizing();
 const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
-const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY, canvasScale);
-const wheelZoom = (e: WheelEvent) => {
-  const minScale = 1 / 50;
-
-  const deltaScale = 0.02;
-  const beforeScale = canvasScale.value;
-  const afterScale = Math.max(minScale, canvasScale.value * Math.exp(-e.deltaY * deltaScale));
-
-  canvasCenterX.value = e.clientX + ((canvasCenterX.value - e.clientX) * afterScale) / beforeScale;
-  canvasCenterY.value = e.clientY + ((canvasCenterY.value - e.clientY) * afterScale) / beforeScale;
-  canvasScale.value = afterScale;
-};
-const wheelScroll = (e: WheelEvent) => {
-  const deltaScale = 0.3;
-  canvasCenterX.value -= e.deltaX * deltaScale;
-  canvasCenterY.value -= e.deltaY * deltaScale;
-};
-
-function ClientToCanvas(cliX: number, cliY: number) {
-  const x = canvasWidth.value / 2 + (cliX - canvasCenterX.value) / canvasScale.value;
-  const y = canvasHeight.value / 2 + (cliY - canvasCenterY.value) / canvasScale.value;
-  return { x, y };
-}
 
 // drawing implementation
 const tmpCanvasRef = ref(null);
@@ -119,7 +51,7 @@ const drawStroke = (ctx: CanvasRenderingContext2D, penHistory: Array<PenInput>) 
 };
 
 const eventToPenInput = (e: PointerEvent) => {
-  const p = ClientToCanvas(e.clientX, e.clientY);
+  const p = canvasSizing.clientToCanvas(e.clientX, e.clientY);
   return {
     x: p.x,
     y: p.y,
@@ -139,13 +71,13 @@ type ToolHandler = {
 const toolHandlers = {
   move: {
     down: (e: PointerEvent) => {
-      touchManager.onfingerdown(e);
+      canvasSizing.touchManager.onfingerdown(e);
     },
     move: (e: PointerEvent) => {
-      touchManager.onfingermove(e);
+      canvasSizing.touchManager.onfingermove(e);
     },
     up: (e: PointerEvent) => {
-      touchManager.onfingerup(e);
+      canvasSizing.touchManager.onfingerup(e);
     }
   },
   pen: {
@@ -171,7 +103,7 @@ const toolHandlers = {
     up: (e: PointerEvent) => {
       const tmpctx = drawing!.tmpctx;
       const ctx = drawing!.ctx;
-      tmpctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
+      tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
       let tmpLastPenInput: PenInput | null = null;
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = drawStateStore.penColor;
@@ -241,38 +173,33 @@ const onpenup = (e: PointerEvent) => {
 
 // event handlers
 const onpointerup = (e: PointerEvent) => {
-  if (isFinger(e)) touchManager.onfingerup(e);
+  if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
   else onpenup(e);
 };
 const onpointermove = (e: PointerEvent) => {
-  if (isFinger(e)) touchManager.onfingermove(e);
+  if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
   else onpenmove(e);
 };
 const onpointerdown = (e: PointerEvent) => {
-  if (isFinger(e)) touchManager.onfingerdown(e);
+  if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
   else onpendown(e);
-};
-const onwheel = (e: WheelEvent) => {
-  if (e.ctrlKey) wheelZoom(e);
-  else wheelScroll(e);
-  e.preventDefault();
 };
 </script>
 
 <template>
   <div :class="$style.canvasSystem">
     <canvas
-      :style="canvasStyle"
+      :style="canvasSizing.canvasStyle.value"
       :class="$style.mainCanvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
+      :width="canvasSizing.canvasWidth.value"
+      :height="canvasSizing.canvasHeight.value"
       ref="mainCanvasRef"
     ></canvas>
     <canvas
-      :style="canvasStyle"
+      :style="canvasSizing.canvasStyle.value"
       :class="$style.tmpCanvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
+      :width="canvasSizing.canvasWidth.value"
+      :height="canvasSizing.canvasHeight.value"
       ref="tmpCanvasRef"
     ></canvas>
     <div
@@ -283,7 +210,7 @@ const onwheel = (e: WheelEvent) => {
       :onpointercancel="onpointerup"
       :onpointerout="onpointerup"
       :onpointerleave="onpointerup"
-      :onwheel="onwheel"
+      :onwheel="canvasSizing.onwheel"
     ></div>
   </div>
 </template>
