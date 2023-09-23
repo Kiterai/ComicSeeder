@@ -70,16 +70,19 @@ function endOperation() {
 }
 const drawHistory: ImageData[] = [];
 const undoHistory: ImageData[] = [];
-function saveDrawHistory() {
-  const ctx = drawing!.ctx;
-  drawHistory.push(
-    ctx.getImageData(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value)
+function getImage() {
+  return drawing!.ctx.getImageData(
+    0,
+    0,
+    canvasSizing.canvasWidth.value,
+    canvasSizing.canvasHeight.value
   );
 }
+function saveDrawHistory() {
+  drawHistory.push(getImage());
+}
 function saveUndoHistory() {
-  undoHistory.push(
-    drawing!.ctx.getImageData(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value)
-  );
+  undoHistory.push(getImage());
 }
 function tryUndo() {
   if (isOperating) return;
