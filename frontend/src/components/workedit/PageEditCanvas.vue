@@ -162,6 +162,13 @@ useKeyboard(
         console.log(workPagesStore.nowPage);
       }
     }
+    if (e.key == 'D') {
+      if (workPagesStore.pages.length > 0) {
+        workPagesStore.pages.splice(workPagesStore.nowPage, 1);
+        workPagesStore.nowPage = Math.min(workPagesStore.nowPage, workPagesStore.pages.length - 1);
+        await loadNowPage();
+      }
+    }
   },
   () => {}
 );
