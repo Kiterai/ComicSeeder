@@ -66,14 +66,12 @@ function beginOperation() {
   saveDrawHistory();
 }
 function endOperation() {
-  console.log('end');
   isOperating = false;
 }
 const drawHistory: ImageData[] = [];
 useKeyboard(
   (e) => {
     if (e.ctrlKey && e.key == 'z' && !isOperating) {
-      console.log('z');
       const last = drawHistory.pop();
       if (last) drawing!.ctx.putImageData(last, 0, 0);
     }
@@ -214,7 +212,7 @@ const onpendown = (e: PointerEvent) => {
 };
 const onpenmove = (e: PointerEvent) => {
   if (!drawing) return;
-  if (e.pressure > 0) {
+  if (nowPenDown) {
     penHistory.push(eventToPenInput(e));
     penMoveHandler(e);
   }
