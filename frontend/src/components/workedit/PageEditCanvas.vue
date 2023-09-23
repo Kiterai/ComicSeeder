@@ -61,15 +61,16 @@ const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
 let isOperating = true;
+const drawHistory: ImageData[] = [];
+const undoHistory: ImageData[] = [];
 function beginOperation() {
   isOperating = true;
   saveDrawHistory();
 }
 function endOperation() {
   isOperating = false;
+  undoHistory.length = 0;
 }
-const drawHistory: ImageData[] = [];
-const undoHistory: ImageData[] = [];
 function getImage() {
   return drawing!.ctx.getImageData(
     0,
