@@ -60,6 +60,16 @@ const eventToPenInput = (e: PointerEvent) => {
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
+async function getImgCompressed() {
+  const img = getImage();
+  console.log(img.data.buffer);
+  const blob = new Blob([img.data.buffer]);
+  const stream = blob.stream();
+  const compressedStream = stream.pipeThrough(new CompressionStream('deflate-raw'));
+  const buffer = await new Response(compressedStream).arrayBuffer();
+  return new Uint8Array(buffer);
+}
+
 let isOperating = true;
 const drawHistory: ImageData[] = [];
 const undoHistory: ImageData[] = [];
