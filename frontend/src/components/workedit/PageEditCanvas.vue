@@ -69,21 +69,43 @@ function endOperation() {
   isOperating = false;
 }
 const drawHistory: ImageData[] = [];
-useKeyboard(
-  (e) => {
-    if (e.ctrlKey && e.key == 'z' && !isOperating) {
-      const last = drawHistory.pop();
-      if (last) drawing!.ctx.putImageData(last, 0, 0);
-    }
-  },
-  () => {}
-);
+const undoHistory: ImageData[] = [];
 function saveDrawHistory() {
   const ctx = drawing!.ctx;
   drawHistory.push(
     ctx.getImageData(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value)
   );
 }
+function saveUndoHistory() {
+  undoHistory.push(
+    drawing!.ctx.getImageData(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value)
+  );
+}
+function tryUndo() {
+  if (isOperating) return;
+  const last = drawHistory.pop();
+  if (!last) return;
+  saveUndoHistory();
+  drawing!.ctx.putImageData(last, 0, 0);
+}
+function tryRedo() {
+  if (isOperating) return;
+  const last = undoHistory.pop();
+  if (!last) return;
+  saveDrawHistory();
+  drawing!.ctx.putImageData(last, 0, 0);
+}
+useKeyboard(
+  (e) => {
+    if (e.ctrlKey && e.key == 'z') {
+      tryUndo();
+    }
+    if (e.ctrlKey && e.key == 'y') {
+      tryRedo();
+    }
+  },
+  () => {}
+);
 
 type ToolHandler = {
   down: (e: PointerEvent) => void;
