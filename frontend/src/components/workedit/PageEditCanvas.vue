@@ -152,14 +152,12 @@ useKeyboard(
       await saveNowPage();
       workPagesStore.nowPage++;
       await loadNowPage();
-      console.log(workPagesStore.nowPage);
     }
     if (e.key == 'ArrowLeft') {
       if (workPagesStore.nowPage > 0) {
         await saveNowPage();
         workPagesStore.nowPage--;
         await loadNowPage();
-        console.log(workPagesStore.nowPage);
       }
     }
     if (e.key == 'D') {
