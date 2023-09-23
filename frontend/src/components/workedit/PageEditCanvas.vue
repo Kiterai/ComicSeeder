@@ -335,6 +335,9 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight.value"
       ref="tmpCanvasRef"
     ></canvas>
+    <div :class="$style.pageNumber">
+      {{ workPagesStore.nowPage + 1 }} / {{ workPagesStore.pages.length }}
+    </div>
     <div
       :class="$style.surface"
       :onpointerdown="onpointerdown"
@@ -364,6 +367,14 @@ const onpointerdown = (e: PointerEvent) => {
 
 .tmpCanvas {
   background-color: transparent;
+}
+
+.pageNumber {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 0.5rem;
+  font-size: 4rem;
+  color: #000;
 }
 
 .surface {
