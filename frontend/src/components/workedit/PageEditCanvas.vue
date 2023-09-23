@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
+import { useKeyboard } from '@/composables/useKeyboard';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -59,6 +60,23 @@ const eventToPenInput = (e: PointerEvent) => {
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
+const drawHistory: ImageData[] = [];
+useKeyboard(
+  (e) => {
+    if (e.ctrlKey && e.key == 'z') {
+      const last = drawHistory.pop();
+      if (last) drawing!.ctx.putImageData(last, 0, 0);
+    }
+  },
+  () => {}
+);
+function saveDrawHistory() {
+  const ctx = drawing!.ctx;
+  drawHistory.push(
+    ctx.getImageData(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value)
+  );
+}
+
 type ToolHandler = {
   down: (e: PointerEvent) => void;
   move: (e: PointerEvent) => void;
@@ -83,6 +101,8 @@ const penToolHandler: ToolHandler = {
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
 
+    saveDrawHistory();
+
     const tmpctx = drawing!.tmpctx;
     tmpctx.strokeStyle = drawStateStore.penColor;
     tmpctx.lineCap = 'round';
@@ -104,7 +124,7 @@ const penToolHandler: ToolHandler = {
     const ctx = drawing!.ctx;
     tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
     let tmpLastPenInput: PenInput | null = null;
-    
+
     ctx.strokeStyle = drawStateStore.penColor;
     ctx.lineCap = 'round';
     ctx.lineWidth = drawStateStore.penWidth;
@@ -127,6 +147,8 @@ const eraserToolHandler: ToolHandler = {
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
+
+    saveDrawHistory();
 
     const ctx = drawing!.ctx;
     ctx.lineCap = 'round';
