@@ -4,6 +4,7 @@ import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
+import { useWorkPages } from '@/stores/workPages';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -62,12 +63,41 @@ const drawStateStore = useDrawState();
 
 async function getImgCompressed() {
   const img = getImage();
-  console.log(img.data.buffer);
   const blob = new Blob([img.data.buffer]);
   const stream = blob.stream();
   const compressedStream = stream.pipeThrough(new CompressionStream('deflate-raw'));
   const buffer = await new Response(compressedStream).arrayBuffer();
   return new Uint8Array(buffer);
+}
+async function putImgCompressed(data: Uint8Array) {
+  const blob = new Blob([data]);
+  const stream = blob.stream();
+  const decompressedStream = stream.pipeThrough(new DecompressionStream('deflate-raw'));
+  const buffer = await new Response(decompressedStream).arrayBuffer();
+  return new Uint8ClampedArray(buffer);
+}
+
+const workPagesStore = useWorkPages();
+
+async function saveNowPage() {
+  workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
+  workPagesStore.pages[workPagesStore.nowPage] = await getImgCompressed();
+}
+async function loadNowPage() {
+  const ctx = drawing!.ctx;
+  workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
+  const data = workPagesStore.pages[workPagesStore.nowPage];
+  if (data) {
+    const imgData = new ImageData(
+      await putImgCompressed(data),
+      canvasSizing.canvasWidth.value,
+      canvasSizing.canvasHeight.value
+    );
+    ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+    ctx.putImageData(imgData, 0, 0);
+  } else {
+    ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+  }
 }
 
 let isOperating = true;
@@ -110,12 +140,26 @@ function tryRedo() {
   drawing!.ctx.putImageData(last, 0, 0);
 }
 useKeyboard(
-  (e) => {
+  async (e) => {
     if (e.ctrlKey && e.key == 'z') {
       tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
       tryRedo();
+    }
+    if (e.key == 'ArrowRight') {
+      await saveNowPage();
+      workPagesStore.nowPage++;
+      await loadNowPage();
+      console.log(workPagesStore.nowPage);
+    }
+    if (e.key == 'ArrowLeft') {
+      if (workPagesStore.nowPage > 0) {
+        await saveNowPage();
+        workPagesStore.nowPage--;
+        await loadNowPage();
+        console.log(workPagesStore.nowPage);
+      }
     }
   },
   () => {}
