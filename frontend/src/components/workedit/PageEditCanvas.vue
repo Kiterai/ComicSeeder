@@ -98,6 +98,7 @@ async function loadNowPage() {
   } else {
     ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
   }
+  canvasSizing.initView();
 }
 
 let isOperating = true;
