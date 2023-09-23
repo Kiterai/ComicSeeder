@@ -140,6 +140,38 @@ function tryRedo() {
   saveDrawHistory();
   drawing!.ctx.putImageData(last, 0, 0);
 }
+
+let pageLoading = false;
+async function tryGotoPrevPage() {
+  if (pageLoading) return;
+  pageLoading = true;
+  if (workPagesStore.nowPage > 0) {
+    await saveNowPage();
+    workPagesStore.nowPage--;
+    await loadNowPage();
+  }
+  pageLoading = false;
+}
+async function tryGotoNextPage() {
+  if (pageLoading) return;
+  pageLoading = true;
+  await saveNowPage();
+  workPagesStore.nowPage++;
+  await loadNowPage();
+  pageLoading = false;
+}
+
+async function tryDeleteNowPage() {
+  if (pageLoading) return;
+  pageLoading = true;
+  if (workPagesStore.pages.length > 0) {
+    workPagesStore.pages.splice(workPagesStore.nowPage, 1);
+    workPagesStore.nowPage = Math.min(workPagesStore.nowPage, workPagesStore.pages.length - 1);
+    await loadNowPage();
+  }
+  pageLoading = false;
+}
+
 useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
@@ -149,23 +181,13 @@ useKeyboard(
       tryRedo();
     }
     if (e.key == 'ArrowRight') {
-      await saveNowPage();
-      workPagesStore.nowPage++;
-      await loadNowPage();
+      await tryGotoNextPage();
     }
     if (e.key == 'ArrowLeft') {
-      if (workPagesStore.nowPage > 0) {
-        await saveNowPage();
-        workPagesStore.nowPage--;
-        await loadNowPage();
-      }
+      await tryGotoPrevPage();
     }
     if (e.key == 'D') {
-      if (workPagesStore.pages.length > 0) {
-        workPagesStore.pages.splice(workPagesStore.nowPage, 1);
-        workPagesStore.nowPage = Math.min(workPagesStore.nowPage, workPagesStore.pages.length - 1);
-        await loadNowPage();
-      }
+      await tryDeleteNowPage();
     }
   },
   () => {}
