@@ -82,14 +82,16 @@ const penToolHandler: ToolHandler = {
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
+
+    const tmpctx = drawing!.tmpctx;
+    tmpctx.strokeStyle = drawStateStore.penColor;
+    tmpctx.lineCap = 'round';
+    tmpctx.lineWidth = drawStateStore.penWidth;
+    tmpctx.globalCompositeOperation = 'source-over';
   },
   move: (e: PointerEvent) => {
     const newPenInput = eventToPenInput(e);
     const ctx = drawing!.tmpctx;
-    ctx.strokeStyle = drawStateStore.penColor;
-    ctx.lineCap = 'round';
-    ctx.lineWidth = drawStateStore.penWidth;
-    ctx.globalCompositeOperation = 'source-over';
     ctx.beginPath();
     ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
     ctx.lineTo(newPenInput!.x, newPenInput!.y);
@@ -102,10 +104,11 @@ const penToolHandler: ToolHandler = {
     const ctx = drawing!.ctx;
     tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
     let tmpLastPenInput: PenInput | null = null;
-    ctx.globalCompositeOperation = 'source-over';
+    
     ctx.strokeStyle = drawStateStore.penColor;
     ctx.lineCap = 'round';
     ctx.lineWidth = drawStateStore.penWidth;
+    ctx.globalCompositeOperation = 'source-over';
     ctx.beginPath();
     for (const penInput of penHistory) {
       if (!tmpLastPenInput) {
@@ -124,13 +127,15 @@ const eraserToolHandler: ToolHandler = {
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
-  },
-  move: (e: PointerEvent) => {
-    const newPenInput = eventToPenInput(e);
+
     const ctx = drawing!.ctx;
     ctx.lineCap = 'round';
     ctx.lineWidth = drawStateStore.eraserWidth;
     ctx.globalCompositeOperation = 'destination-out';
+  },
+  move: (e: PointerEvent) => {
+    const newPenInput = eventToPenInput(e);
+    const ctx = drawing!.ctx;
     ctx.beginPath();
     ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
     ctx.lineTo(newPenInput!.x, newPenInput!.y);
@@ -141,20 +146,30 @@ const eraserToolHandler: ToolHandler = {
   up: (e: PointerEvent) => {}
 };
 
+const wordToolHandler: ToolHandler = {
+  down: (e: PointerEvent) => {},
+  move: (e: PointerEvent) => {},
+  up: (e: PointerEvent) => {}
+};
+
 const toolHandlers = {
   move: moveToolHandler,
   pen: penToolHandler,
-  eraser: eraserToolHandler
+  eraser: eraserToolHandler,
+  word: wordToolHandler
 };
 
+let toolHandler = toolHandlers[drawModeStore.mode];
+
 const penDownHandler = (e: PointerEvent) => {
-  toolHandlers[drawModeStore.mode].down(e);
+  toolHandler = toolHandlers[drawModeStore.mode];
+  toolHandler.down(e);
 };
 const penMoveHandler = (e: PointerEvent) => {
-  toolHandlers[drawModeStore.mode].move(e);
+  toolHandler.move(e);
 };
 const penUpHandler = (e: PointerEvent) => {
-  toolHandlers[drawModeStore.mode].up(e);
+  toolHandler.up(e);
 };
 
 const onpendown = (e: PointerEvent) => {
