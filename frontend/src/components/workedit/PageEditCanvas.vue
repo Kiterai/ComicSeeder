@@ -60,10 +60,20 @@ const eventToPenInput = (e: PointerEvent) => {
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
+let isOperating = true;
+function beginOperation() {
+  isOperating = true;
+  saveDrawHistory();
+}
+function endOperation() {
+  console.log('end');
+  isOperating = false;
+}
 const drawHistory: ImageData[] = [];
 useKeyboard(
   (e) => {
-    if (e.ctrlKey && e.key == 'z') {
+    if (e.ctrlKey && e.key == 'z' && !isOperating) {
+      console.log('z');
       const last = drawHistory.pop();
       if (last) drawing!.ctx.putImageData(last, 0, 0);
     }
@@ -97,11 +107,10 @@ const moveToolHandler: ToolHandler = {
 
 const penToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
+    beginOperation();
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
-
-    saveDrawHistory();
 
     const tmpctx = drawing!.tmpctx;
     tmpctx.strokeStyle = drawStateStore.penColor;
@@ -139,16 +148,16 @@ const penToolHandler: ToolHandler = {
       ctx.lineTo(penInput.x, penInput.y);
     }
     ctx.stroke();
+    endOperation();
   }
 };
 
 const eraserToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
+    beginOperation();
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
-
-    saveDrawHistory();
 
     const ctx = drawing!.ctx;
     ctx.lineCap = 'round';
@@ -165,7 +174,9 @@ const eraserToolHandler: ToolHandler = {
     lastPenInput = newPenInput;
     penHistory.push(lastPenInput);
   },
-  up: (e: PointerEvent) => {}
+  up: (e: PointerEvent) => {
+    endOperation();
+  }
 };
 
 const wordToolHandler: ToolHandler = {
@@ -194,8 +205,10 @@ const penUpHandler = (e: PointerEvent) => {
   toolHandler.up(e);
 };
 
+let nowPenDown = false;
 const onpendown = (e: PointerEvent) => {
   if (!drawing) return;
+  nowPenDown = true;
   penHistory = [];
   penDownHandler(e);
 };
@@ -207,8 +220,9 @@ const onpenmove = (e: PointerEvent) => {
   }
 };
 const onpenup = (e: PointerEvent) => {
-  if (!drawing) return;
+  if (!drawing || !nowPenDown) return;
   penUpHandler(e);
+  nowPenDown = false;
 };
 
 // event handlers
