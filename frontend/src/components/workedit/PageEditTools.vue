@@ -63,5 +63,15 @@ const onClickWord = () => {
 
 .tool {
   flex-grow: 1;
+  font-size: 2em;
+  height: 1.8em;
+  border: none;
+  outline: none;
+  padding: 0;
+  border-top: 0.1rem solid #444;
+}
+
+.tool[dat-tool-active='true'] {
+  background-color: #aef;
 }
 </style>
