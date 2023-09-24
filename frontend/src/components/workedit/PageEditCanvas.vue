@@ -4,7 +4,7 @@ import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
-import { useWorkPages } from '@/stores/workPages';
+import { useWorkPages, type PageData } from '@/stores/workPages';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -81,20 +81,25 @@ const workPagesStore = useWorkPages();
 
 async function saveNowPage() {
   workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
-  workPagesStore.pages[workPagesStore.nowPage] = await getImgCompressed();
+  workPagesStore.pages[workPagesStore.nowPage] = {
+    images: [await getImgCompressed()],
+    words: []
+  };
 }
 async function loadNowPage() {
   const ctx = drawing!.ctx;
   workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
   const data = workPagesStore.pages[workPagesStore.nowPage];
   if (data) {
-    const imgData = new ImageData(
-      await putImgCompressed(data),
-      canvasSizing.canvasWidth.value,
-      canvasSizing.canvasHeight.value
-    );
-    ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
-    ctx.putImageData(imgData, 0, 0);
+    for (const rawImgData of data.images) {
+      const imgData = new ImageData(
+        await putImgCompressed(rawImgData),
+        canvasSizing.canvasWidth.value,
+        canvasSizing.canvasHeight.value
+      );
+      ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+      ctx.putImageData(imgData, 0, 0);
+    }
   } else {
     ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
   }
