@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
-import { useWorkPages, type PageData } from '@/stores/workPages';
+import { useWorkPages, type PageData, type PageWord } from '@/stores/workPages';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -290,10 +290,39 @@ const eraserToolHandler: ToolHandler = {
   }
 };
 
+const pageWords: Ref<Array<PageWord>> = ref([]);
+
 const wordToolHandler: ToolHandler = {
-  down: (e: PointerEvent) => {},
-  move: (e: PointerEvent) => {},
-  up: (e: PointerEvent) => {}
+  down: (e: PointerEvent) => {
+    beginOperation();
+    const penInput = eventToPenInput(e);
+    lastPenInput = penInput;
+    pageWords.value.push({
+      fontSize: 32,
+      id: pageWords.value.length,
+      rect: {
+        left: penInput.x,
+        top: penInput.y,
+        width: 0,
+        height: 0
+      },
+      word: ''
+    });
+  },
+  move: (e: PointerEvent) => {
+    const penInput = eventToPenInput(e);
+    pageWords.value[pageWords.value.length - 1].rect = {
+      left: Math.min(penInput.x, lastPenInput!.x),
+      top: Math.min(penInput.y, lastPenInput!.y),
+      width: Math.abs(penInput.x - lastPenInput!.x),
+      height: Math.abs(penInput.y - lastPenInput!.y)
+    };
+  },
+  up: (e: PointerEvent) => {
+    const working = pageWords.value[pageWords.value.length - 1];
+    if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
+    endOperation();
+  }
 };
 
 const toolHandlers = {
@@ -367,6 +396,22 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight.value"
       ref="tmpCanvasRef"
     ></canvas>
+    <div :style="canvasSizing.canvasStyle.value">
+      <div
+        v-for="pageWord in pageWords"
+        :key="pageWord.id"
+        :class="$style.pageWord"
+        :style="{
+          transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
+          fontSize: `${pageWord.fontSize}px`,
+          width: `${pageWord.rect.width}px`,
+          height: `${pageWord.rect.height}px`,
+          border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid #000`
+        }"
+      >
+        {{ pageWord.word }}
+      </div>
+    </div>
     <div :class="$style.pageNumber">
       {{ workPagesStore.nowPage + 1 }} / {{ workPagesStore.pages.length }}
     </div>
@@ -399,6 +444,14 @@ const onpointerdown = (e: PointerEvent) => {
 
 .tmpCanvas {
   background-color: transparent;
+}
+
+.pageWord {
+  background-color: #fff;
+  position: absolute;
+  left: 0;
+  top: 0;
+  writing-mode: vertical-rl;
 }
 
 .pageNumber {

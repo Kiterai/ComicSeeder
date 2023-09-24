@@ -79,6 +79,10 @@ export const useCanvasSizing = () => {
     return { x, y };
   }
 
+  function getCanvasScale() {
+    return canvasScale.value;
+  }
+
   return {
     canvasStyle,
     touchManager,
@@ -86,6 +90,7 @@ export const useCanvasSizing = () => {
     canvasWidth,
     canvasHeight,
     clientToCanvas,
-    initView
+    initView,
+    getCanvasScale
   };
 };

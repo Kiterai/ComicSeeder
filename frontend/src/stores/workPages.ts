@@ -9,6 +9,7 @@ type Rect = {
 };
 
 export type PageWord = {
+  id: number;
   rect: Rect;
   word: string;
   fontSize: number;
