@@ -406,6 +406,24 @@ const onpointerdown = (e: PointerEvent) => {
   if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
   else onpendown(e);
 };
+
+const onmousemove = (e: MouseEvent) => {
+  const elem = e.target as HTMLElement;
+  if (drawModeStore.mode == 'word')
+    for (const pageWord of pageWords.value) {
+      const pos = canvasSizing.clientToCanvas(e.clientX, e.clientY);
+      if (
+        pageWord.rect.left <= pos.x &&
+        pos.x < pageWord.rect.left + pageWord.rect.width &&
+        pageWord.rect.top <= pos.y &&
+        pos.y < pageWord.rect.top + pageWord.rect.height
+      ) {
+        elem.style.cursor = 'vertical-text';
+        return;
+      }
+    }
+  elem.style.cursor = 'auto';
+};
 </script>
 
 <template>
@@ -430,7 +448,7 @@ const onpointerdown = (e: PointerEvent) => {
         :key="pageWord.id"
         :data-word-id="pageWord.id"
         :data-is-active="pageWordActive == pageWord.id"
-        contenteditable="true"
+        :contenteditable="drawModeStore.mode == 'word'"
         :class="$style.pageWord"
         :style="{
           transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
@@ -454,6 +472,7 @@ const onpointerdown = (e: PointerEvent) => {
       :onpointercancel="onpointerup"
       :onpointerout="onpointerup"
       :onpointerleave="onpointerup"
+      :onmousemove="onmousemove"
       :onwheel="canvasSizing.onwheel"
     ></div>
   </div>
@@ -483,6 +502,7 @@ const onpointerdown = (e: PointerEvent) => {
   left: 0;
   top: 0;
   writing-mode: vertical-rl;
+  outline: none;
 }
 
 .pageNumber {
