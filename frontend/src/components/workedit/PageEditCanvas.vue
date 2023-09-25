@@ -4,6 +4,7 @@ import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
+import { useOpeHistory } from '@/composables/useOpeHistory';
 import { useWorkPages, type PageData, type PageWord } from '@/stores/workPages';
 
 // show implementation
@@ -21,6 +22,8 @@ let drawing: {
   tmpctx: CanvasRenderingContext2D;
 } | null = null;
 
+let opeHistory: ReturnType<typeof useOpeHistory> | null = null;
+
 onMounted(() => {
   const tmpCanvas = tmpCanvasRef.value as any;
   const mainCanvas = mainCanvasRef.value as any;
@@ -31,6 +34,8 @@ onMounted(() => {
   if (!tmpctx) return;
   const ctx = mainCanvas.getContext('2d');
   if (!ctx) return;
+
+  opeHistory = useOpeHistory(getImage, ctx);
 
   drawing = {
     tmpCanvas: tmpCanvas,
@@ -61,6 +66,14 @@ const eventToPenInput = (e: PointerEvent) => {
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
+function getImage() {
+  return drawing!.ctx.getImageData(
+    0,
+    0,
+    canvasSizing.canvasWidth.value,
+    canvasSizing.canvasHeight.value
+  );
+}
 async function getImgCompressed() {
   const img = getImage();
   const blob = new Blob([img.data.buffer]);
@@ -84,13 +97,14 @@ function getWordElem(id: number) {
   if (elem instanceof HTMLElement) return elem;
   return null;
 }
-
-async function saveNowPage() {
+function applyWordChanges() {
   for (let i = 0; i < pageWords.value.length; i++) {
     const elem = getWordElem(pageWords.value[i].id);
     if (elem) pageWords.value[i].word = elem.innerText;
   }
-
+}
+async function saveNowPage() {
+  applyWordChanges();
   workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
   workPagesStore.pages[workPagesStore.nowPage] = {
     images: [await getImgCompressed()],
@@ -117,53 +131,6 @@ async function loadNowPage() {
   pageWords.value = data.words;
   canvasSizing.initView();
 }
-
-let isOperating = true;
-const drawHistory: ImageData[] = [];
-const undoHistory: ImageData[] = [];
-function beginOperation() {
-  isOperating = true;
-  saveDrawHistory();
-}
-function endOperation() {
-  isOperating = false;
-  undoHistory.length = 0;
-}
-function getImage() {
-  return drawing!.ctx.getImageData(
-    0,
-    0,
-    canvasSizing.canvasWidth.value,
-    canvasSizing.canvasHeight.value
-  );
-}
-function saveDrawHistory() {
-  drawHistory.push(getImage());
-}
-function saveUndoHistory() {
-  undoHistory.push(getImage());
-}
-function tryUndo() {
-  if (isOperating) return;
-
-  if (drawModeStore.mode == 'word') return;
-
-  const last = drawHistory.pop();
-  if (!last) return;
-  saveUndoHistory();
-  drawing!.ctx.putImageData(last, 0, 0);
-}
-function tryRedo() {
-  if (isOperating) return;
-
-  if (drawModeStore.mode == 'word') return;
-
-  const last = undoHistory.pop();
-  if (!last) return;
-  saveDrawHistory();
-  drawing!.ctx.putImageData(last, 0, 0);
-}
-
 let pageLoading = false;
 async function tryGotoPrevPage() {
   if (pageLoading) return;
@@ -183,7 +150,6 @@ async function tryGotoNextPage() {
   await loadNowPage();
   pageLoading = false;
 }
-
 async function tryDeleteNowPage() {
   if (pageLoading) return;
   pageLoading = true;
@@ -198,10 +164,12 @@ async function tryDeleteNowPage() {
 useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
-      tryUndo();
+      if (drawModeStore.mode == 'word') return;
+      opeHistory!.tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
-      tryRedo();
+      if (drawModeStore.mode == 'word') return;
+      opeHistory!.tryRedo();
     }
     if (e.key == 'ArrowRight') {
       await tryGotoNextPage();
@@ -236,7 +204,7 @@ const moveToolHandler: ToolHandler = {
 
 const penToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
-    beginOperation();
+    opeHistory!.beginOperation();
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
@@ -277,13 +245,13 @@ const penToolHandler: ToolHandler = {
       ctx.lineTo(penInput.x, penInput.y);
     }
     ctx.stroke();
-    endOperation();
+    opeHistory!.endOperation();
   }
 };
 
 const eraserToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
-    beginOperation();
+    opeHistory!.beginOperation();
     penHistory = [];
     lastPenInput = eventToPenInput(e);
     penHistory.push(lastPenInput);
@@ -304,7 +272,7 @@ const eraserToolHandler: ToolHandler = {
     penHistory.push(lastPenInput);
   },
   up: (e: PointerEvent) => {
-    endOperation();
+    opeHistory!.endOperation();
   }
 };
 
@@ -333,7 +301,7 @@ const wordToolHandler: ToolHandler = {
         return;
       }
     }
-    beginOperation();
+    opeHistory!.beginOperation();
     lastPenInput = penInput;
     pageWords.value.push({
       fontSize: 32,
@@ -348,7 +316,7 @@ const wordToolHandler: ToolHandler = {
     });
   },
   move: (e: PointerEvent) => {
-    if (!isOperating) return;
+    if (!opeHistory!.isOperating()) return;
     const penInput = eventToPenInput(e);
     pageWords.value[pageWords.value.length - 1].rect = {
       left: Math.min(penInput.x, lastPenInput!.x),
@@ -358,12 +326,12 @@ const wordToolHandler: ToolHandler = {
     };
   },
   up: (e: PointerEvent) => {
-    if (!isOperating) return;
+    if (!opeHistory!.isOperating()) return;
     const working = pageWords.value[pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
     const elem = document.querySelector(`[data-word-id="${working.id}"]`);
     if (elem instanceof HTMLElement) elem.focus();
-    endOperation();
+    opeHistory!.endOperation();
   }
 };
 
