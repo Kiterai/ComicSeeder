@@ -133,6 +133,9 @@ function saveUndoHistory() {
 }
 function tryUndo() {
   if (isOperating) return;
+
+  if (drawModeStore.mode == 'word') return;
+
   const last = drawHistory.pop();
   if (!last) return;
   saveUndoHistory();
@@ -140,6 +143,9 @@ function tryUndo() {
 }
 function tryRedo() {
   if (isOperating) return;
+
+  if (drawModeStore.mode == 'word') return;
+
   const last = undoHistory.pop();
   if (!last) return;
   saveDrawHistory();
@@ -396,7 +402,11 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight.value"
       ref="tmpCanvasRef"
     ></canvas>
-    <div :style="canvasSizing.canvasStyle.value">
+    <div
+      :style="canvasSizing.canvasStyle.value"
+      :class="$style.pageWordContainer"
+      :data-active="drawModeStore.mode == 'word' && !isOperating"
+    >
       <div
         v-for="pageWord in pageWords"
         :key="pageWord.id"
@@ -452,6 +462,13 @@ const onpointerdown = (e: PointerEvent) => {
   left: 0;
   top: 0;
   writing-mode: vertical-rl;
+}
+
+.pageWordContainer {
+  position: relative;
+}
+[data-active='true'] {
+  z-index: 9999;
 }
 
 .pageNumber {
