@@ -297,11 +297,31 @@ const eraserToolHandler: ToolHandler = {
 };
 
 const pageWords: Ref<Array<PageWord>> = ref([]);
+let pageWordActive = ref(-1);
 
 const wordToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
-    beginOperation();
     const penInput = eventToPenInput(e);
+    let tmpPageWordId: number | null = null;
+    for (const pageWord of pageWords.value) {
+      if (
+        pageWord.rect.left <= penInput.x &&
+        penInput.x < pageWord.rect.left + pageWord.rect.width &&
+        pageWord.rect.top <= penInput.y &&
+        penInput.y < pageWord.rect.top + pageWord.rect.height
+      )
+        tmpPageWordId = pageWord.id;
+    }
+    if (tmpPageWordId !== null) {
+      const elem = document.querySelector(`[data-word-id="${tmpPageWordId}"]`);
+      if (elem instanceof HTMLElement) {
+        pageWordActive.value = tmpPageWordId;
+        elem.focus();
+        e.preventDefault();
+        return;
+      }
+    }
+    beginOperation();
     lastPenInput = penInput;
     pageWords.value.push({
       fontSize: 32,
@@ -316,6 +336,7 @@ const wordToolHandler: ToolHandler = {
     });
   },
   move: (e: PointerEvent) => {
+    if (!isOperating) return;
     const penInput = eventToPenInput(e);
     pageWords.value[pageWords.value.length - 1].rect = {
       left: Math.min(penInput.x, lastPenInput!.x),
@@ -325,6 +346,7 @@ const wordToolHandler: ToolHandler = {
     };
   },
   up: (e: PointerEvent) => {
+    if (!isOperating) return;
     const working = pageWords.value[pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
     endOperation();
@@ -402,14 +424,13 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight.value"
       ref="tmpCanvasRef"
     ></canvas>
-    <div
-      :style="canvasSizing.canvasStyle.value"
-      :class="$style.pageWordContainer"
-      :data-active="drawModeStore.mode == 'word' && !isOperating"
-    >
+    <div :style="canvasSizing.canvasStyle.value" :class="$style.pageWordContainer">
       <div
         v-for="pageWord in pageWords"
         :key="pageWord.id"
+        :data-word-id="pageWord.id"
+        :data-is-active="pageWordActive == pageWord.id"
+        contenteditable="true"
         :class="$style.pageWord"
         :style="{
           transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
@@ -462,13 +483,6 @@ const onpointerdown = (e: PointerEvent) => {
   left: 0;
   top: 0;
   writing-mode: vertical-rl;
-}
-
-.pageWordContainer {
-  position: relative;
-}
-[data-active='true'] {
-  z-index: 9999;
 }
 
 .pageNumber {
