@@ -79,11 +79,22 @@ async function putImgCompressed(data: Uint8Array) {
 
 const workPagesStore = useWorkPages();
 
+function getWordElem(id: number) {
+  const elem = document.querySelector(`[data-word-id="${id}"]`);
+  if (elem instanceof HTMLElement) return elem;
+  return null;
+}
+
 async function saveNowPage() {
+  for (let i = 0; i < pageWords.value.length; i++) {
+    const elem = getWordElem(pageWords.value[i].id);
+    if (elem) pageWords.value[i].word = elem.innerText;
+  }
+
   workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
   workPagesStore.pages[workPagesStore.nowPage] = {
     images: [await getImgCompressed()],
-    words: []
+    words: pageWords.value
   };
 }
 async function loadNowPage() {
@@ -103,6 +114,7 @@ async function loadNowPage() {
   } else {
     ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
   }
+  pageWords.value = data.words;
   canvasSizing.initView();
 }
 
@@ -313,7 +325,7 @@ const wordToolHandler: ToolHandler = {
         tmpPageWordId = pageWord.id;
     }
     if (tmpPageWordId !== null) {
-      const elem = document.querySelector(`[data-word-id="${tmpPageWordId}"]`);
+      const elem = getWordElem(tmpPageWordId);
       if (elem instanceof HTMLElement) {
         pageWordActive.value = tmpPageWordId;
         elem.focus();
@@ -349,6 +361,8 @@ const wordToolHandler: ToolHandler = {
     if (!isOperating) return;
     const working = pageWords.value[pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
+    const elem = document.querySelector(`[data-word-id="${working.id}"]`);
+    if (elem instanceof HTMLElement) elem.focus();
     endOperation();
   }
 };
@@ -503,6 +517,7 @@ const onmousemove = (e: MouseEvent) => {
   top: 0;
   writing-mode: vertical-rl;
   outline: none;
+  white-space: pre;
 }
 
 .pageNumber {
