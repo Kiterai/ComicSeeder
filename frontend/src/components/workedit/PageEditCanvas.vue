@@ -497,7 +497,7 @@ const onmousemove = (e: MouseEvent) => {
 }
 
 .pageWord {
-  background-color: #fff;
+  background-color: #fff8;
   position: absolute;
   left: 0;
   top: 0;
