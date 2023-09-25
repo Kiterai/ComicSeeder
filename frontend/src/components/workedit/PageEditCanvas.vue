@@ -6,6 +6,7 @@ import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
 import { useWorkPages, type PageData, type PageWord } from '@/stores/workPages';
+import { usePageOperation } from '@/composables/usePageOperation';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -23,6 +24,7 @@ let drawing: {
 } | null = null;
 
 let opeHistory: ReturnType<typeof useOpeHistory> | null = null;
+let pageOperation: ReturnType<typeof usePageOperation> | null = null;
 
 onMounted(() => {
   const tmpCanvas = tmpCanvasRef.value as any;
@@ -36,6 +38,14 @@ onMounted(() => {
   if (!ctx) return;
 
   opeHistory = useOpeHistory(getImage, ctx);
+  pageOperation = usePageOperation(
+    ctx,
+    applyWordChanges,
+    getImgCompressed,
+    getImgDecompressed,
+    canvasSizing,
+    pageWords
+  );
 
   drawing = {
     tmpCanvas: tmpCanvas,
@@ -82,7 +92,7 @@ async function getImgCompressed() {
   const buffer = await new Response(compressedStream).arrayBuffer();
   return new Uint8Array(buffer);
 }
-async function putImgCompressed(data: Uint8Array) {
+async function getImgDecompressed(data: Uint8Array) {
   const blob = new Blob([data]);
   const stream = blob.stream();
   const decompressedStream = stream.pipeThrough(new DecompressionStream('deflate-raw'));
@@ -103,63 +113,6 @@ function applyWordChanges() {
     if (elem) pageWords.value[i].word = elem.innerText;
   }
 }
-async function saveNowPage() {
-  applyWordChanges();
-  workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
-  workPagesStore.pages[workPagesStore.nowPage] = {
-    images: [await getImgCompressed()],
-    words: pageWords.value
-  };
-}
-async function loadNowPage() {
-  const ctx = drawing!.ctx;
-  workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
-  const data = workPagesStore.pages[workPagesStore.nowPage];
-  if (data) {
-    for (const rawImgData of data.images) {
-      const imgData = new ImageData(
-        await putImgCompressed(rawImgData),
-        canvasSizing.canvasWidth.value,
-        canvasSizing.canvasHeight.value
-      );
-      ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
-      ctx.putImageData(imgData, 0, 0);
-    }
-  } else {
-    ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
-  }
-  pageWords.value = data.words;
-  canvasSizing.initView();
-}
-let pageLoading = false;
-async function tryGotoPrevPage() {
-  if (pageLoading) return;
-  pageLoading = true;
-  if (workPagesStore.nowPage > 0) {
-    await saveNowPage();
-    workPagesStore.nowPage--;
-    await loadNowPage();
-  }
-  pageLoading = false;
-}
-async function tryGotoNextPage() {
-  if (pageLoading) return;
-  pageLoading = true;
-  await saveNowPage();
-  workPagesStore.nowPage++;
-  await loadNowPage();
-  pageLoading = false;
-}
-async function tryDeleteNowPage() {
-  if (pageLoading) return;
-  pageLoading = true;
-  if (workPagesStore.pages.length > 1) {
-    workPagesStore.pages.splice(workPagesStore.nowPage, 1);
-    workPagesStore.nowPage = Math.min(workPagesStore.nowPage, workPagesStore.pages.length - 1);
-    await loadNowPage();
-  }
-  pageLoading = false;
-}
 
 useKeyboard(
   async (e) => {
@@ -172,13 +125,13 @@ useKeyboard(
       opeHistory!.tryRedo();
     }
     if (e.key == 'ArrowRight') {
-      await tryGotoNextPage();
+      await pageOperation!.tryGotoNextPage();
     }
     if (e.key == 'ArrowLeft') {
-      await tryGotoPrevPage();
+      await pageOperation!.tryGotoPrevPage();
     }
     if (e.key == 'D') {
-      await tryDeleteNowPage();
+      await pageOperation!.tryDeleteNowPage();
     }
   },
   () => {}
