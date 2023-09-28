@@ -20,7 +20,12 @@ export const usePageOperation = (
     };
   }
   async function loadNowPage() {
-    workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
+    while (workPagesStore.pages.length <= workPagesStore.nowPage) {
+      workPagesStore.pages.push({
+        images: [],
+        words: []
+      });
+    }
     const data = workPagesStore.pages[workPagesStore.nowPage];
     if (data) {
       for (const rawImgData of data.images) {
@@ -67,6 +72,7 @@ export const usePageOperation = (
     }
     pageLoading = false;
   }
+  loadNowPage();
 
   return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage };
 };
