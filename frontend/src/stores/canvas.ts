@@ -2,8 +2,6 @@ import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorkPages } from './workPages';
 
-type ImageData
-
 export const useCanvas = defineStore('canvas', () => {
   const mainCanvas = ref<HTMLCanvasElement | null>(null);
   const tmpCanvas = ref<HTMLCanvasElement | null>(null);
@@ -20,13 +18,6 @@ export const useCanvas = defineStore('canvas', () => {
   }
   function getImage() {
     return ctx.value!.getImageData(0, 0, canvasWidth.value, canvasHeight.value);
-  }
-  function getImage2() {
-    return {
-      image: ctx.value!.getImageData(0, 0, canvasWidth.value, canvasHeight.value),
-      width: canvasWidth.value,
-      height: canvasHeight.value
-    };
   }
   function putImage(dat: ImageData) {
     ctx.value!.putImageData(dat, 0, 0);
