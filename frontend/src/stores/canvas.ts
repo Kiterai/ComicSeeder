@@ -17,6 +17,13 @@ export const useCanvas = defineStore('canvas', () => {
   function getImage() {
     return ctx.value!.getImageData(0, 0, workPage.currentPageWidth, workPage.currentPageHeight);
   }
+  function getImage2() {
+    return {
+      image: ctx.value!.getImageData(0, 0, workPage.currentPageWidth, workPage.currentPageHeight),
+      width: workPage.currentPageWidth,
+      height: workPage.currentPageHeight
+    };
+  }
   function putImage(dat: ImageData) {
     ctx.value!.putImageData(dat, 0, 0);
   }
@@ -24,5 +31,5 @@ export const useCanvas = defineStore('canvas', () => {
     ctx.value!.clearRect(0, 0, workPage.currentPageWidth, workPage.currentPageHeight);
   }
 
-  return { setup, ctx, tmpctx, getImage, putImage, clear };
+  return { setup, ctx, tmpctx, getImage, putImage, clear, getImage2 };
 });
