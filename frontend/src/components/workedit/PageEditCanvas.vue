@@ -118,11 +118,11 @@ useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
       if (drawModeStore.mode == 'word') return;
-      opeHistory!.tryUndo();
+      opeHistory!.tryUndo2();
     }
     if (e.ctrlKey && e.key == 'y') {
       if (drawModeStore.mode == 'word') return;
-      opeHistory!.tryRedo();
+      opeHistory!.tryRedo2();
     }
     if (e.key == 'ArrowRight') {
       await pageOperation!.tryGotoNextPage();
@@ -137,11 +137,11 @@ useKeyboard(
   () => {}
 );
 
-type ToolHandler = {
+interface ToolHandler {
   down: (e: PointerEvent) => void;
   move: (e: PointerEvent) => void;
   up: (e: PointerEvent) => void;
-};
+}
 
 const moveToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
@@ -155,52 +155,76 @@ const moveToolHandler: ToolHandler = {
   }
 };
 
-const penToolHandler: ToolHandler = {
-  down: (e: PointerEvent) => {
-    opeHistory!.beginOperation();
-    penHistory = [];
-    lastPenInput = eventToPenInput(e);
-    penHistory.push(lastPenInput);
+class PenToolHandler implements ToolHandler {
+  imgAtBegin: null | ImageData;
+  penHistory: PenInput[];
+  lastPenInput: null | PenInput;
+  constructor() {
+    this.imgAtBegin = null;
+    this.penHistory = [];
+    this.lastPenInput = null;
+  }
+  down(e: PointerEvent) {
+    opeHistory!.beginOperation2();
+    this.penHistory = [];
+    this.lastPenInput = eventToPenInput(e);
+    this.penHistory.push(this.lastPenInput);
 
+    this.imgAtBegin = getImage();
     const tmpctx = drawing!.tmpctx;
     tmpctx.strokeStyle = drawStateStore.penColor;
     tmpctx.lineCap = 'round';
     tmpctx.lineWidth = drawStateStore.penWidth;
     tmpctx.globalCompositeOperation = 'source-over';
-  },
-  move: (e: PointerEvent) => {
+  }
+  move(e: PointerEvent) {
     const newPenInput = eventToPenInput(e);
     const ctx = drawing!.tmpctx;
     ctx.beginPath();
-    ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+    ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
     ctx.lineTo(newPenInput!.x, newPenInput!.y);
     ctx.stroke();
-    lastPenInput = newPenInput;
-    penHistory.push(lastPenInput);
-  },
-  up: (e: PointerEvent) => {
+    this.lastPenInput = newPenInput;
+    this.penHistory.push(this.lastPenInput);
+  }
+  up(e: PointerEvent) {
     const tmpctx = drawing!.tmpctx;
     const ctx = drawing!.ctx;
     tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
     let tmpLastPenInput: PenInput | null = null;
 
-    ctx.strokeStyle = drawStateStore.penColor;
-    ctx.lineCap = 'round';
-    ctx.lineWidth = drawStateStore.penWidth;
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.beginPath();
-    for (const penInput of penHistory) {
-      if (!tmpLastPenInput) {
-        tmpLastPenInput = penInput;
-        ctx.moveTo(penInput.x, penInput.y);
-        continue;
+    const nowPenColor = drawStateStore.penColor;
+    const nowPenWidth = drawStateStore.penWidth;
+    const nowPenHistory = this.penHistory;
+    const nowPage = workPagesStore.nowPage;
+    const undoImg = this.imgAtBegin!;
+    const draw = () => {
+      ctx.strokeStyle = nowPenColor;
+      ctx.lineCap = 'round';
+      ctx.lineWidth = nowPenWidth;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.beginPath();
+      for (const penInput of nowPenHistory) {
+        if (!tmpLastPenInput) {
+          tmpLastPenInput = penInput;
+          ctx.moveTo(penInput.x, penInput.y);
+          continue;
+        }
+        ctx.lineTo(penInput.x, penInput.y);
       }
-      ctx.lineTo(penInput.x, penInput.y);
-    }
-    ctx.stroke();
-    opeHistory!.endOperation();
+      ctx.stroke();
+    };
+    draw();
+    opeHistory!.commitOperation({
+      redo: () => {
+        draw();
+      },
+      undo: () => {
+        ctx.putImageData(undoImg, 0, 0);
+      }
+    });
   }
-};
+}
 
 const eraserToolHandler: ToolHandler = {
   down: (e: PointerEvent) => {
@@ -290,7 +314,7 @@ const wordToolHandler: ToolHandler = {
 
 const toolHandlers = {
   move: moveToolHandler,
-  pen: penToolHandler,
+  pen: new PenToolHandler(),
   eraser: eraserToolHandler,
   word: wordToolHandler
 };
