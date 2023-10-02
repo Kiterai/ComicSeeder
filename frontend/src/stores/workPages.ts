@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 
 type Rect = {
@@ -29,5 +29,10 @@ export type PageData = {
 export const useWorkPages = defineStore('workPages', () => {
   const pages = ref<Array<PageData>>([]);
   const nowPageIndex = ref(0);
-  return { pages, nowPageIndex: nowPageIndex };
+  const currentPage = computed(() => {
+    return pages.value.at(nowPageIndex.value);
+  });
+  const currentPageWidth = computed(() => (currentPage.value ? currentPage.value.size.width : 1));
+  const currentPageHeight = computed(() => (currentPage.value ? currentPage.value.size.height : 1));
+  return { pages, nowPageIndex, currentPage, currentPageWidth, currentPageHeight };
 });

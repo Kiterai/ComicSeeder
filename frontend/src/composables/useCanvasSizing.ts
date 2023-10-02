@@ -10,8 +10,8 @@ export const useCanvasSizing = () => {
 
   const windowWidth = ref(window.innerWidth);
   const windowHeight = ref(window.innerHeight);
-  const canvasWidth = computed(() => workPage.pages[workPage.nowPageIndex].size.width);
-  const canvasHeight = computed(() => workPage.pages[workPage.nowPageIndex].size.height);
+  const canvasWidth = computed(() => workPage.currentPageWidth);
+  const canvasHeight = computed(() => workPage.currentPageHeight);
 
   const canvasCenterX = ref(windowWidth.value / 2);
   const canvasCenterY = ref(windowHeight.value / 2);
