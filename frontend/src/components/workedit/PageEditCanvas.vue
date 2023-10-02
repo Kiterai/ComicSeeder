@@ -337,6 +337,7 @@ class WordToolHandler implements ToolHandler {
     const working = pageWords.value[pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) {
       pageWords.value.pop();
+      opeHistory!.cancelOperation();
       return;
     }
     const elem = document.querySelector(`[data-word-id="${working.id}"]`);
