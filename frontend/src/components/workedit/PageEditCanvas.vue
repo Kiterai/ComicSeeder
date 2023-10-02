@@ -283,10 +283,8 @@ const pageWords: Ref<Array<PageWord>> = ref([]);
 let pageWordActive = ref(-1);
 
 class WordToolHandler implements ToolHandler {
-  penHistory: PenInput[];
   lastPenInput: null | PenInput;
   constructor() {
-    this.penHistory = [];
     this.lastPenInput = null;
   }
   down(e: PointerEvent) {
@@ -310,7 +308,7 @@ class WordToolHandler implements ToolHandler {
         return;
       }
     }
-    opeHistory!.beginOperation();
+    opeHistory!.beginOperation2();
     this.lastPenInput = penInput;
     pageWords.value.push({
       fontSize: 32,
@@ -337,10 +335,22 @@ class WordToolHandler implements ToolHandler {
   up(e: PointerEvent) {
     if (!opeHistory!.isOperating()) return;
     const working = pageWords.value[pageWords.value.length - 1];
-    if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
+    if (working.rect.width < 30 || working.rect.height < 30) {
+      pageWords.value.pop();
+      return;
+    }
     const elem = document.querySelector(`[data-word-id="${working.id}"]`);
     if (elem instanceof HTMLElement) elem.focus();
-    opeHistory!.endOperation();
+
+    opeHistory!.commitOperation({
+      undo: () => {
+        applyWordChanges();
+        pageWords.value = pageWords.value.filter((val) => val.id != working.id);
+      },
+      redo: () => {
+        pageWords.value.push(working);
+      }
+    });
   }
 }
 
@@ -493,6 +503,9 @@ const onmousemove = (e: MouseEvent) => {
   writing-mode: vertical-rl;
   outline: none;
   white-space: pre;
+}
+.pageWord:focus {
+  border-color: #f00 !important;
 }
 
 .pageNumber {
