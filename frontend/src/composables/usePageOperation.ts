@@ -2,11 +2,10 @@ import { useWorkPages, type PageWord } from '@/stores/workPages';
 import type { useCanvasSizing } from './useCanvasSizing';
 import type { Ref } from 'vue';
 import { useCanvas } from '@/stores/canvas';
+import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 
 export const usePageOperation = (
   applyWordChanges: () => void,
-  getImgCompressed: () => Promise<Uint8Array>,
-  getImgDecompressed: (data: Uint8Array) => Promise<Uint8ClampedArray>,
   canvasSizing: ReturnType<typeof useCanvasSizing>,
   pageWords: Ref<Array<PageWord>>
 ) => {
@@ -20,7 +19,7 @@ export const usePageOperation = (
       workPagesStore.nowPageIndex + 1
     );
     workPagesStore.pages[workPagesStore.nowPageIndex] = {
-      images: [await getImgCompressed()],
+      images: [await getImgCompressed(canvas.getImage())],
       words: pageWords.value,
       size: {
         width: 1240,

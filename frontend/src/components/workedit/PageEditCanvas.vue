@@ -36,8 +36,6 @@ onMounted(() => {
   opeHistory = useOpeHistory();
   pageOperation = usePageOperation(
     applyWordChanges,
-    getImgCompressed,
-    getImgDecompressed,
     canvasSizing,
     pageWords
   );
@@ -45,22 +43,6 @@ onMounted(() => {
 
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
-
-async function getImgCompressed() {
-  const img = canvas.getImage();
-  const blob = new Blob([img.data.buffer]);
-  const stream = blob.stream();
-  const compressedStream = stream.pipeThrough(new CompressionStream('deflate-raw'));
-  const buffer = await new Response(compressedStream).arrayBuffer();
-  return new Uint8Array(buffer);
-}
-async function getImgDecompressed(data: Uint8Array) {
-  const blob = new Blob([data]);
-  const stream = blob.stream();
-  const decompressedStream = stream.pipeThrough(new DecompressionStream('deflate-raw'));
-  const buffer = await new Response(decompressedStream).arrayBuffer();
-  return new Uint8ClampedArray(buffer);
-}
 
 const workPagesStore = useWorkPages();
 
