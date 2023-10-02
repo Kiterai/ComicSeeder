@@ -9,26 +9,28 @@ export const useCanvas = defineStore('canvas', () => {
   const tmpctx = computed(() => (tmpCanvas.value ? tmpCanvas.value.getContext('2d') : null));
 
   const workPage = useWorkPages();
+  const canvasWidth = computed(() => workPage.currentPageWidth);
+  const canvasHeight = computed(() => workPage.currentPageHeight);
 
   function setup(newMainCanvas: HTMLCanvasElement, newTmpCanvas: HTMLCanvasElement) {
     mainCanvas.value = newMainCanvas;
     tmpCanvas.value = newTmpCanvas;
   }
   function getImage() {
-    return ctx.value!.getImageData(0, 0, workPage.currentPageWidth, workPage.currentPageHeight);
+    return ctx.value!.getImageData(0, 0, canvasWidth.value, canvasHeight.value);
   }
   function getImage2() {
     return {
-      image: ctx.value!.getImageData(0, 0, workPage.currentPageWidth, workPage.currentPageHeight),
-      width: workPage.currentPageWidth,
-      height: workPage.currentPageHeight
+      image: ctx.value!.getImageData(0, 0, canvasWidth.value, canvasHeight.value),
+      width: canvasWidth.value,
+      height: canvasHeight.value
     };
   }
   function putImage(dat: ImageData) {
     ctx.value!.putImageData(dat, 0, 0);
   }
   function clear() {
-    ctx.value!.clearRect(0, 0, workPage.currentPageWidth, workPage.currentPageHeight);
+    ctx.value!.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
   }
 
   return { setup, ctx, tmpctx, getImage, putImage, clear, getImage2 };
