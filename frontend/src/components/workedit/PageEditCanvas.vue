@@ -33,7 +33,7 @@ onMounted(() => {
 
   canvas.setup(mainCanvas, tmpCanvas);
 
-  opeHistory = useOpeHistory(canvas.getImage, canvas.ctx!);
+  opeHistory = useOpeHistory();
   pageOperation = usePageOperation(
     canvas.ctx!,
     applyWordChanges,

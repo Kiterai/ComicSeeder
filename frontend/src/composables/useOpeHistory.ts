@@ -3,7 +3,7 @@ export type Operation = {
   redo: () => void;
 };
 
-export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingContext2D) => {
+export const useOpeHistory = () => {
   let isOperating = true;
   const drawHistory: Operation[] = [];
   const undoHistory: Operation[] = [];
