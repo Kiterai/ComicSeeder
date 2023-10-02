@@ -7,6 +7,9 @@ import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
 import { useWorkPages, type PageData, type PageWord } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
+import { type ToolHandler } from './tools/ToolHandler';
+import { MoveToolHandler } from './tools/MoveToolHandler';
+import { eventToPenInput, type PenInput } from './tools/PenInput';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -54,21 +57,6 @@ onMounted(() => {
     tmpctx: tmpctx
   };
 });
-
-type PenInput = {
-  x: number;
-  y: number;
-  pressure: number;
-};
-
-const eventToPenInput = (e: PointerEvent) => {
-  const p = canvasSizing.clientToCanvas(e.clientX, e.clientY);
-  return {
-    x: p.x,
-    y: p.y,
-    pressure: e.pressure
-  };
-};
 
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
@@ -134,24 +122,6 @@ useKeyboard(
   () => {}
 );
 
-interface ToolHandler {
-  down: (e: PointerEvent) => void;
-  move: (e: PointerEvent) => void;
-  up: (e: PointerEvent) => void;
-}
-
-class MoveToolHandler implements ToolHandler {
-  down(e: PointerEvent) {
-    canvasSizing.touchManager.onfingerdown(e);
-  }
-  move(e: PointerEvent) {
-    canvasSizing.touchManager.onfingermove(e);
-  }
-  up(e: PointerEvent) {
-    canvasSizing.touchManager.onfingerup(e);
-  }
-}
-
 class PenToolHandler implements ToolHandler {
   imgAtBegin: null | ImageData;
   penHistory: PenInput[];
@@ -164,7 +134,7 @@ class PenToolHandler implements ToolHandler {
   down(e: PointerEvent) {
     opeHistory!.beginOperation2();
     this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e);
+    this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
 
     this.imgAtBegin = getImage();
@@ -175,7 +145,7 @@ class PenToolHandler implements ToolHandler {
     tmpctx.globalCompositeOperation = 'source-over';
   }
   move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e);
+    const newPenInput = eventToPenInput(e, canvasSizing);
     const ctx = drawing!.tmpctx;
     ctx.beginPath();
     ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
@@ -235,7 +205,7 @@ class EraserToolHandler implements ToolHandler {
   down(e: PointerEvent) {
     opeHistory!.beginOperation2();
     this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e);
+    this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
 
     this.imgAtBegin = getImage();
@@ -245,7 +215,7 @@ class EraserToolHandler implements ToolHandler {
     ctx.globalCompositeOperation = 'destination-out';
   }
   move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e);
+    const newPenInput = eventToPenInput(e, canvasSizing);
     const ctx = drawing!.ctx;
     ctx.beginPath();
     ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
@@ -288,7 +258,7 @@ class WordToolHandler implements ToolHandler {
     this.lastPenInput = null;
   }
   down(e: PointerEvent) {
-    const penInput = eventToPenInput(e);
+    const penInput = eventToPenInput(e, canvasSizing);
     let tmpPageWordId: number | null = null;
     for (const pageWord of pageWords.value) {
       if (
@@ -324,7 +294,7 @@ class WordToolHandler implements ToolHandler {
   }
   move(e: PointerEvent) {
     if (!opeHistory!.isOperating()) return;
-    const penInput = eventToPenInput(e);
+    const penInput = eventToPenInput(e, canvasSizing);
     pageWords.value[pageWords.value.length - 1].rect = {
       left: Math.min(penInput.x, this.lastPenInput!.x),
       top: Math.min(penInput.y, this.lastPenInput!.y),
@@ -356,7 +326,7 @@ class WordToolHandler implements ToolHandler {
 }
 
 const toolHandlers = {
-  move: new MoveToolHandler(),
+  move: new MoveToolHandler(canvasSizing.touchManager),
   pen: new PenToolHandler(),
   eraser: new EraserToolHandler(),
   word: new WordToolHandler()
