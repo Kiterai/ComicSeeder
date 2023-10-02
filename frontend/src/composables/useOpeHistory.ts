@@ -40,6 +40,7 @@ export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingCon
     undoHistoryOld.push(getImage());
   }
   function tryUndo() {
+    // deprecated
     if (isOperating) return;
 
     const last = drawHistoryOld.pop();
@@ -48,6 +49,7 @@ export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingCon
     ctx.putImageData(last, 0, 0);
   }
   function tryRedo() {
+    // deprecated
     if (isOperating) return;
 
     const last = undoHistoryOld.pop();
@@ -56,11 +58,34 @@ export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingCon
     ctx.putImageData(last, 0, 0);
   }
 
+  function tryUndo2() {
+    if (isOperating) return;
+
+    const last = drawHistory.pop();
+    if (!last) return;
+    undoHistory.push(last);
+    last.undo();
+  }
+  function tryRedo2() {
+    if (isOperating) return;
+
+    const last = undoHistory.pop();
+    if (!last) return;
+    drawHistory.push(last);
+    last.redo();
+  }
+
   return {
     beginOperation,
     endOperation,
     tryUndo,
     tryRedo,
+
+    beginOperation2,
+    commitOperation,
+    tryRedo2,
+    tryUndo2,
+
     isOperating: () => {
       return isOperating;
     }
