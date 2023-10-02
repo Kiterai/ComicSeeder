@@ -1,9 +1,9 @@
 import { useWorkPages, type PageWord } from '@/stores/workPages';
 import type { useCanvasSizing } from './useCanvasSizing';
 import type { Ref } from 'vue';
+import { useCanvas } from '@/stores/canvas';
 
 export const usePageOperation = (
-  ctx: CanvasRenderingContext2D,
   applyWordChanges: () => void,
   getImgCompressed: () => Promise<Uint8Array>,
   getImgDecompressed: (data: Uint8Array) => Promise<Uint8ClampedArray>,
@@ -11,9 +11,14 @@ export const usePageOperation = (
   pageWords: Ref<Array<PageWord>>
 ) => {
   const workPagesStore = useWorkPages();
+  const canvas = useCanvas();
+
   async function saveNowPage() {
     applyWordChanges();
-    workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPageIndex + 1);
+    workPagesStore.pages.length = Math.max(
+      workPagesStore.pages.length,
+      workPagesStore.nowPageIndex + 1
+    );
     workPagesStore.pages[workPagesStore.nowPageIndex] = {
       images: [await getImgCompressed()],
       words: pageWords.value,
@@ -29,7 +34,7 @@ export const usePageOperation = (
         images: [],
         words: [],
         size: {
-          width: 1240,   // A4, 150dpi
+          width: 1240, // A4, 150dpi
           height: 1754
         }
       });
@@ -42,11 +47,12 @@ export const usePageOperation = (
           canvasSizing.canvasWidth.value,
           canvasSizing.canvasHeight.value
         );
-        ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
-        ctx.putImageData(imgData, 0, 0);
+
+        canvas.clear();
+        canvas.putImage(imgData);
       }
     } else {
-      ctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+      canvas.clear();
     }
     pageWords.value = data.words;
     canvasSizing.initView();
@@ -75,7 +81,10 @@ export const usePageOperation = (
     pageLoading = true;
     if (workPagesStore.pages.length > 1) {
       workPagesStore.pages.splice(workPagesStore.nowPageIndex, 1);
-      workPagesStore.nowPageIndex = Math.min(workPagesStore.nowPageIndex, workPagesStore.pages.length - 1);
+      workPagesStore.nowPageIndex = Math.min(
+        workPagesStore.nowPageIndex,
+        workPagesStore.pages.length - 1
+      );
       await loadNowPage();
     }
     pageLoading = false;

@@ -35,7 +35,6 @@ onMounted(() => {
 
   opeHistory = useOpeHistory();
   pageOperation = usePageOperation(
-    canvas.ctx!,
     applyWordChanges,
     getImgCompressed,
     getImgDecompressed,
