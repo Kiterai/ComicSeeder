@@ -61,9 +61,6 @@ type PenInput = {
   pressure: number;
 };
 
-let penHistory: Array<PenInput> = [];
-let lastPenInput: PenInput | null = null;
-
 const eventToPenInput = (e: PointerEvent) => {
   const p = canvasSizing.clientToCanvas(e.clientX, e.clientY);
   return {
@@ -143,7 +140,7 @@ interface ToolHandler {
   up: (e: PointerEvent) => void;
 }
 
-class moveToolHandler implements ToolHandler {
+class MoveToolHandler implements ToolHandler {
   down(e: PointerEvent) {
     canvasSizing.touchManager.onfingerdown(e);
   }
@@ -226,38 +223,73 @@ class PenToolHandler implements ToolHandler {
   }
 }
 
-const eraserToolHandler: ToolHandler = {
-  down: (e: PointerEvent) => {
-    opeHistory!.beginOperation();
-    penHistory = [];
-    lastPenInput = eventToPenInput(e);
-    penHistory.push(lastPenInput);
+class EraserToolHandler implements ToolHandler {
+  imgAtBegin: null | ImageData;
+  penHistory: PenInput[];
+  lastPenInput: null | PenInput;
+  constructor() {
+    this.imgAtBegin = null;
+    this.penHistory = [];
+    this.lastPenInput = null;
+  }
+  down(e: PointerEvent) {
+    opeHistory!.beginOperation2();
+    this.penHistory = [];
+    this.lastPenInput = eventToPenInput(e);
+    this.penHistory.push(this.lastPenInput);
 
+    this.imgAtBegin = getImage();
     const ctx = drawing!.ctx;
     ctx.lineCap = 'round';
     ctx.lineWidth = drawStateStore.eraserWidth;
     ctx.globalCompositeOperation = 'destination-out';
-  },
-  move: (e: PointerEvent) => {
+  }
+  move(e: PointerEvent) {
     const newPenInput = eventToPenInput(e);
     const ctx = drawing!.ctx;
     ctx.beginPath();
-    ctx.moveTo(lastPenInput!.x, lastPenInput!.y);
+    ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
     ctx.lineTo(newPenInput!.x, newPenInput!.y);
     ctx.stroke();
-    lastPenInput = newPenInput;
-    penHistory.push(lastPenInput);
-  },
-  up: (e: PointerEvent) => {
-    opeHistory!.endOperation();
+    this.lastPenInput = newPenInput;
+    this.penHistory.push(this.lastPenInput);
   }
-};
+  up(e: PointerEvent) {
+    const undoImg = this.imgAtBegin!;
+    const nowPenHistory = this.penHistory;
+    const ctx = drawing!.ctx;
+    opeHistory!.commitOperation({
+      redo: () => {
+        let tmpLastPenInput: PenInput | null = null;
+        ctx.lineCap = 'round';
+        ctx.lineWidth = drawStateStore.eraserWidth;
+        ctx.globalCompositeOperation = 'destination-out';
+        for (const penInput of nowPenHistory) {
+          ctx.beginPath();
+          ctx.moveTo(tmpLastPenInput!.x, tmpLastPenInput!.y);
+          ctx.lineTo(penInput!.x, penInput!.y);
+          ctx.stroke();
+          tmpLastPenInput = penInput;
+        }
+      },
+      undo: () => {
+        ctx.putImageData(undoImg, 0, 0);
+      }
+    });
+  }
+}
 
 const pageWords: Ref<Array<PageWord>> = ref([]);
 let pageWordActive = ref(-1);
 
-const wordToolHandler: ToolHandler = {
-  down: (e: PointerEvent) => {
+class WordToolHandler implements ToolHandler {
+  penHistory: PenInput[];
+  lastPenInput: null | PenInput;
+  constructor() {
+    this.penHistory = [];
+    this.lastPenInput = null;
+  }
+  down(e: PointerEvent) {
     const penInput = eventToPenInput(e);
     let tmpPageWordId: number | null = null;
     for (const pageWord of pageWords.value) {
@@ -279,7 +311,7 @@ const wordToolHandler: ToolHandler = {
       }
     }
     opeHistory!.beginOperation();
-    lastPenInput = penInput;
+    this.lastPenInput = penInput;
     pageWords.value.push({
       fontSize: 32,
       id: pageWords.value.length,
@@ -291,18 +323,18 @@ const wordToolHandler: ToolHandler = {
       },
       word: ''
     });
-  },
-  move: (e: PointerEvent) => {
+  }
+  move(e: PointerEvent) {
     if (!opeHistory!.isOperating()) return;
     const penInput = eventToPenInput(e);
     pageWords.value[pageWords.value.length - 1].rect = {
-      left: Math.min(penInput.x, lastPenInput!.x),
-      top: Math.min(penInput.y, lastPenInput!.y),
-      width: Math.abs(penInput.x - lastPenInput!.x),
-      height: Math.abs(penInput.y - lastPenInput!.y)
+      left: Math.min(penInput.x, this.lastPenInput!.x),
+      top: Math.min(penInput.y, this.lastPenInput!.y),
+      width: Math.abs(penInput.x - this.lastPenInput!.x),
+      height: Math.abs(penInput.y - this.lastPenInput!.y)
     };
-  },
-  up: (e: PointerEvent) => {
+  }
+  up(e: PointerEvent) {
     if (!opeHistory!.isOperating()) return;
     const working = pageWords.value[pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) pageWords.value.pop();
@@ -310,13 +342,13 @@ const wordToolHandler: ToolHandler = {
     if (elem instanceof HTMLElement) elem.focus();
     opeHistory!.endOperation();
   }
-};
+}
 
 const toolHandlers = {
-  move: moveToolHandler,
+  move: new MoveToolHandler(),
   pen: new PenToolHandler(),
-  eraser: eraserToolHandler,
-  word: wordToolHandler
+  eraser: new EraserToolHandler(),
+  word: new WordToolHandler()
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];
@@ -336,13 +368,11 @@ let nowPenDown = false;
 const onpendown = (e: PointerEvent) => {
   if (!drawing) return;
   nowPenDown = true;
-  penHistory = [];
   penDownHandler(e);
 };
 const onpenmove = (e: PointerEvent) => {
   if (!drawing) return;
   if (nowPenDown) {
-    penHistory.push(eventToPenInput(e));
     penMoveHandler(e);
   }
 };
