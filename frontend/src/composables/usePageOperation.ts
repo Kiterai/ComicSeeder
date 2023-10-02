@@ -40,7 +40,7 @@ export const usePageOperation = (
       });
     }
     const data = workPagesStore.pages[workPagesStore.nowPageIndex];
-    if (data) {
+    if (data.images.length > 0) {
       for (const rawImgData of data.images) {
         const imgData = new ImageData(
           await getImgDecompressed(rawImgData),
