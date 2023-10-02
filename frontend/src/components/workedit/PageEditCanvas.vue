@@ -2,6 +2,7 @@
 import { onMounted, ref, type Ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
+import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
@@ -19,15 +20,10 @@ const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
 const tmpCanvasRef = ref(null);
 const mainCanvasRef = ref(null);
 
-let drawing: {
-  tmpCanvas: HTMLCanvasElement;
-  mainCanvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  tmpctx: CanvasRenderingContext2D;
-} | null = null;
-
 let opeHistory: ReturnType<typeof useOpeHistory> | null = null;
 let pageOperation: ReturnType<typeof usePageOperation> | null = null;
+
+const canvas = useCanvas();
 
 onMounted(() => {
   const tmpCanvas = tmpCanvasRef.value as any;
@@ -35,42 +31,24 @@ onMounted(() => {
   if (!(tmpCanvas instanceof HTMLCanvasElement)) return;
   if (!(mainCanvas instanceof HTMLCanvasElement)) return;
 
-  const tmpctx = tmpCanvas.getContext('2d');
-  if (!tmpctx) return;
-  const ctx = mainCanvas.getContext('2d');
-  if (!ctx) return;
+  canvas.setup(mainCanvas, tmpCanvas);
 
-  opeHistory = useOpeHistory(getImage, ctx);
+  opeHistory = useOpeHistory(canvas.getImage, canvas.ctx!);
   pageOperation = usePageOperation(
-    ctx,
+    canvas.ctx!,
     applyWordChanges,
     getImgCompressed,
     getImgDecompressed,
     canvasSizing,
     pageWords
   );
-
-  drawing = {
-    tmpCanvas: tmpCanvas,
-    mainCanvas: mainCanvas,
-    ctx: ctx,
-    tmpctx: tmpctx
-  };
 });
 
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
 
-function getImage() {
-  return drawing!.ctx.getImageData(
-    0,
-    0,
-    canvasSizing.canvasWidth.value,
-    canvasSizing.canvasHeight.value
-  );
-}
 async function getImgCompressed() {
-  const img = getImage();
+  const img = canvas.getImage();
   const blob = new Blob([img.data.buffer]);
   const stream = blob.stream();
   const compressedStream = stream.pipeThrough(new CompressionStream('deflate-raw'));
@@ -137,8 +115,8 @@ class PenToolHandler implements ToolHandler {
     this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
 
-    this.imgAtBegin = getImage();
-    const tmpctx = drawing!.tmpctx;
+    this.imgAtBegin = canvas.getImage();
+    const tmpctx = canvas.tmpctx!;
     tmpctx.strokeStyle = drawStateStore.penColor;
     tmpctx.lineCap = 'round';
     tmpctx.lineWidth = drawStateStore.penWidth;
@@ -146,17 +124,17 @@ class PenToolHandler implements ToolHandler {
   }
   move(e: PointerEvent) {
     const newPenInput = eventToPenInput(e, canvasSizing);
-    const ctx = drawing!.tmpctx;
-    ctx.beginPath();
-    ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
-    ctx.lineTo(newPenInput!.x, newPenInput!.y);
-    ctx.stroke();
+    const tmpctx = canvas.tmpctx!;
+    tmpctx.beginPath();
+    tmpctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
+    tmpctx.lineTo(newPenInput!.x, newPenInput!.y);
+    tmpctx.stroke();
     this.lastPenInput = newPenInput;
     this.penHistory.push(this.lastPenInput);
   }
   up(e: PointerEvent) {
-    const tmpctx = drawing!.tmpctx;
-    const ctx = drawing!.ctx;
+    const tmpctx = canvas.tmpctx!;
+    const ctx = canvas.ctx!;
     tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
     let tmpLastPenInput: PenInput | null = null;
 
@@ -208,15 +186,15 @@ class EraserToolHandler implements ToolHandler {
     this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
 
-    this.imgAtBegin = getImage();
-    const ctx = drawing!.ctx;
+    this.imgAtBegin = canvas.getImage();
+    const ctx = canvas.ctx!;
     ctx.lineCap = 'round';
     ctx.lineWidth = drawStateStore.eraserWidth;
     ctx.globalCompositeOperation = 'destination-out';
   }
   move(e: PointerEvent) {
     const newPenInput = eventToPenInput(e, canvasSizing);
-    const ctx = drawing!.ctx;
+    const ctx = canvas.ctx!;
     ctx.beginPath();
     ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
     ctx.lineTo(newPenInput!.x, newPenInput!.y);
@@ -227,7 +205,7 @@ class EraserToolHandler implements ToolHandler {
   up(e: PointerEvent) {
     const undoImg = this.imgAtBegin!;
     const nowPenHistory = this.penHistory;
-    const ctx = drawing!.ctx;
+    const ctx = canvas.ctx!;
     opeHistory!.commitOperation({
       redo: () => {
         let tmpLastPenInput: PenInput | null = null;
@@ -347,18 +325,16 @@ const penUpHandler = (e: PointerEvent) => {
 
 let nowPenDown = false;
 const onpendown = (e: PointerEvent) => {
-  if (!drawing) return;
   nowPenDown = true;
   penDownHandler(e);
 };
 const onpenmove = (e: PointerEvent) => {
-  if (!drawing) return;
   if (nowPenDown) {
     penMoveHandler(e);
   }
 };
 const onpenup = (e: PointerEvent) => {
-  if (!drawing || !nowPenDown) return;
+  if (!nowPenDown) return;
   penUpHandler(e);
   nowPenDown = false;
 };
