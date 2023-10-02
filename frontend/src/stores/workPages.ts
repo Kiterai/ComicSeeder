@@ -28,6 +28,6 @@ export type PageData = {
 
 export const useWorkPages = defineStore('workPages', () => {
   const pages = ref<Array<PageData>>([]);
-  const nowPage = ref(0);
-  return { pages, nowPage };
+  const nowPageIndex = ref(0);
+  return { pages, nowPageIndex: nowPageIndex };
 });
