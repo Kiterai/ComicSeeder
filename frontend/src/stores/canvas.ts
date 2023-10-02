@@ -20,6 +20,9 @@ export const useCanvas = defineStore('canvas', () => {
   function putImage(dat: ImageData) {
     ctx.value!.putImageData(dat, 0, 0);
   }
+  function clear() {
+    ctx.value!.clearRect(0, 0, workPage.currentPageWidth, workPage.currentPageHeight);
+  }
 
-  return { setup, ctx, tmpctx, getImage, putImage };
+  return { setup, ctx, tmpctx, getImage, putImage, clear };
 });
