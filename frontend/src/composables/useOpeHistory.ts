@@ -7,7 +7,7 @@ export const useOpeHistory = () => {
   let isOperating = true;
   const drawHistory: Operation[] = [];
   const undoHistory: Operation[] = [];
-  function beginOperation2() {
+  function beginOperation() {
     isOperating = true;
   }
   function cancelOperation() {
@@ -19,7 +19,7 @@ export const useOpeHistory = () => {
     undoHistory.length = 0;
   }
 
-  function tryUndo2() {
+  function tryUndo() {
     if (isOperating) return;
 
     const last = drawHistory.pop();
@@ -27,7 +27,7 @@ export const useOpeHistory = () => {
     undoHistory.push(last);
     last.undo();
   }
-  function tryRedo2() {
+  function tryRedo() {
     if (isOperating) return;
 
     const last = undoHistory.pop();
@@ -37,11 +37,11 @@ export const useOpeHistory = () => {
   }
 
   return {
-    beginOperation2,
+    beginOperation,
     cancelOperation,
     commitOperation,
-    tryRedo2,
-    tryUndo2,
+    tryRedo,
+    tryUndo,
 
     isOperating: () => {
       return isOperating;

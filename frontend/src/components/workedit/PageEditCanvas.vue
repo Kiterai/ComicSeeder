@@ -81,11 +81,11 @@ useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
       if (drawModeStore.mode == 'word') return;
-      opeHistory!.tryUndo2();
+      opeHistory!.tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
       if (drawModeStore.mode == 'word') return;
-      opeHistory!.tryRedo2();
+      opeHistory!.tryRedo();
     }
     if (e.key == 'ArrowRight') {
       await pageOperation!.tryGotoNextPage();
@@ -110,7 +110,7 @@ class PenToolHandler implements ToolHandler {
     this.lastPenInput = null;
   }
   down(e: PointerEvent) {
-    opeHistory!.beginOperation2();
+    opeHistory!.beginOperation();
     this.penHistory = [];
     this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
@@ -181,7 +181,7 @@ class EraserToolHandler implements ToolHandler {
     this.lastPenInput = null;
   }
   down(e: PointerEvent) {
-    opeHistory!.beginOperation2();
+    opeHistory!.beginOperation();
     this.penHistory = [];
     this.lastPenInput = eventToPenInput(e, canvasSizing);
     this.penHistory.push(this.lastPenInput);
@@ -256,7 +256,7 @@ class WordToolHandler implements ToolHandler {
         return;
       }
     }
-    opeHistory!.beginOperation2();
+    opeHistory!.beginOperation();
     this.lastPenInput = penInput;
     pageWords.value.push({
       fontSize: 32,
