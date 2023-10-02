@@ -1,25 +1,48 @@
+export type Operation = {
+  undo: () => void;
+  redo: () => void;
+};
+
 export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingContext2D) => {
   let isOperating = true;
-  const drawHistory: ImageData[] = [];
-  const undoHistory: ImageData[] = [];
+
+  const drawHistoryOld: ImageData[] = []; // deprecated
+  const undoHistoryOld: ImageData[] = []; // deprecated
+  // deprecated
   function beginOperation() {
     isOperating = true;
     saveDrawHistory();
   }
+  // deprecated
   function endOperation() {
     isOperating = false;
+    undoHistoryOld.length = 0;
+  }
+
+  const drawHistory: Operation[] = [];
+  const undoHistory: Operation[] = [];
+  function beginOperation2() {
+    isOperating = true;
+  }
+  function cancelOperation() {
+    isOperating = false;
+  }
+  function commitOperation(op: Operation) {
+    isOperating = false;
+    drawHistory.push(op);
     undoHistory.length = 0;
   }
+
   function saveDrawHistory() {
-    drawHistory.push(getImage());
+    drawHistoryOld.push(getImage());
   }
   function saveUndoHistory() {
-    undoHistory.push(getImage());
+    undoHistoryOld.push(getImage());
   }
   function tryUndo() {
     if (isOperating) return;
 
-    const last = drawHistory.pop();
+    const last = drawHistoryOld.pop();
     if (!last) return;
     saveUndoHistory();
     ctx.putImageData(last, 0, 0);
@@ -27,7 +50,7 @@ export const useOpeHistory = (getImage: () => ImageData, ctx: CanvasRenderingCon
   function tryRedo() {
     if (isOperating) return;
 
-    const last = undoHistory.pop();
+    const last = undoHistoryOld.pop();
     if (!last) return;
     saveDrawHistory();
     ctx.putImageData(last, 0, 0);
