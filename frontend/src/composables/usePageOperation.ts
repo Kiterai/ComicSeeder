@@ -43,8 +43,8 @@ export const usePageOperation = (
       for (const rawImgData of data.images) {
         const imgData = new ImageData(
           await getImgDecompressed(rawImgData),
-          canvasSizing.canvasWidth.value,
-          canvasSizing.canvasHeight.value
+          workPagesStore.currentPageWidth,
+          workPagesStore.currentPageHeight
         );
 
         canvas.clear();

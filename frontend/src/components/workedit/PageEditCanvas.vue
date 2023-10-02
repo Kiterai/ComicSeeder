@@ -34,11 +34,7 @@ onMounted(() => {
   canvas.setup(mainCanvas, tmpCanvas);
 
   opeHistory = useOpeHistory();
-  pageOperation = usePageOperation(
-    applyWordChanges,
-    canvasSizing,
-    pageWords
-  );
+  pageOperation = usePageOperation(applyWordChanges, canvasSizing, pageWords);
 });
 
 const drawModeStore = useDrawMode();
@@ -114,9 +110,8 @@ class PenToolHandler implements ToolHandler {
     this.penHistory.push(this.lastPenInput);
   }
   up(e: PointerEvent) {
-    const tmpctx = canvas.tmpctx!;
     const ctx = canvas.ctx!;
-    tmpctx.clearRect(0, 0, canvasSizing.canvasWidth.value, canvasSizing.canvasHeight.value);
+    canvas.clearTmp();
     let tmpLastPenInput: PenInput | null = null;
 
     const nowPenColor = drawStateStore.penColor;
