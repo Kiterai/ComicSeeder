@@ -143,17 +143,17 @@ interface ToolHandler {
   up: (e: PointerEvent) => void;
 }
 
-const moveToolHandler: ToolHandler = {
-  down: (e: PointerEvent) => {
+class moveToolHandler implements ToolHandler {
+  down(e: PointerEvent) {
     canvasSizing.touchManager.onfingerdown(e);
-  },
-  move: (e: PointerEvent) => {
+  }
+  move(e: PointerEvent) {
     canvasSizing.touchManager.onfingermove(e);
-  },
-  up: (e: PointerEvent) => {
+  }
+  up(e: PointerEvent) {
     canvasSizing.touchManager.onfingerup(e);
   }
-};
+}
 
 class PenToolHandler implements ToolHandler {
   imgAtBegin: null | ImageData;
