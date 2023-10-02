@@ -2,14 +2,16 @@ import { computed, ref, type Ref } from 'vue';
 import { useKeyboard } from './useKeyboard';
 import { useResize } from './useResize';
 import { CanvasTouchGestureManager } from '@/components/workedit/CanvasTouchGestureManager';
+import { useWorkPages } from '@/stores/workPages';
 
 export const useCanvasSizing = () => {
   const initialScale = 0.25;
+  const workPage = useWorkPages();
 
   const windowWidth = ref(window.innerWidth);
   const windowHeight = ref(window.innerHeight);
-  const canvasWidth = ref(1240); // A4, 150dpi
-  const canvasHeight = ref(1754);
+  const canvasWidth = computed(() => workPage.pages[workPage.nowPage].size.width);
+  const canvasHeight = computed(() => workPage.pages[workPage.nowPage].size.height);
 
   const canvasCenterX = ref(windowWidth.value / 2);
   const canvasCenterY = ref(windowHeight.value / 2);

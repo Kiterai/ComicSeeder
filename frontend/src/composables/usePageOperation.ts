@@ -16,14 +16,22 @@ export const usePageOperation = (
     workPagesStore.pages.length = Math.max(workPagesStore.pages.length, workPagesStore.nowPage + 1);
     workPagesStore.pages[workPagesStore.nowPage] = {
       images: [await getImgCompressed()],
-      words: pageWords.value
+      words: pageWords.value,
+      size: {
+        width: 1240,
+        height: 1754
+      }
     };
   }
   async function loadNowPage() {
     while (workPagesStore.pages.length <= workPagesStore.nowPage) {
       workPagesStore.pages.push({
         images: [],
-        words: []
+        words: [],
+        size: {
+          width: 1240,   // A4, 150dpi
+          height: 1754
+        }
       });
     }
     const data = workPagesStore.pages[workPagesStore.nowPage];

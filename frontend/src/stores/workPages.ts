@@ -8,6 +8,11 @@ type Rect = {
   height: number;
 };
 
+type Size = {
+  width: number;
+  height: number;
+};
+
 export type PageWord = {
   id: number;
   rect: Rect;
@@ -18,6 +23,7 @@ export type PageWord = {
 export type PageData = {
   images: Array<Uint8Array>;
   words: Array<PageWord>;
+  size: Size;
 };
 
 export const useWorkPages = defineStore('workPages', () => {
