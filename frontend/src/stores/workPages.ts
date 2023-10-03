@@ -29,7 +29,7 @@ export type PageData = {
 export const useWorkPages = defineStore('workPages', () => {
   const pages = ref<Array<PageData>>([]);
   const currentPageIndex = ref(0);
-  const currentPage = computed(() => {
+  const currentPage = computed<PageData | undefined>(() => {
     return pages.value.at(currentPageIndex.value);
   });
   const currentPageWidth = computed(() => (currentPage.value ? currentPage.value.size.width : 1));
