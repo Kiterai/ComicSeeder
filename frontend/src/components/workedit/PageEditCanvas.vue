@@ -123,7 +123,7 @@ class PenToolHandler implements ToolHandler {
     const nowPenColor = drawStateStore.penColor;
     const nowPenWidth = drawStateStore.penWidth;
     const nowPenHistory = this.penHistory;
-    const nowPage = workPagesStore.nowPageIndex;
+    const nowPage = workPagesStore.currentPageIndex;
     const undoImg = this.imgAtBegin!;
     const draw = () => {
       ctx.strokeStyle = nowPenColor;
@@ -390,7 +390,7 @@ const onmousemove = (e: MouseEvent) => {
       </div>
     </div>
     <div :class="$style.pageNumber">
-      {{ workPagesStore.nowPageIndex + 1 }} / {{ workPagesStore.pages.length }}
+      {{ workPagesStore.currentPageIndex + 1 }} / {{ workPagesStore.pages.length }}
     </div>
     <div
       :class="$style.surface"

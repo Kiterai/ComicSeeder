@@ -16,9 +16,9 @@ export const usePageOperation = (
     applyWordChanges();
     workPagesStore.pages.length = Math.max(
       workPagesStore.pages.length,
-      workPagesStore.nowPageIndex + 1
+      workPagesStore.currentPageIndex + 1
     );
-    workPagesStore.pages[workPagesStore.nowPageIndex] = {
+    workPagesStore.pages[workPagesStore.currentPageIndex] = {
       images: [await getImgCompressed(canvas.getImage())],
       words: pageWords.value,
       size: {
@@ -28,7 +28,7 @@ export const usePageOperation = (
     };
   }
   async function loadNowPage() {
-    while (workPagesStore.pages.length <= workPagesStore.nowPageIndex) {
+    while (workPagesStore.pages.length <= workPagesStore.currentPageIndex) {
       workPagesStore.pages.push({
         images: [],
         words: [],
@@ -38,7 +38,7 @@ export const usePageOperation = (
         }
       });
     }
-    const data = workPagesStore.pages[workPagesStore.nowPageIndex];
+    const data = workPagesStore.pages[workPagesStore.currentPageIndex];
     if (data.images.length > 0) {
       for (const rawImgData of data.images) {
         const imgData = new ImageData(
@@ -60,9 +60,9 @@ export const usePageOperation = (
   async function tryGotoPrevPage() {
     if (pageLoading) return;
     pageLoading = true;
-    if (workPagesStore.nowPageIndex > 0) {
+    if (workPagesStore.currentPageIndex > 0) {
       await saveNowPage();
-      workPagesStore.nowPageIndex--;
+      workPagesStore.currentPageIndex--;
       await loadNowPage();
     }
     pageLoading = false;
@@ -71,7 +71,7 @@ export const usePageOperation = (
     if (pageLoading) return;
     pageLoading = true;
     await saveNowPage();
-    workPagesStore.nowPageIndex++;
+    workPagesStore.currentPageIndex++;
     await loadNowPage();
     pageLoading = false;
   }
@@ -79,7 +79,7 @@ export const usePageOperation = (
     if (pageLoading) return;
     pageLoading = true;
     await saveNowPage();
-    workPagesStore.nowPageIndex = index;
+    workPagesStore.currentPageIndex = index;
     await loadNowPage();
     pageLoading = false;
   }
@@ -87,9 +87,9 @@ export const usePageOperation = (
     if (pageLoading) return;
     pageLoading = true;
     if (workPagesStore.pages.length > 1) {
-      workPagesStore.pages.splice(workPagesStore.nowPageIndex, 1);
-      workPagesStore.nowPageIndex = Math.min(
-        workPagesStore.nowPageIndex,
+      workPagesStore.pages.splice(workPagesStore.currentPageIndex, 1);
+      workPagesStore.currentPageIndex = Math.min(
+        workPagesStore.currentPageIndex,
         workPagesStore.pages.length - 1
       );
       await loadNowPage();
