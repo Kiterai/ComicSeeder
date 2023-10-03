@@ -1,7 +1,7 @@
 import type { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
-import type { useOpeHistory } from '@/stores/opeHistory';
+import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages, type PageWord } from '@/stores/workPages';
 import { computed, type ComputedRef } from 'vue';
 
@@ -14,13 +14,12 @@ export class WordToolHandler implements ToolHandler {
   applyWordChanges: () => void;
 
   constructor(
-    opeHistory: ReturnType<typeof useOpeHistory>,
     canvasSizing: ReturnType<typeof useCanvasSizing>,
     getWordElem: (id: number) => HTMLElement | null,
     applyWordChanges: () => void
   ) {
     this.lastPenInput = null;
-    this.opeHistory = opeHistory;
+    this.opeHistory = useOpeHistory();
     this.canvasSizing = canvasSizing;
 
     const workPagesStore = useWorkPages();

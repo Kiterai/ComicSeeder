@@ -88,9 +88,9 @@ const pageWords = computed(() =>
 
 const toolHandlers = {
   move: new MoveToolHandler(canvasSizing.touchManager),
-  pen: new PenToolHandler(opeHistory, canvasSizing),
-  eraser: new EraserToolHandler(canvasSizing, opeHistory),
-  word: new WordToolHandler(opeHistory, canvasSizing, getWordElem, applyWordChanges)
+  pen: new PenToolHandler(canvasSizing),
+  eraser: new EraserToolHandler(canvasSizing),
+  word: new WordToolHandler(canvasSizing, getWordElem, applyWordChanges)
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];
@@ -253,4 +253,3 @@ const onmousemove = (e: MouseEvent) => {
   touch-action: none;
 }
 </style>
-@/stores/useOpeHistory

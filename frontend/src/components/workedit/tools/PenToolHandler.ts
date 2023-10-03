@@ -1,4 +1,4 @@
-import type { useOpeHistory } from '@/stores/opeHistory';
+import { useOpeHistory } from '@/stores/opeHistory';
 import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
 import { useCanvas } from '@/stores/canvas';
@@ -16,14 +16,11 @@ export class PenToolHandler implements ToolHandler {
   workPagesStore: ReturnType<typeof useWorkPages>;
   canvasSizing: ReturnType<typeof useCanvasSizing>;
 
-  constructor(
-    opeHistory: ReturnType<typeof useOpeHistory>,
-    canvasSizing: ReturnType<typeof useCanvasSizing>
-  ) {
+  constructor(canvasSizing: ReturnType<typeof useCanvasSizing>) {
     this.imgAtBegin = null;
     this.penHistory = [];
     this.lastPenInput = null;
-    this.opeHistory = opeHistory;
+    this.opeHistory = useOpeHistory();
     this.canvas = useCanvas();
     this.drawStateStore = useDrawState();
     this.workPagesStore = useWorkPages();
