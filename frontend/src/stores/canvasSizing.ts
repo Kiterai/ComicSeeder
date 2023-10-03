@@ -1,10 +1,11 @@
-import { computed, ref, type Ref } from 'vue';
-import { useKeyboard } from './useKeyboard';
-import { useResize } from './useResize';
+import { computed, ref } from 'vue';
+import { useKeyboard } from '../composables/useKeyboard';
+import { useResize } from '../composables/useResize';
 import { useCanvasTouchGesture } from '@/composables/useCanvasTouchGesture';
 import { useWorkPages } from '@/stores/workPages';
+import { defineStore } from 'pinia';
 
-export const useCanvasSizing = () => {
+export const useCanvasSizing = defineStore('canvasSizing', () => {
   const initialScale = 0.25;
   const workPage = useWorkPages();
 
@@ -95,4 +96,4 @@ export const useCanvasSizing = () => {
     initView,
     getCanvasScale
   };
-};
+});

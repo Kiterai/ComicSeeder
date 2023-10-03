@@ -4,7 +4,7 @@ import type { ToolHandler } from './ToolHandler';
 import { useCanvas } from '@/stores/canvas';
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
-import type { useCanvasSizing } from '@/composables/useCanvasSizing';
+import type { useCanvasSizing } from '@/stores/canvasSizing';
 
 export class PenToolHandler implements ToolHandler {
   imgAtBegin: null | ImageData;

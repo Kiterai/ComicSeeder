@@ -2,7 +2,7 @@ import { useOpeHistory } from '@/stores/opeHistory';
 import type { ToolHandler } from './ToolHandler';
 import { eventToPenInput, type PenInput } from './PenInput';
 import { useCanvas } from '@/stores/canvas';
-import type { useCanvasSizing } from '@/composables/useCanvasSizing';
+import type { useCanvasSizing } from '@/stores/canvasSizing';
 import { useDrawState } from '@/stores/drawState';
 
 export class EraserToolHandler implements ToolHandler {

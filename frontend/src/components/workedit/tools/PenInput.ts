@@ -1,4 +1,4 @@
-import type { useCanvasSizing } from '@/composables/useCanvasSizing';
+import type { useCanvasSizing } from '@/stores/canvasSizing';
 
 export type PenInput = {
   x: number;

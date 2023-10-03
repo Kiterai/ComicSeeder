@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
-import { useCanvasSizing } from '@/composables/useCanvasSizing';
+import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages } from '@/stores/workPages';
@@ -158,20 +158,20 @@ const onmousemove = (e: MouseEvent) => {
 <template>
   <div :class="$style.canvasSystem">
     <canvas
-      :style="canvasSizing.canvasStyle.value"
+      :style="canvasSizing.canvasStyle"
       :class="$style.mainCanvas"
-      :width="canvasSizing.canvasWidth.value"
-      :height="canvasSizing.canvasHeight.value"
+      :width="canvasSizing.canvasWidth"
+      :height="canvasSizing.canvasHeight"
       ref="mainCanvasRef"
     ></canvas>
     <canvas
-      :style="canvasSizing.canvasStyle.value"
+      :style="canvasSizing.canvasStyle"
       :class="$style.tmpCanvas"
-      :width="canvasSizing.canvasWidth.value"
-      :height="canvasSizing.canvasHeight.value"
+      :width="canvasSizing.canvasWidth"
+      :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
-    <div :style="canvasSizing.canvasStyle.value" :class="$style.pageWordContainer">
+    <div :style="canvasSizing.canvasStyle" :class="$style.pageWordContainer">
       <div
         v-for="pageWord in pageWords"
         :key="pageWord.id"

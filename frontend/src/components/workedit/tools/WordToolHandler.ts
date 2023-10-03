@@ -1,4 +1,4 @@
-import type { useCanvasSizing } from '@/composables/useCanvasSizing';
+import type { useCanvasSizing } from '@/stores/canvasSizing';
 import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
 import { useOpeHistory } from '@/stores/opeHistory';
