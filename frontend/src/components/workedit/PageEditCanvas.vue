@@ -34,7 +34,7 @@ onMounted(() => {
   canvas.setup(mainCanvas, tmpCanvas);
 
   opeHistory = useOpeHistory();
-  pageOperation = usePageOperation(applyWordChanges, canvasSizing);
+  pageOperation = usePageOperation(applyWordChanges);
 });
 
 const drawModeStore = useDrawMode();
@@ -72,12 +72,15 @@ useKeyboard(
     }
     if (e.key == 'ArrowRight') {
       await pageOperation!.tryGotoNextPage();
+      canvasSizing.initView();
     }
     if (e.key == 'ArrowLeft') {
       await pageOperation!.tryGotoPrevPage();
+      canvasSizing.initView();
     }
     if (e.key == 'D') {
       await pageOperation!.tryDeleteNowPage();
+      canvasSizing.initView();
     }
   },
   () => {}

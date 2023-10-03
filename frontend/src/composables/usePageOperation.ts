@@ -1,12 +1,8 @@
 import { useWorkPages } from '@/stores/workPages';
-import type { useCanvasSizing } from './useCanvasSizing';
 import { useCanvas } from '@/stores/canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 
-export const usePageOperation = (
-  applyWordChanges: () => void,
-  canvasSizing: ReturnType<typeof useCanvasSizing>
-) => {
+export const usePageOperation = (applyWordChanges: () => void) => {
   const workPagesStore = useWorkPages();
   const canvas = useCanvas();
 
@@ -42,7 +38,6 @@ export const usePageOperation = (
     } else {
       canvas.clear();
     }
-    canvasSizing.initView();
   }
   let pageLoading = false;
   async function tryGotoPrevPage() {
