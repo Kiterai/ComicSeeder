@@ -79,7 +79,9 @@ export const usePageOperation = (applyWordChanges: () => void) => {
     }
     pageLoading = false;
   }
-  loadNowPage();
+  async function setup() {
+    await loadNowPage();
+  }
 
-  return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage, tryGotoPageByIndex };
+  return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage, tryGotoPageByIndex, setup };
 };

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
-import { useDrawState } from '@/stores/drawState';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
 import { useWorkPages } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
-import { type ToolHandler } from './tools/ToolHandler';
 import { MoveToolHandler } from './tools/MoveToolHandler';
-import { eventToPenInput, type PenInput } from './tools/PenInput';
+import { PenToolHandler } from './tools/PenToolHandler';
+import { EraserToolHandler } from './tools/EraserToolHandler';
+import { WordToolHandler } from './tools/WordToolHandler';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -20,8 +20,8 @@ const isFinger = (e: PointerEvent) => e.pointerType == 'touch';
 const tmpCanvasRef = ref(null);
 const mainCanvasRef = ref(null);
 
-let opeHistory: ReturnType<typeof useOpeHistory> | null = null;
-let pageOperation: ReturnType<typeof usePageOperation> | null = null;
+const opeHistory = useOpeHistory();
+const pageOperation = usePageOperation(applyWordChanges);
 
 const canvas = useCanvas();
 
@@ -32,14 +32,10 @@ onMounted(() => {
   if (!(mainCanvas instanceof HTMLCanvasElement)) return;
 
   canvas.setup(mainCanvas, tmpCanvas);
-
-  opeHistory = useOpeHistory();
-  pageOperation = usePageOperation(applyWordChanges);
+  pageOperation.setup();
 });
 
 const drawModeStore = useDrawMode();
-const drawStateStore = useDrawState();
-
 const workPagesStore = useWorkPages();
 
 function getWordElem(id: number) {
@@ -64,238 +60,37 @@ useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
       if (isTextEditing()) return;
-      opeHistory!.tryUndo();
+      opeHistory.tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
       if (isTextEditing()) return;
-      opeHistory!.tryRedo();
+      opeHistory.tryRedo();
     }
     if (e.key == 'ArrowRight') {
-      await pageOperation!.tryGotoNextPage();
+      await pageOperation.tryGotoNextPage();
       canvasSizing.initView();
     }
     if (e.key == 'ArrowLeft') {
-      await pageOperation!.tryGotoPrevPage();
+      await pageOperation.tryGotoPrevPage();
       canvasSizing.initView();
     }
     if (e.key == 'D') {
-      await pageOperation!.tryDeleteNowPage();
+      await pageOperation.tryDeleteNowPage();
       canvasSizing.initView();
     }
   },
   () => {}
 );
 
-class PenToolHandler implements ToolHandler {
-  imgAtBegin: null | ImageData;
-  penHistory: PenInput[];
-  lastPenInput: null | PenInput;
-  constructor() {
-    this.imgAtBegin = null;
-    this.penHistory = [];
-    this.lastPenInput = null;
-  }
-  down(e: PointerEvent) {
-    opeHistory!.beginOperation();
-    this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e, canvasSizing);
-    this.penHistory.push(this.lastPenInput);
-
-    this.imgAtBegin = canvas.getImage();
-    const tmpctx = canvas.tmpctx!;
-    tmpctx.strokeStyle = drawStateStore.penColor;
-    tmpctx.lineCap = 'round';
-    tmpctx.lineWidth = drawStateStore.penWidth;
-    tmpctx.globalCompositeOperation = 'source-over';
-  }
-  move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e, canvasSizing);
-    const tmpctx = canvas.tmpctx!;
-    tmpctx.beginPath();
-    tmpctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
-    tmpctx.lineTo(newPenInput!.x, newPenInput!.y);
-    tmpctx.stroke();
-    this.lastPenInput = newPenInput;
-    this.penHistory.push(this.lastPenInput);
-  }
-  up(e: PointerEvent) {
-    const ctx = canvas.ctx!;
-    canvas.clearTmp();
-    let tmpLastPenInput: PenInput | null = null;
-
-    const nowPenColor = drawStateStore.penColor;
-    const nowPenWidth = drawStateStore.penWidth;
-    const nowPenHistory = this.penHistory;
-    const nowPage = workPagesStore.currentPageIndex;
-    const undoImg = this.imgAtBegin!;
-    const draw = () => {
-      ctx.strokeStyle = nowPenColor;
-      ctx.lineCap = 'round';
-      ctx.lineWidth = nowPenWidth;
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.beginPath();
-      for (const penInput of nowPenHistory) {
-        if (!tmpLastPenInput) {
-          tmpLastPenInput = penInput;
-          ctx.moveTo(penInput.x, penInput.y);
-          continue;
-        }
-        ctx.lineTo(penInput.x, penInput.y);
-      }
-      ctx.stroke();
-    };
-    draw();
-    opeHistory!.commitOperation({
-      redo: () => {
-        draw();
-      },
-      undo: () => {
-        ctx.putImageData(undoImg, 0, 0);
-      }
-    });
-  }
-}
-
-class EraserToolHandler implements ToolHandler {
-  imgAtBegin: null | ImageData;
-  penHistory: PenInput[];
-  lastPenInput: null | PenInput;
-  constructor() {
-    this.imgAtBegin = null;
-    this.penHistory = [];
-    this.lastPenInput = null;
-  }
-  down(e: PointerEvent) {
-    opeHistory!.beginOperation();
-    this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e, canvasSizing);
-    this.penHistory.push(this.lastPenInput);
-
-    this.imgAtBegin = canvas.getImage();
-    const ctx = canvas.ctx!;
-    ctx.lineCap = 'round';
-    ctx.lineWidth = drawStateStore.eraserWidth;
-    ctx.globalCompositeOperation = 'destination-out';
-  }
-  move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e, canvasSizing);
-    const ctx = canvas.ctx!;
-    ctx.beginPath();
-    ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
-    ctx.lineTo(newPenInput!.x, newPenInput!.y);
-    ctx.stroke();
-    this.lastPenInput = newPenInput;
-    this.penHistory.push(this.lastPenInput);
-  }
-  up(e: PointerEvent) {
-    const undoImg = this.imgAtBegin!;
-    const nowPenHistory = this.penHistory;
-    const ctx = canvas.ctx!;
-    opeHistory!.commitOperation({
-      redo: () => {
-        let tmpLastPenInput: PenInput | null = null;
-        ctx.lineCap = 'round';
-        ctx.lineWidth = drawStateStore.eraserWidth;
-        ctx.globalCompositeOperation = 'destination-out';
-        for (const penInput of nowPenHistory) {
-          ctx.beginPath();
-          ctx.moveTo(tmpLastPenInput!.x, tmpLastPenInput!.y);
-          ctx.lineTo(penInput!.x, penInput!.y);
-          ctx.stroke();
-          tmpLastPenInput = penInput;
-        }
-      },
-      undo: () => {
-        ctx.putImageData(undoImg, 0, 0);
-      }
-    });
-  }
-}
-
 const pageWords = computed(() =>
   workPagesStore.currentPage ? workPagesStore.currentPage.words : []
 );
-let pageWordActive = ref(-1);
-
-class WordToolHandler implements ToolHandler {
-  lastPenInput: null | PenInput;
-  constructor() {
-    this.lastPenInput = null;
-  }
-  down(e: PointerEvent) {
-    const penInput = eventToPenInput(e, canvasSizing);
-    let tmpPageWordId: number | null = null;
-    for (const pageWord of pageWords.value) {
-      if (
-        pageWord.rect.left <= penInput.x &&
-        penInput.x < pageWord.rect.left + pageWord.rect.width &&
-        pageWord.rect.top <= penInput.y &&
-        penInput.y < pageWord.rect.top + pageWord.rect.height
-      )
-        tmpPageWordId = pageWord.id;
-    }
-    if (tmpPageWordId !== null) {
-      const elem = getWordElem(tmpPageWordId);
-      if (elem instanceof HTMLElement) {
-        pageWordActive.value = tmpPageWordId;
-        elem.focus();
-        e.preventDefault();
-        return;
-      }
-    }
-    opeHistory!.beginOperation();
-    this.lastPenInput = penInput;
-    pageWords.value.push({
-      fontSize: 32,
-      id: pageWords.value.length,
-      rect: {
-        left: penInput.x,
-        top: penInput.y,
-        width: 0,
-        height: 0
-      },
-      word: ''
-    });
-  }
-  move(e: PointerEvent) {
-    if (!opeHistory!.isOperating()) return;
-    const penInput = eventToPenInput(e, canvasSizing);
-    pageWords.value[pageWords.value.length - 1].rect = {
-      left: Math.min(penInput.x, this.lastPenInput!.x),
-      top: Math.min(penInput.y, this.lastPenInput!.y),
-      width: Math.abs(penInput.x - this.lastPenInput!.x),
-      height: Math.abs(penInput.y - this.lastPenInput!.y)
-    };
-  }
-  up(e: PointerEvent) {
-    if (!opeHistory!.isOperating()) return;
-    const working = pageWords.value[pageWords.value.length - 1];
-    if (working.rect.width < 30 || working.rect.height < 30) {
-      pageWords.value.pop();
-      opeHistory!.cancelOperation();
-      return;
-    }
-    const elem = document.querySelector(`[data-word-id="${working.id}"]`);
-    if (elem instanceof HTMLElement) elem.focus();
-
-    opeHistory!.commitOperation({
-      undo: () => {
-        applyWordChanges();
-        const targetIndex = pageWords.value.findIndex((val) => val.id == working.id);
-        pageWords.value.splice(targetIndex, 1);
-      },
-      redo: () => {
-        pageWords.value.push(working);
-      }
-    });
-  }
-}
 
 const toolHandlers = {
   move: new MoveToolHandler(canvasSizing.touchManager),
-  pen: new PenToolHandler(),
-  eraser: new EraserToolHandler(),
-  word: new WordToolHandler()
+  pen: new PenToolHandler(opeHistory, canvasSizing),
+  eraser: new EraserToolHandler(canvasSizing, opeHistory),
+  word: new WordToolHandler(opeHistory, canvasSizing, getWordElem, applyWordChanges)
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];
@@ -381,7 +176,6 @@ const onmousemove = (e: MouseEvent) => {
         v-for="pageWord in pageWords"
         :key="pageWord.id"
         :data-word-id="pageWord.id"
-        :data-is-active="pageWordActive == pageWord.id"
         :contenteditable="drawModeStore.mode == 'word'"
         :class="$style.pageWord"
         :style="{
