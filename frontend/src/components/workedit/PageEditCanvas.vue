@@ -6,7 +6,7 @@ import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
-import { useWorkPages, type PageData, type PageWord } from '@/stores/workPages';
+import { useWorkPages, type PageWord } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
 import { type ToolHandler } from './tools/ToolHandler';
 import { MoveToolHandler } from './tools/MoveToolHandler';
