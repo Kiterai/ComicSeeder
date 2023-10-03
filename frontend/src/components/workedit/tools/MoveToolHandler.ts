@@ -1,9 +1,9 @@
 import { type ToolHandler } from './ToolHandler';
-import { CanvasTouchGestureManager } from '../CanvasTouchGestureManager';
+import { useCanvasTouchGesture } from '@/composables/useCanvasTouchGesture';
 
 export class MoveToolHandler implements ToolHandler {
-  touchManager: CanvasTouchGestureManager;
-  constructor(touchManager: CanvasTouchGestureManager) {
+  touchManager: ReturnType<typeof useCanvasTouchGesture>;
+  constructor(touchManager: ReturnType<typeof useCanvasTouchGesture>) {
     this.touchManager = touchManager;
   }
   down(e: PointerEvent) {

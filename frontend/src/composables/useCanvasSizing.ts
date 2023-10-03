@@ -1,7 +1,7 @@
 import { computed, ref, type Ref } from 'vue';
 import { useKeyboard } from './useKeyboard';
 import { useResize } from './useResize';
-import { CanvasTouchGestureManager } from '@/components/workedit/CanvasTouchGestureManager';
+import { useCanvasTouchGesture } from '@/composables/useCanvasTouchGesture';
 import { useWorkPages } from '@/stores/workPages';
 
 export const useCanvasSizing = () => {
@@ -50,7 +50,7 @@ export const useCanvasSizing = () => {
     };
   });
 
-  const touchManager = new CanvasTouchGestureManager(canvasCenterX, canvasCenterY, canvasScale);
+  const touchManager = useCanvasTouchGesture(canvasCenterX, canvasCenterY, canvasScale);
   const wheelZoom = (e: WheelEvent) => {
     const minScale = 1 / 50;
 
