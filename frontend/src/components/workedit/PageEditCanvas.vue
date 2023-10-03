@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/composables/useOpeHistory';
-import { useWorkPages, type PageWord } from '@/stores/workPages';
+import { useWorkPages } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
 import { type ToolHandler } from './tools/ToolHandler';
 import { MoveToolHandler } from './tools/MoveToolHandler';
@@ -34,7 +34,7 @@ onMounted(() => {
   canvas.setup(mainCanvas, tmpCanvas);
 
   opeHistory = useOpeHistory();
-  pageOperation = usePageOperation(applyWordChanges, canvasSizing, pageWords);
+  pageOperation = usePageOperation(applyWordChanges, canvasSizing);
 });
 
 const drawModeStore = useDrawMode();
@@ -209,7 +209,9 @@ class EraserToolHandler implements ToolHandler {
   }
 }
 
-const pageWords: Ref<Array<PageWord>> = ref([]);
+const pageWords = computed(() =>
+  workPagesStore.currentPage ? workPagesStore.currentPage.words : []
+);
 let pageWordActive = ref(-1);
 
 class WordToolHandler implements ToolHandler {
@@ -276,7 +278,8 @@ class WordToolHandler implements ToolHandler {
     opeHistory!.commitOperation({
       undo: () => {
         applyWordChanges();
-        pageWords.value = pageWords.value.filter((val) => val.id != working.id);
+        const targetIndex = pageWords.value.findIndex((val) => val.id == working.id);
+        pageWords.value.splice(targetIndex, 1);
       },
       redo: () => {
         pageWords.value.push(working);

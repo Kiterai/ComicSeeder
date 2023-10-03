@@ -1,31 +1,20 @@
-import { useWorkPages, type PageWord } from '@/stores/workPages';
+import { useWorkPages } from '@/stores/workPages';
 import type { useCanvasSizing } from './useCanvasSizing';
-import type { Ref } from 'vue';
 import { useCanvas } from '@/stores/canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 
 export const usePageOperation = (
   applyWordChanges: () => void,
-  canvasSizing: ReturnType<typeof useCanvasSizing>,
-  pageWords: Ref<Array<PageWord>>
+  canvasSizing: ReturnType<typeof useCanvasSizing>
 ) => {
   const workPagesStore = useWorkPages();
   const canvas = useCanvas();
 
   async function saveNowPage() {
     applyWordChanges();
-    workPagesStore.pages.length = Math.max(
-      workPagesStore.pages.length,
-      workPagesStore.currentPageIndex + 1
-    );
-    workPagesStore.pages[workPagesStore.currentPageIndex] = {
-      images: [await getImgCompressed(canvas.getImage())],
-      words: pageWords.value,
-      size: {
-        width: 1240,
-        height: 1754
-      }
-    };
+    workPagesStore.pages[workPagesStore.currentPageIndex].images = [
+      await getImgCompressed(canvas.getImage())
+    ];
   }
   async function loadNowPage() {
     while (workPagesStore.pages.length <= workPagesStore.currentPageIndex) {
@@ -53,7 +42,6 @@ export const usePageOperation = (
     } else {
       canvas.clear();
     }
-    pageWords.value = data.words;
     canvasSizing.initView();
   }
   let pageLoading = false;
