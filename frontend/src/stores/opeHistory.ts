@@ -6,7 +6,7 @@ export type Operation = {
   redo: () => void;
 };
 
-export const useOpeHistory = defineStore('drawState', () => {
+export const useOpeHistory = defineStore('opeHistory', () => {
   const isOperating = ref(true);
   const drawHistory = ref<Operation[]>([]);
   const undoHistory = ref<Operation[]>([]);
