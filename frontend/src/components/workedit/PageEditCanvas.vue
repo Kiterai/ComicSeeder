@@ -54,14 +54,20 @@ function applyWordChanges() {
   }
 }
 
+const isTextEditing = () => {
+  if (!document.activeElement) return false;
+  if (!(document.activeElement instanceof HTMLElement)) return false;
+  return document.activeElement.isContentEditable;
+};
+
 useKeyboard(
   async (e) => {
     if (e.ctrlKey && e.key == 'z') {
-      if (drawModeStore.mode == 'word') return;
+      if (isTextEditing()) return;
       opeHistory!.tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
-      if (drawModeStore.mode == 'word') return;
+      if (isTextEditing()) return;
       opeHistory!.tryRedo();
     }
     if (e.key == 'ArrowRight') {
