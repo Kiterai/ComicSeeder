@@ -4,7 +4,7 @@ import { useDrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
-import { useOpeHistory } from '@/composables/useOpeHistory';
+import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
 import { MoveToolHandler } from './tools/MoveToolHandler';
@@ -253,3 +253,4 @@ const onmousemove = (e: MouseEvent) => {
   touch-action: none;
 }
 </style>
+@/stores/useOpeHistory

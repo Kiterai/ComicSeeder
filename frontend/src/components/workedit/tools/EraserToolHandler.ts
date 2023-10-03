@@ -1,4 +1,4 @@
-import type { useOpeHistory } from '@/composables/useOpeHistory';
+import type { useOpeHistory } from '@/stores/opeHistory';
 import type { ToolHandler } from './ToolHandler';
 import { eventToPenInput, type PenInput } from './PenInput';
 import { useCanvas } from '@/stores/canvas';

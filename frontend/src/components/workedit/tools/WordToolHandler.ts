@@ -1,7 +1,7 @@
 import type { useCanvasSizing } from '@/composables/useCanvasSizing';
 import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
-import type { useOpeHistory } from '@/composables/useOpeHistory';
+import type { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages, type PageWord } from '@/stores/workPages';
 import { computed, type ComputedRef } from 'vue';
 
