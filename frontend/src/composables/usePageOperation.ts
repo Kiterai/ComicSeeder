@@ -75,6 +75,14 @@ export const usePageOperation = (
     await loadNowPage();
     pageLoading = false;
   }
+  async function tryGotoPageByIndex(index: number) {
+    if (pageLoading) return;
+    pageLoading = true;
+    await saveNowPage();
+    workPagesStore.nowPageIndex = index;
+    await loadNowPage();
+    pageLoading = false;
+  }
   async function tryDeleteNowPage() {
     if (pageLoading) return;
     pageLoading = true;
@@ -90,5 +98,5 @@ export const usePageOperation = (
   }
   loadNowPage();
 
-  return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage };
+  return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage, tryGotoPageByIndex };
 };
