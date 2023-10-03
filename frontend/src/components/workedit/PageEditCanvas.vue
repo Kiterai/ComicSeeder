@@ -87,10 +87,10 @@ const pageWords = computed(() =>
 );
 
 const toolHandlers = {
-  move: new MoveToolHandler(canvasSizing.touchManager),
-  pen: new PenToolHandler(canvasSizing),
-  eraser: new EraserToolHandler(canvasSizing),
-  word: new WordToolHandler(canvasSizing, getWordElem, applyWordChanges)
+  move: new MoveToolHandler(),
+  pen: new PenToolHandler(),
+  eraser: new EraserToolHandler(),
+  word: new WordToolHandler(getWordElem, applyWordChanges)
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];

@@ -1,10 +1,11 @@
+import { useCanvasSizing } from '@/stores/canvasSizing';
 import { type ToolHandler } from './ToolHandler';
 import { useCanvasTouchGesture } from '@/composables/useCanvasTouchGesture';
 
 export class MoveToolHandler implements ToolHandler {
   touchManager: ReturnType<typeof useCanvasTouchGesture>;
-  constructor(touchManager: ReturnType<typeof useCanvasTouchGesture>) {
-    this.touchManager = touchManager;
+  constructor() {
+    this.touchManager = useCanvasSizing().touchManager;
   }
   down(e: PointerEvent) {
     this.touchManager.onfingerdown(e);

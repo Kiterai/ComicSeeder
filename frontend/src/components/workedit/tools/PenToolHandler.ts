@@ -4,7 +4,7 @@ import type { ToolHandler } from './ToolHandler';
 import { useCanvas } from '@/stores/canvas';
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
-import type { useCanvasSizing } from '@/stores/canvasSizing';
+import { useCanvasSizing } from '@/stores/canvasSizing';
 
 export class PenToolHandler implements ToolHandler {
   imgAtBegin: null | ImageData;
@@ -16,7 +16,7 @@ export class PenToolHandler implements ToolHandler {
   workPagesStore: ReturnType<typeof useWorkPages>;
   canvasSizing: ReturnType<typeof useCanvasSizing>;
 
-  constructor(canvasSizing: ReturnType<typeof useCanvasSizing>) {
+  constructor() {
     this.imgAtBegin = null;
     this.penHistory = [];
     this.lastPenInput = null;
@@ -24,12 +24,12 @@ export class PenToolHandler implements ToolHandler {
     this.canvas = useCanvas();
     this.drawStateStore = useDrawState();
     this.workPagesStore = useWorkPages();
-    this.canvasSizing = canvasSizing;
+    this.canvasSizing = useCanvasSizing();
   }
   down(e: PointerEvent) {
     this.opeHistory.beginOperation();
     this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e, this.canvasSizing);
+    this.lastPenInput = eventToPenInput(e);
     this.penHistory.push(this.lastPenInput);
 
     this.imgAtBegin = this.canvas.getImage();
@@ -40,7 +40,7 @@ export class PenToolHandler implements ToolHandler {
     tmpctx.globalCompositeOperation = 'source-over';
   }
   move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e, this.canvasSizing);
+    const newPenInput = eventToPenInput(e);
     const tmpctx = this.canvas.tmpctx!;
     tmpctx.beginPath();
     tmpctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);

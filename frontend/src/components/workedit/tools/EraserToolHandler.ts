@@ -2,7 +2,7 @@ import { useOpeHistory } from '@/stores/opeHistory';
 import type { ToolHandler } from './ToolHandler';
 import { eventToPenInput, type PenInput } from './PenInput';
 import { useCanvas } from '@/stores/canvas';
-import type { useCanvasSizing } from '@/stores/canvasSizing';
+import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useDrawState } from '@/stores/drawState';
 
 export class EraserToolHandler implements ToolHandler {
@@ -14,19 +14,19 @@ export class EraserToolHandler implements ToolHandler {
   canvasSizing: ReturnType<typeof useCanvasSizing>;
   drawStateStore: ReturnType<typeof useDrawState>;
 
-  constructor(canvasSizing: ReturnType<typeof useCanvasSizing>) {
+  constructor() {
     this.imgAtBegin = null;
     this.penHistory = [];
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
     this.canvas = useCanvas();
-    this.canvasSizing = canvasSizing;
+    this.canvasSizing = useCanvasSizing();
     this.drawStateStore = useDrawState();
   }
   down(e: PointerEvent) {
     this.opeHistory.beginOperation();
     this.penHistory = [];
-    this.lastPenInput = eventToPenInput(e, this.canvasSizing);
+    this.lastPenInput = eventToPenInput(e);
     this.penHistory.push(this.lastPenInput);
 
     this.imgAtBegin = this.canvas.getImage();
@@ -36,7 +36,7 @@ export class EraserToolHandler implements ToolHandler {
     ctx.globalCompositeOperation = 'destination-out';
   }
   move(e: PointerEvent) {
-    const newPenInput = eventToPenInput(e, this.canvasSizing);
+    const newPenInput = eventToPenInput(e);
     const ctx = this.canvas.ctx!;
     ctx.beginPath();
     ctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);

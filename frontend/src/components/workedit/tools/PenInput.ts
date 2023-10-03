@@ -1,4 +1,4 @@
-import type { useCanvasSizing } from '@/stores/canvasSizing';
+import { useCanvasSizing } from '@/stores/canvasSizing';
 
 export type PenInput = {
   x: number;
@@ -6,7 +6,8 @@ export type PenInput = {
   pressure: number;
 };
 
-export const eventToPenInput = (e: PointerEvent, cs: ReturnType<typeof useCanvasSizing>) => {
+export const eventToPenInput = (e: PointerEvent) => {
+  const cs = useCanvasSizing();
   const p = cs.clientToCanvas(e.clientX, e.clientY);
   return {
     x: p.x,

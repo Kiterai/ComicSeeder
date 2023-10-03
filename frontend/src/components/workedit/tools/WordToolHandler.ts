@@ -1,4 +1,4 @@
-import type { useCanvasSizing } from '@/stores/canvasSizing';
+import { useCanvasSizing } from '@/stores/canvasSizing';
 import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
 import { useOpeHistory } from '@/stores/opeHistory';
@@ -13,14 +13,10 @@ export class WordToolHandler implements ToolHandler {
   getWordElem: (id: number) => HTMLElement | null;
   applyWordChanges: () => void;
 
-  constructor(
-    canvasSizing: ReturnType<typeof useCanvasSizing>,
-    getWordElem: (id: number) => HTMLElement | null,
-    applyWordChanges: () => void
-  ) {
+  constructor(getWordElem: (id: number) => HTMLElement | null, applyWordChanges: () => void) {
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
-    this.canvasSizing = canvasSizing;
+    this.canvasSizing = useCanvasSizing();
 
     const workPagesStore = useWorkPages();
     this.pageWords = computed(() =>
@@ -30,7 +26,7 @@ export class WordToolHandler implements ToolHandler {
     this.applyWordChanges = applyWordChanges;
   }
   down(e: PointerEvent) {
-    const penInput = eventToPenInput(e, this.canvasSizing);
+    const penInput = eventToPenInput(e);
     let tmpPageWordId: number | null = null;
     for (const pageWord of this.pageWords.value) {
       if (
@@ -65,7 +61,7 @@ export class WordToolHandler implements ToolHandler {
   }
   move(e: PointerEvent) {
     if (!this.opeHistory.isOperating()) return;
-    const penInput = eventToPenInput(e, this.canvasSizing);
+    const penInput = eventToPenInput(e);
     this.pageWords.value[this.pageWords.value.length - 1].rect = {
       left: Math.min(penInput.x, this.lastPenInput!.x),
       top: Math.min(penInput.y, this.lastPenInput!.y),
