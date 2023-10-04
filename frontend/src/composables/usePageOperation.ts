@@ -2,12 +2,11 @@ import { useWorkPages } from '@/stores/workPages';
 import { useCanvas } from '@/stores/canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 
-export const usePageOperation = (applyWordChanges: () => void) => {
+export const usePageOperation = () => {
   const workPagesStore = useWorkPages();
   const canvas = useCanvas();
 
   async function saveNowPage() {
-    applyWordChanges();
     workPagesStore.pages[workPagesStore.currentPageIndex].images = [
       await getImgCompressed(canvas.getImage())
     ];

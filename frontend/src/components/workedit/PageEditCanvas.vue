@@ -21,7 +21,7 @@ const tmpCanvasRef = ref(null);
 const mainCanvasRef = ref(null);
 
 const opeHistory = useOpeHistory();
-const pageOperation = usePageOperation(applyWordChanges);
+const pageOperation = usePageOperation();
 
 const canvas = useCanvas();
 
@@ -90,7 +90,7 @@ const toolHandlers = {
   move: new MoveToolHandler(),
   pen: new PenToolHandler(),
   eraser: new EraserToolHandler(),
-  word: new WordToolHandler(getWordElem, applyWordChanges)
+  word: new WordToolHandler(getWordElem)
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];
@@ -172,8 +172,8 @@ const onmousemove = (e: MouseEvent) => {
       ref="tmpCanvasRef"
     ></canvas>
     <div :style="canvasSizing.canvasStyle" :class="$style.pageWordContainer">
-      <div
-        v-for="pageWord in pageWords"
+      <textarea
+        v-for="(pageWord, index) in pageWords"
         :key="pageWord.id"
         :data-word-id="pageWord.id"
         :contenteditable="drawModeStore.mode == 'word'"
@@ -185,9 +185,9 @@ const onmousemove = (e: MouseEvent) => {
           height: `${pageWord.rect.height}px`,
           border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid #000`
         }"
+        v-model="pageWords[index].word"
       >
-        {{ pageWord.word }}
-      </div>
+      </textarea>
     </div>
     <div :class="$style.pageNumber">
       {{ workPagesStore.currentPageIndex + 1 }} / {{ workPagesStore.pages.length }}
@@ -232,6 +232,7 @@ const onmousemove = (e: MouseEvent) => {
   writing-mode: vertical-rl;
   outline: none;
   white-space: pre;
+  resize: none;
 }
 .pageWord:focus {
   border-color: #f00 !important;

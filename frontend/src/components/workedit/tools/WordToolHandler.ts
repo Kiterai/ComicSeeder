@@ -11,9 +11,8 @@ export class WordToolHandler implements ToolHandler {
   canvasSizing: ReturnType<typeof useCanvasSizing>;
   pageWords: ComputedRef<PageWord[]>;
   getWordElem: (id: number) => HTMLElement | null;
-  applyWordChanges: () => void;
 
-  constructor(getWordElem: (id: number) => HTMLElement | null, applyWordChanges: () => void) {
+  constructor(getWordElem: (id: number) => HTMLElement | null) {
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
     this.canvasSizing = useCanvasSizing();
@@ -23,7 +22,6 @@ export class WordToolHandler implements ToolHandler {
       workPagesStore.currentPage ? workPagesStore.currentPage.words : []
     );
     this.getWordElem = getWordElem;
-    this.applyWordChanges = applyWordChanges;
   }
   down(e: PointerEvent) {
     const penInput = eventToPenInput(e);
@@ -82,7 +80,6 @@ export class WordToolHandler implements ToolHandler {
 
     this.opeHistory.commitOperation({
       undo: () => {
-        this.applyWordChanges();
         const targetIndex = this.pageWords.value.findIndex((val) => val.id == working.id);
         this.pageWords.value.splice(targetIndex, 1);
       },
