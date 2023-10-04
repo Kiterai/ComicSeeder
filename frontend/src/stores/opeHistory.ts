@@ -9,7 +9,7 @@ export type Operation = {
 };
 
 export const useOpeHistory = defineStore('opeHistory', () => {
-  const isOperating = ref(true);
+  const isOperating = ref(false);
   const drawHistory = ref<Operation[]>([]);
   const undoHistory = ref<Operation[]>([]);
 
@@ -17,6 +17,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   const pageOperation = usePageOperation();
 
   function beginOperation() {
+    if (isOperating.value) throw new Error('already operation running');
     isOperating.value = true;
   }
   function cancelOperation() {
@@ -43,16 +44,20 @@ export const useOpeHistory = defineStore('opeHistory', () => {
 
     const last = drawHistory.value.pop();
     if (!last) return;
+    isOperating.value = true;
     undoHistory.value.push(last);
-    last.undo();
+    await last.undo();
+    isOperating.value = false;
   }
   async function tryRedo() {
     if (isOperating.value) return;
 
     const last = undoHistory.value.pop();
     if (!last) return;
+    isOperating.value = true;
     drawHistory.value.push(last);
-    last.redo();
+    await last.redo();
+    isOperating.value = false;
   }
 
   return {
