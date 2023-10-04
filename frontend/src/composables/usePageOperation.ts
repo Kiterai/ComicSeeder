@@ -58,6 +58,7 @@ export const usePageOperation = () => {
     pageLoading = false;
   }
   async function tryGotoPageByIndex(index: number) {
+    if (workPagesStore.currentPageIndex === index) return;
     if (pageLoading) return;
     pageLoading = true;
     await saveNowPage();
