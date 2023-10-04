@@ -50,5 +50,5 @@ export const useWorks = defineStore('works', () => {
     return newId;
   };
 
-  return { works };
+  return { works, addWork };
 });

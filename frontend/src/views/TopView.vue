@@ -1,9 +1,22 @@
+<script setup lang="ts">
+import { useWorks } from '@/stores/works';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const works = useWorks();
+const moveToNewWork = () => {
+  const newId = works.addWork();
+  router.push(`/works/${newId}`);
+};
+</script>
+
 <template>
   <div :class="$style.outerContainer">
     <h1 :class="$style.logo">ComicSeeder</h1>
     <div :class="$style.container">
       <RouterLink to="/works" :class="$style.topButton">Works List</RouterLink>
-      <a :class="$style.topButton">New Work</a>
+      <button :class="$style.topButton" :onclick="moveToNewWork">New Work</button>
     </div>
   </div>
 </template>
@@ -30,6 +43,8 @@
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
+  cursor: pointer;
+  background-color: #fff;
   border: 0.2rem solid #8e8;
   color: #8e8;
   margin: 0 0.2rem;
