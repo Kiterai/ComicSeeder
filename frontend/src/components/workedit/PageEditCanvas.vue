@@ -43,12 +43,6 @@ function getWordElem(id: number) {
   if (elem instanceof HTMLElement) return elem;
   return null;
 }
-function applyWordChanges() {
-  for (let i = 0; i < pageWords.value.length; i++) {
-    const elem = getWordElem(pageWords.value[i].id);
-    if (elem) pageWords.value[i].word = elem.innerText;
-  }
-}
 
 const isTextEditing = () => {
   if (!document.activeElement) return false;
