@@ -63,7 +63,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     tryUndo,
 
     isOperating: () => {
-      return isOperating;
+      return isOperating.value;
     }
   };
 });
