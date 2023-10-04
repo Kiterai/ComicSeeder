@@ -50,7 +50,7 @@ export class EraserToolHandler implements ToolHandler {
     const nowPenHistory = this.penHistory;
     const ctx = this.canvas.ctx!;
     this.opeHistory.commitOperation({
-      redo: () => {
+      redo: async () => {
         let tmpLastPenInput: PenInput | null = null;
         ctx.lineCap = 'round';
         ctx.lineWidth = this.drawStateStore.eraserWidth;
@@ -63,7 +63,7 @@ export class EraserToolHandler implements ToolHandler {
           tmpLastPenInput = penInput;
         }
       },
-      undo: () => {
+      undo: async () => {
         ctx.putImageData(undoImg, 0, 0);
       }
     });

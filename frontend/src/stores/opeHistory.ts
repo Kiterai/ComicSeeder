@@ -4,8 +4,8 @@ import { useWorkPages } from './workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
 
 export type Operation = {
-  undo: () => void;
-  redo: () => void;
+  undo: () => Promise<any>;
+  redo: () => Promise<any>;
 };
 
 export const useOpeHistory = defineStore('opeHistory', () => {
@@ -38,7 +38,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     undoHistory.value.length = 0;
   }
 
-  function tryUndo() {
+  async function tryUndo() {
     if (isOperating.value) return;
 
     const last = drawHistory.value.pop();
@@ -46,7 +46,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     undoHistory.value.push(last);
     last.undo();
   }
-  function tryRedo() {
+  async function tryRedo() {
     if (isOperating.value) return;
 
     const last = undoHistory.value.pop();

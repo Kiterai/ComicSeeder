@@ -77,10 +77,10 @@ export class PenToolHandler implements ToolHandler {
     };
     draw();
     this.opeHistory.commitOperation({
-      redo: () => {
+      redo: async () => {
         draw();
       },
-      undo: () => {
+      undo: async () => {
         ctx.putImageData(undoImg, 0, 0);
       }
     });

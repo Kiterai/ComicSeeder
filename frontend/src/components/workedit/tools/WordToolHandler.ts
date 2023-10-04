@@ -79,11 +79,11 @@ export class WordToolHandler implements ToolHandler {
     if (elem instanceof HTMLElement) elem.focus();
 
     this.opeHistory.commitOperation({
-      undo: () => {
+      undo: async () => {
         const targetIndex = this.pageWords.value.findIndex((val) => val.id == working.id);
         this.pageWords.value.splice(targetIndex, 1);
       },
-      redo: () => {
+      redo: async () => {
         this.pageWords.value.push(working);
       }
     });
