@@ -33,5 +33,22 @@ export const useWorks = defineStore('works', () => {
       updatedAt: '-'
     }
   ]);
+
+  const generateNewId = () => {
+    return works.value.length.toString(); // TODO: uuid
+  };
+
+  const addWork = () => {
+    const newId = generateNewId();
+    works.value.push({
+      id: newId,
+      title: 'untitled',
+      pageNum: 1,
+      createdAt: '-',
+      updatedAt: '-'
+    });
+    return newId;
+  };
+
   return { works };
 });
