@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useWorkPages } from './workPages';
+import { usePageOperation } from '@/composables/usePageOperation';
 
 export type Operation = {
   undo: () => void;
@@ -10,6 +12,10 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   const isOperating = ref(true);
   const drawHistory = ref<Operation[]>([]);
   const undoHistory = ref<Operation[]>([]);
+
+  const workPages = useWorkPages();
+  // const pageOperation = usePageOperation();
+
   function beginOperation() {
     isOperating.value = true;
   }
@@ -18,7 +24,17 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   }
   function commitOperation(op: Operation) {
     isOperating.value = false;
-    drawHistory.value.push(op);
+    const opePage = workPages.currentPageIndex;
+    drawHistory.value.push({
+      redo: () => {
+        // pageOperation.tryGotoPageByIndex(opePage);
+        op.redo();
+      },
+      undo: () => {
+        // pageOperation.tryGotoPageByIndex(opePage);
+        op.undo();
+      }
+    });
     undoHistory.value.length = 0;
   }
 
