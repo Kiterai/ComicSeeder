@@ -1,3 +1,4 @@
+import { connectDb } from '@/lib/indexedDb';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -26,42 +27,26 @@ export const useWorks = defineStore('works', () => {
       updatedAt: '-'
     };
 
-    const req = window.indexedDB.open('ComicSeederDB');
-    req.onupgradeneeded = (e) => {
-      const db = req.result;
-      db.createObjectStore('works', {
-        keyPath: 'id'
-      });
-    };
-    req.onsuccess = (e) => {
-      const db = req.result;
+    connectDb().then((db) => {
       const tra = db.transaction('works', 'readwrite');
       const objStore = tra.objectStore('works');
       objStore.add(newWork);
-    };
+    });
 
     works.value.push(newWork);
     return newId;
   };
 
-  const req = window.indexedDB.open('ComicSeederDB');
-  req.onupgradeneeded = (e) => {
-    const db = req.result;
-    db.createObjectStore('works', {
-      keyPath: 'id'
-    });
-  };
-  req.onsuccess = (e) => {
-    const db = req.result;
+  connectDb().then((db) => {
     const tra = db.transaction('works', 'readonly');
     const objStore = tra.objectStore('works');
-    const q = objStore.getAll();
-    q.onsuccess = (e) => {
-      for (const workOnDb of q.result) {
+    const req = objStore.getAll();
+    req.onsuccess = (e) => {
+      for (const workOnDb of req.result) {
         works.value.push(workOnDb);
       }
     };
-  };
+  });
 
   return { works, addWork };
 });
