@@ -52,12 +52,11 @@ const isTextEditing = () => {
 
 useKeyboard(
   async (e) => {
+    if (isTextEditing()) return;
     if (e.ctrlKey && e.key == 'z') {
-      if (isTextEditing()) return;
       opeHistory.tryUndo();
     }
     if (e.ctrlKey && e.key == 'y') {
-      if (isTextEditing()) return;
       opeHistory.tryRedo();
     }
     if (e.key == 'ArrowRight') {
