@@ -184,7 +184,7 @@ const onmousemove = (e: MouseEvent) => {
       </textarea>
     </div>
     <div :class="$style.pageNumber">
-      {{ pageOperation.currentPageIndex + 1 }} / {{ pageOperation.currentWorkPagesNum }}
+      {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
     <div
       :class="$style.surface"
