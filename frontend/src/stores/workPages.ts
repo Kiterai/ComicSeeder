@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useCanvas } from './canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
+import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
 
 type Rect = {
   left: number;
@@ -30,41 +31,26 @@ export type PageData = {
 };
 
 export const useWorkPages = defineStore('workPages', () => {
-  const pages = ref<Array<PageData>>([]);
   const currentPageIndex = ref(0);
-  const currentPage = computed<PageData | undefined>(() => {
-    return pages.value.at(currentPageIndex.value);
+  const currentPage = ref<PageData>({
+    id: '',
+    images: [],
+    words: [],
+    size: {
+      width: 1,
+      height: 1
+    }
   });
   const currentPageWidth = computed(() => (currentPage.value ? currentPage.value.size.width : 1));
   const currentPageHeight = computed(() => (currentPage.value ? currentPage.value.size.height : 1));
 
   const canvas = useCanvas();
 
-  // const connectWorkPageDB = () => {
-  //   return new Promise((resolve, reject) => {
-  //     const req = window.indexedDB.open('ComicSeederDB');
-  //     req.onupgradeneeded = (e) => {
-  //       const db = req.result;
-  //       db.createObjectStore('workPages', {
-  //         keyPath: 'id'
-  //       });
-  //     };
-  //     req.onsuccess = (e) => {
-  //       const db = req.result;
-  //       const tra = db.transaction('workPages', 'readwrite');
-  //       resolve(tra.objectStore('workPages'));
-  //     };
-  //     req.onerror = (e) => {
-  //       reject(e);
-  //     };
-  //   });
-  // };
-
   const generateNewId = () => {
-    return pages.value.length.toString(); // TODO: uuid
+    return new Date().toISOString(); // TODO: uuid
   };
 
-  function addBlankPage() {
+  async function addBlankPage() {
     const newPage: PageData = {
       id: generateNewId(),
       images: [],
@@ -74,20 +60,35 @@ export const useWorkPages = defineStore('workPages', () => {
         height: 1754
       }
     };
-
-    pages.value.push(newPage);
+    await connectDb().then((db) => {
+      const tra = db.transaction('workPages', 'readwrite');
+      const objStore = tra.objectStore('workPages');
+      return makeDbReqPromise(objStore.put(newPage, newPage.id));
+    });
+    return newPage.id;
   }
 
-  async function saveNowPage() {
-    pages.value[currentPageIndex.value].images = [await getImgCompressed(canvas.getImage())];
+  async function saveCurrentPage() {
+    currentPage.value.images = [await getImgCompressed(canvas.getImage())];
+    await connectDb().then((db) => {
+      const tra = db.transaction('workPages', 'readwrite');
+      const objStore = tra.objectStore('workPages');
+      return makeDbReqPromise(objStore.put(currentPage.value, currentPage.value.id));
+    });
   }
-  async function loadNowPage() {
-    while (pages.value.length <= currentPageIndex.value) {
-      addBlankPage();
-    }
-    const data = pages.value[currentPageIndex.value];
-    if (data.images.length > 0) {
-      for (const rawImgData of data.images) {
+  async function loadPage(id: string) {
+    await connectDb()
+      .then((db) => {
+        const tra = db.transaction('workPages', 'readonly');
+        const objStore = tra.objectStore('workPages');
+        return makeDbReqPromise<PageData>(objStore.get(id));
+      })
+      .then((data) => {
+        currentPage.value = data;
+      });
+
+    if (currentPage.value.images.length > 0) {
+      for (const rawImgData of currentPage.value.images) {
         const imgData = new ImageData(
           await getImgDecompressed(rawImgData),
           currentPageWidth.value,
@@ -103,12 +104,12 @@ export const useWorkPages = defineStore('workPages', () => {
   }
 
   return {
-    pages,
     currentPageIndex,
     currentPage,
     currentPageWidth,
     currentPageHeight,
-    saveNowPage,
-    loadNowPage
+    saveCurrentPage,
+    loadPage,
+    addBlankPage
   };
 });
