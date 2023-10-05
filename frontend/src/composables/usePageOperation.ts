@@ -1,7 +1,7 @@
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 
 export const usePageOperation = () => {
   const worksStore = useWorks();
@@ -21,6 +21,7 @@ export const usePageOperation = () => {
   async function completePages() {
     while (currentWorkPagesNum.value <= drawState.currentPageIndex)
       currentWork.value.pageIds.push(await workPagesStore.addBlankPage());
+    worksStore.updateWork(toRaw(currentWork.value));
   }
   async function loadCurrentIndexPage() {
     await workPagesStore.loadPage(currentWork.value.pageIds[drawState.currentPageIndex]);
