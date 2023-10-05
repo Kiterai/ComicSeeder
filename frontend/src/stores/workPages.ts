@@ -31,7 +31,6 @@ export type PageData = {
 };
 
 export const useWorkPages = defineStore('workPages', () => {
-  const currentPageIndex = ref(0);
   const currentPage = ref<PageData>({
     id: '',
     images: [],
@@ -63,7 +62,7 @@ export const useWorkPages = defineStore('workPages', () => {
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
-      return makeDbReqPromise(objStore.put(newPage, newPage.id));
+      return makeDbReqPromise(objStore.put(newPage));
     });
     return newPage.id;
   }
@@ -73,7 +72,7 @@ export const useWorkPages = defineStore('workPages', () => {
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
-      return makeDbReqPromise(objStore.put(currentPage.value, currentPage.value.id));
+      return makeDbReqPromise(objStore.put(currentPage.value));
     });
   }
   async function loadPage(id: string) {
@@ -104,7 +103,6 @@ export const useWorkPages = defineStore('workPages', () => {
   }
 
   return {
-    currentPageIndex,
     currentPage,
     currentPageWidth,
     currentPageHeight,

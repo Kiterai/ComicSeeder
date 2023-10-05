@@ -1,58 +1,70 @@
 import { useWorkPages } from '@/stores/workPages';
-import { computed } from 'vue';
+import { useWorks } from '@/stores/works';
+import { computed, ref } from 'vue';
 
 export const usePageOperation = () => {
+  const worksStore = useWorks();
   const workPagesStore = useWorkPages();
+
+  const currentPageIndex = ref(0);
+  const currentWork = computed(() => {
+    return worksStore.works[0];   // TODO
+  });
+  const currentWorkPagesNum = computed(() => {
+    return currentWork.value.pageIds.length;
+  });
+
+  async function completePages() {
+    while (currentWorkPagesNum.value <= currentPageIndex.value)
+      currentWork.value.pageIds.push(await workPagesStore.addBlankPage());
+  }
+  async function loadCurrentIndexPage() {
+    await workPagesStore.loadPage(currentWork.value.pageIds[currentPageIndex.value]);
+  }
 
   let pageLoading = false;
   async function tryGotoPrevPage() {
     if (pageLoading) return;
     pageLoading = true;
-    // if (workPagesStore.currentPageIndex > 0) {
-    //   await workPagesStore.saveNowPage();
-    //   workPagesStore.currentPageIndex--;
-    //   await workPagesStore.loadNowPage();
-    // }
+    if (currentPageIndex.value > 0) {
+      await workPagesStore.saveCurrentPage();
+      currentPageIndex.value--;
+      await loadCurrentIndexPage();
+    }
     pageLoading = false;
   }
   async function tryGotoNextPage() {
     if (pageLoading) return;
     pageLoading = true;
-    // await workPagesStore.saveNowPage();
-    // workPagesStore.currentPageIndex++;
-    // await workPagesStore.loadNowPage();
+    await workPagesStore.saveCurrentPage();
+    currentPageIndex.value++;
+    await completePages();
+    await loadCurrentIndexPage();
     pageLoading = false;
   }
   async function tryGotoPageByIndex(index: number) {
-    if (workPagesStore.currentPageIndex === index) return;
+    if (currentPageIndex.value === index) return;
     if (pageLoading) return;
     pageLoading = true;
-    // await workPagesStore.saveNowPage();
-    // workPagesStore.currentPageIndex = index;
-    // await workPagesStore.loadNowPage();
+    await workPagesStore.saveCurrentPage();
+    currentPageIndex.value = index;
+    await completePages();
+    await loadCurrentIndexPage();
     pageLoading = false;
   }
   async function tryDeleteNowPage() {
     if (pageLoading) return;
     pageLoading = true;
-    // if (workPagesStore.pages.length > 1) {
-    //   workPagesStore.pages.splice(workPagesStore.currentPageIndex, 1);
-    //   workPagesStore.currentPageIndex = Math.min(
-    //     workPagesStore.currentPageIndex,
-    //     workPagesStore.pages.length - 1
-    //   );
-    //   await workPagesStore.loadNowPage();
-    // }
+    if (currentWorkPagesNum.value > 1) {
+      currentWork.value.pageIds.splice(currentPageIndex.value, 1);
+      currentPageIndex.value = Math.min(currentPageIndex.value, currentWorkPagesNum.value - 1);
+      await loadCurrentIndexPage();
+    }
     pageLoading = false;
   }
-  const currentWorkPagesNum = computed(() => {
-    return 1; // workPagesStore.pages.length;
-  });
-  const currentPageIndex = computed(() => {
-    return 0; // workPagesStore.currentPageIndex;
-  });
   async function setup() {
-    // await workPagesStore.loadNowPage();
+    await completePages();
+    await loadCurrentIndexPage();
   }
 
   return {
