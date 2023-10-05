@@ -23,6 +23,7 @@ export type PageWord = {
 };
 
 export type PageData = {
+  id: string;
   images: Array<Uint8Array>;
   words: Array<PageWord>;
   size: Size;
@@ -38,21 +39,51 @@ export const useWorkPages = defineStore('workPages', () => {
   const currentPageHeight = computed(() => (currentPage.value ? currentPage.value.size.height : 1));
 
   const canvas = useCanvas();
+
+  // const connectWorkPageDB = () => {
+  //   return new Promise((resolve, reject) => {
+  //     const req = window.indexedDB.open('ComicSeederDB');
+  //     req.onupgradeneeded = (e) => {
+  //       const db = req.result;
+  //       db.createObjectStore('workPages', {
+  //         keyPath: 'id'
+  //       });
+  //     };
+  //     req.onsuccess = (e) => {
+  //       const db = req.result;
+  //       const tra = db.transaction('workPages', 'readwrite');
+  //       resolve(tra.objectStore('workPages'));
+  //     };
+  //     req.onerror = (e) => {
+  //       reject(e);
+  //     };
+  //   });
+  // };
+
+  const generateNewId = () => {
+    return pages.value.length.toString(); // TODO: uuid
+  };
+
+  function addBlankPage() {
+    const newPage: PageData = {
+      id: generateNewId(),
+      images: [],
+      words: [],
+      size: {
+        width: 1240, // A4, 150dpi
+        height: 1754
+      }
+    };
+
+    pages.value.push(newPage);
+  }
+
   async function saveNowPage() {
-    pages.value[currentPageIndex.value].images = [
-      await getImgCompressed(canvas.getImage())
-    ];
+    pages.value[currentPageIndex.value].images = [await getImgCompressed(canvas.getImage())];
   }
   async function loadNowPage() {
     while (pages.value.length <= currentPageIndex.value) {
-      pages.value.push({
-        images: [],
-        words: [],
-        size: {
-          width: 1240, // A4, 150dpi
-          height: 1754
-        }
-      });
+      addBlankPage();
     }
     const data = pages.value[currentPageIndex.value];
     if (data.images.length > 0) {
@@ -71,5 +102,13 @@ export const useWorkPages = defineStore('workPages', () => {
     }
   }
 
-  return { pages, currentPageIndex, currentPage, currentPageWidth, currentPageHeight, saveNowPage, loadNowPage };
+  return {
+    pages,
+    currentPageIndex,
+    currentPage,
+    currentPageWidth,
+    currentPageHeight,
+    saveNowPage,
+    loadNowPage
+  };
 });
