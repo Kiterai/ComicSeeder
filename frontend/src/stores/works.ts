@@ -5,7 +5,7 @@ import { ref } from 'vue';
 type WorkData = {
   id: string;
   title: string;
-  pageNum: number;
+  pageIds: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -22,7 +22,7 @@ export const useWorks = defineStore('works', () => {
     const newWork = {
       id: newId,
       title: 'untitled',
-      pageNum: 1,
+      pageIds: [],
       createdAt: '-',
       updatedAt: '-'
     };
