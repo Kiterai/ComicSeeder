@@ -171,6 +171,7 @@ const onmousemove = (e: MouseEvent) => {
         :key="pageWord.id"
         :data-word-id="pageWord.id"
         :contenteditable="drawModeStore.mode == 'word'"
+        spellcheck="false"
         :class="$style.pageWord"
         :style="{
           transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
