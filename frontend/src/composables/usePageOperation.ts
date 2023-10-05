@@ -1,7 +1,7 @@
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
-import { useWorks } from '@/stores/works';
-import { computed, ref, toRaw } from 'vue';
+import { useWorks, type WorkData } from '@/stores/works';
+import { computed, toRaw } from 'vue';
 
 export const usePageOperation = () => {
   const worksStore = useWorks();
@@ -9,7 +9,17 @@ export const usePageOperation = () => {
   const drawState = useDrawState();
 
   const currentWork = computed(() => {
-    return worksStore.works[0]; // TODO
+    const dummy: WorkData = {
+      id: '',
+      title: 'dummy',
+      pageIds: [],
+      createdAt: '',
+      updatedAt: ''
+    };
+    if (!drawState.currentWorkId) return dummy;
+    const tmp = worksStore.works.find((work) => work.id === drawState.currentWorkId);
+    if (!tmp) throw new Error(`invalid work id: ${drawState.currentWorkId}`);
+    return tmp;
   });
   const currentPageIndex = computed(() => {
     return drawState.currentPageIndex;

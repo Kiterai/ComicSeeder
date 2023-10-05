@@ -2,7 +2,7 @@ import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-type WorkData = {
+export type WorkData = {
   id: string;
   title: string;
   pageIds: string[];
