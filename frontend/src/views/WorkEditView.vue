@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import WorkEdit from '@/components/workedit/WorkEdit.vue';
+import { useDrawState } from '@/stores/drawState';
 
 const props = defineProps<{
   id: string;
 }>();
+
+const drawStateStore = useDrawState();
+drawStateStore.currentWorkId = props.id;
+
 </script>
 
 <template>
