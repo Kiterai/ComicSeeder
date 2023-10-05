@@ -18,3 +18,14 @@ export function connectDb() {
     };
   });
 }
+
+export function makeDbReqPromise<T>(req: IDBRequest) {
+  return new Promise<T>((resolve, reject) => {
+    req.onsuccess = (e) => {
+      resolve(req.result);
+    };
+    req.onerror = (e) => {
+      reject(e);
+    };
+  });
+}
