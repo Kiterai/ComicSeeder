@@ -1,4 +1,5 @@
 import { useWorkPages } from '@/stores/workPages';
+import { computed } from 'vue';
 
 export const usePageOperation = () => {
   const workPagesStore = useWorkPages();
@@ -44,9 +45,23 @@ export const usePageOperation = () => {
     }
     pageLoading = false;
   }
+  const currentWorkPagesNum = computed(() => {
+    return workPagesStore.pages.length;
+  });
+  const currentPageIndex = computed(() => {
+    return workPagesStore.currentPageIndex;
+  });
   async function setup() {
     await workPagesStore.loadNowPage();
   }
 
-  return { tryGotoPrevPage, tryGotoNextPage, tryDeleteNowPage, tryGotoPageByIndex, setup };
+  return {
+    tryGotoPrevPage,
+    tryGotoNextPage,
+    tryDeleteNowPage,
+    tryGotoPageByIndex,
+    setup,
+    currentWorkPagesNum,
+    currentPageIndex
+  };
 };
