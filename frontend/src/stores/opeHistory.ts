@@ -13,7 +13,6 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   const drawHistory = ref<Operation[]>([]);
   const undoHistory = ref<Operation[]>([]);
 
-  const workPages = useWorkPages();
   const pageOperation = usePageOperation();
 
   function beginOperation() {
@@ -25,7 +24,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   }
   function commitOperation(op: Operation) {
     isOperating.value = false;
-    const opePage = workPages.currentPageIndex;
+    const opePage = pageOperation.currentPageIndex.value;
     drawHistory.value.push({
       redo: async () => {
         await pageOperation.tryGotoPageByIndex(opePage);

@@ -57,7 +57,6 @@ export class PenToolHandler implements ToolHandler {
     const nowPenColor = this.drawStateStore.penColor;
     const nowPenWidth = this.drawStateStore.penWidth;
     const nowPenHistory = this.penHistory;
-    const nowPage = this.workPagesStore.currentPageIndex;
     const undoImg = this.imgAtBegin!;
     const draw = () => {
       ctx.strokeStyle = nowPenColor;
