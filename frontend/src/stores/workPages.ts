@@ -1,5 +1,7 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
+import { useCanvas } from './canvas';
+import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 
 type Rect = {
   left: number;
@@ -34,5 +36,40 @@ export const useWorkPages = defineStore('workPages', () => {
   });
   const currentPageWidth = computed(() => (currentPage.value ? currentPage.value.size.width : 1));
   const currentPageHeight = computed(() => (currentPage.value ? currentPage.value.size.height : 1));
-  return { pages, currentPageIndex, currentPage, currentPageWidth, currentPageHeight };
+
+  const canvas = useCanvas();
+  async function saveNowPage() {
+    pages.value[currentPageIndex.value].images = [
+      await getImgCompressed(canvas.getImage())
+    ];
+  }
+  async function loadNowPage() {
+    while (pages.value.length <= currentPageIndex.value) {
+      pages.value.push({
+        images: [],
+        words: [],
+        size: {
+          width: 1240, // A4, 150dpi
+          height: 1754
+        }
+      });
+    }
+    const data = pages.value[currentPageIndex.value];
+    if (data.images.length > 0) {
+      for (const rawImgData of data.images) {
+        const imgData = new ImageData(
+          await getImgDecompressed(rawImgData),
+          currentPageWidth.value,
+          currentPageHeight.value
+        );
+
+        canvas.clear();
+        canvas.putImage(imgData);
+      }
+    } else {
+      canvas.clear();
+    }
+  }
+
+  return { pages, currentPageIndex, currentPage, currentPageWidth, currentPageHeight, saveNowPage, loadNowPage };
 });
