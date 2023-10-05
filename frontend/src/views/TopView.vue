@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const works = useWorks();
-const moveToNewWork = () => {
-  const newId = works.addWork();
+const moveToNewWork = async () => {
+  const newId = await works.addWork();
   router.push(`/works/${newId}`);
 };
 </script>

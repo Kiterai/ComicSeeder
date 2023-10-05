@@ -17,7 +17,7 @@ export const useWorks = defineStore('works', () => {
     return new Date().toISOString(); // TODO: uuid
   };
 
-  const addWork = () => {
+  const addWork = async () => {
     const newId = generateNewId();
     const newWork = {
       id: newId,
@@ -27,7 +27,7 @@ export const useWorks = defineStore('works', () => {
       updatedAt: '-'
     };
 
-    connectDb().then((db) => {
+    await connectDb().then((db) => {
       const tra = db.transaction('works', 'readwrite');
       const objStore = tra.objectStore('works');
       objStore.add(newWork);
@@ -38,10 +38,10 @@ export const useWorks = defineStore('works', () => {
   };
 
   const updateWork = async (work: WorkData) => {
-    connectDb().then((db) => {
+    await connectDb().then(async (db) => {
       const tra = db.transaction('works', 'readwrite');
       const objStore = tra.objectStore('works');
-      return makeDbReqPromise(objStore.put(work));
+      await makeDbReqPromise(objStore.put(work));
     });
   };
 
