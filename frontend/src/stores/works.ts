@@ -1,6 +1,6 @@
-import { connectDb } from '@/lib/indexedDb';
+import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 type WorkData = {
   id: string;
@@ -37,16 +37,25 @@ export const useWorks = defineStore('works', () => {
     return newId;
   };
 
-  connectDb().then((db) => {
-    const tra = db.transaction('works', 'readonly');
-    const objStore = tra.objectStore('works');
-    const req = objStore.getAll();
-    req.onsuccess = (e) => {
-      for (const workOnDb of req.result) {
+  const loaded = ref(false);
+  connectDb()
+    .then((db) => {
+      const tra = db.transaction('works', 'readonly');
+      const objStore = tra.objectStore('works');
+      return makeDbReqPromise<WorkData[]>(objStore.getAll());
+    })
+    .then((res) => {
+      for (const workOnDb of res) {
         works.value.push(workOnDb);
       }
-    };
-  });
+      loaded.value = true;
+    });
 
-  return { works, addWork };
+  return {
+    works,
+    addWork,
+    loaded: computed(() => {
+      return loaded.value;
+    })
+  };
 });
