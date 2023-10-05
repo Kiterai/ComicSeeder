@@ -72,7 +72,7 @@ export const useWorkPages = defineStore('workPages', () => {
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
-      return makeDbReqPromise(objStore.put(currentPage.value));
+      return makeDbReqPromise(objStore.put(JSON.parse(JSON.stringify(currentPage.value))));   // TODO
     });
   }
   async function loadPage(id: string) {
