@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 import { defineStore } from 'pinia';
 import { useCanvas } from './canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
@@ -72,7 +72,7 @@ export const useWorkPages = defineStore('workPages', () => {
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
-      return makeDbReqPromise(objStore.put(JSON.parse(JSON.stringify(currentPage.value))));   // TODO
+      return makeDbReqPromise(objStore.put(toRaw(currentPage.value))); // TODO
     });
   }
   async function loadPage(id: string) {
