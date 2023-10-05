@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import WorkEdit from '@/components/workedit/WorkEdit.vue';
 import { useDrawState } from '@/stores/drawState';
+import { useWorkPages } from '@/stores/workPages';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const props = defineProps<{
   id: string;
@@ -9,6 +11,12 @@ const props = defineProps<{
 const drawStateStore = useDrawState();
 drawStateStore.currentWorkId = props.id;
 
+const workPagesStore = useWorkPages();
+
+onBeforeRouteLeave(async (to, from, next) => {
+  await workPagesStore.saveCurrentPage();
+  next();
+});
 </script>
 
 <template>
