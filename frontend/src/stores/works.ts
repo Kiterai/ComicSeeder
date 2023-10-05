@@ -14,7 +14,7 @@ export const useWorks = defineStore('works', () => {
   const works = ref<WorkData[]>([]);
 
   const generateNewId = () => {
-    return new Date().toISOString(); // TODO: uuid
+    return new Date().getTime().toString(); // TODO: uuid
   };
 
   const addWork = async () => {

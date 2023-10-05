@@ -46,7 +46,7 @@ export const useWorkPages = defineStore('workPages', () => {
   const canvas = useCanvas();
 
   const generateNewId = () => {
-    return new Date().toISOString(); // TODO: uuid
+    return new Date().getTime().toString(); // TODO: uuid
   };
 
   async function addBlankPage() {
