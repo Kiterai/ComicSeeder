@@ -177,7 +177,7 @@ const onmousemove = (e: MouseEvent) => {
           fontSize: `${pageWord.fontSize}px`,
           width: `${pageWord.rect.width}px`,
           height: `${pageWord.rect.height}px`,
-          border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid #000`
+          border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
         }"
         v-model="pageWords[index].word"
       >
@@ -219,7 +219,7 @@ const onmousemove = (e: MouseEvent) => {
 }
 
 .pageWord {
-  background-color: #fff8;
+  background-color: transparent;
   position: absolute;
   left: 0;
   top: 0;
@@ -227,6 +227,10 @@ const onmousemove = (e: MouseEvent) => {
   outline: none;
   white-space: pre;
   resize: none;
+}
+.pageWord[contenteditable='true'] {
+  border-color: #000 !important;
+  background-color: #fff8;
 }
 .pageWord:focus {
   border-color: #f00 !important;
