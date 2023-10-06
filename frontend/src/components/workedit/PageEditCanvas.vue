@@ -227,6 +227,7 @@ const onmousemove = (e: MouseEvent) => {
   outline: none;
   white-space: pre;
   resize: none;
+  overflow: hidden;
 }
 .pageWord[contenteditable='true'] {
   border-color: #000 !important;
