@@ -13,8 +13,8 @@ import PageEdit from './PageEdit.vue';
 <style module>
 .workedit {
   position: fixed;
-  height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100dvw;
   overflow: hidden;
 }
 </style>

@@ -234,7 +234,7 @@ const onmousemove = (e: MouseEvent) => {
 
 <style module>
 .canvasSystem {
-  height: 100vh;
+  height: 100dvh;
   background-color: #888;
 }
 .mainCanvas,

@@ -56,7 +56,7 @@ const onClickWord = () => {
   position: fixed;
   left: 0;
   bottom: 0;
-  width: 100vw;
+  width: 100dvw;
   display: flex;
   flex-direction: row;
 }
