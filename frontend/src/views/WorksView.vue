@@ -14,8 +14,11 @@ const worksStore = useWorks();
         v-for="work in worksStore.works"
         :key="work.id"
         :to="`/works/${work.id}`"
-        ><div :class="$style.workTitle">{{ work.title }}</div></RouterLink
-      >
+        ><div :class="$style.workMeta">
+          <div>{{ work.title }}</div>
+          <div>{{ work.pageIds.length }} P</div>
+        </div>
+      </RouterLink>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ const worksStore = useWorks();
   background-color: #0004;
 }
 
-.workTitle {
+.workMeta {
   position: absolute;
   text-align: center;
   width: 100%;
