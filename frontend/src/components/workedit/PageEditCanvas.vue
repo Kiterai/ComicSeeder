@@ -50,6 +50,31 @@ const isTextEditing = () => {
   return document.activeElement.isContentEditable;
 };
 
+let lastSelectedWordId: number | null = null;
+
+const onSelectWord = (id: number) => {
+  lastSelectedWordId = id;
+};
+
+const tryDeleteWord = () => {
+  const targetId = lastSelectedWordId;
+  const index = pageWords.value.findIndex((word) => word.id === targetId);
+  if (index !== -1) {
+    opeHistory.beginOperation();
+    const word = pageWords.value[index];
+    pageWords.value.splice(index, 1);
+    opeHistory.commitOperation({
+      redo: async () => {
+        const index = pageWords.value.findIndex((word) => word.id === targetId);
+        if (index !== -1) pageWords.value.splice(index, 1);
+      },
+      undo: async () => {
+        pageWords.value.push(word);
+      }
+    });
+  }
+};
+
 useKeyboard(
   async (e) => {
     if (isTextEditing()) return;
@@ -83,7 +108,7 @@ const toolHandlers = {
   move: new MoveToolHandler(),
   pen: new PenToolHandler(),
   eraser: new EraserToolHandler(),
-  word: new WordToolHandler(getWordElem)
+  word: new WordToolHandler(getWordElem, onSelectWord)
 };
 
 let toolHandler = toolHandlers[drawModeStore.mode];
@@ -197,6 +222,13 @@ const onmousemove = (e: MouseEvent) => {
       :onmousemove="onmousemove"
       :onwheel="canvasSizing.onwheel"
     ></div>
+    <button
+      v-if="drawModeStore.mode == 'word'"
+      :class="$style.pageWordDelButton"
+      :onclick="tryDeleteWord"
+    >
+      削除
+    </button>
   </div>
 </template>
 
@@ -235,6 +267,24 @@ const onmousemove = (e: MouseEvent) => {
 }
 .pageWord:focus {
   border-color: #f00 !important;
+}
+
+.pageWordDelButton {
+  background-color: #f44;
+  color: #fff;
+  width: 5rem;
+  height: 5rem;
+  border: 0.2rem solid #000;
+  outline: none;
+  position: fixed;
+  bottom: 4rem;
+  left: 1rem;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.pageWordDelButton:hover {
+  background-color: #c44;
 }
 
 .pageNumber {
