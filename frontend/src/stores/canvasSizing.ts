@@ -36,7 +36,7 @@ export const useCanvasSizing = defineStore('canvasSizing', () => {
   function onkeyup(e: KeyboardEvent) {}
 
   useKeyboard(onkeydown, onkeyup);
-  useResize(onresize);
+  window.addEventListener('resize', onresize);
 
   const canvasStyle = computed(() => {
     return {
