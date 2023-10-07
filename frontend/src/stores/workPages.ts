@@ -3,18 +3,7 @@ import { defineStore } from 'pinia';
 import { useCanvas } from './canvas';
 import { getImgCompressed, getImgDecompressed } from '@/lib/imgCompress';
 import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
-
-type Rect = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-};
-
-type Size = {
-  width: number;
-  height: number;
-};
+import type { Rect, Size } from '@/lib/types';
 
 export type PageWord = {
   id: number;
