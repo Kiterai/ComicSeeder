@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useDrawMode } from '@/stores/drawMode';
+import { useDrawState } from '@/stores/drawState';
 
 const drawModeStore = useDrawMode();
+const drawStateStore = useDrawState();
 
 const onClickMove = () => {
   drawModeStore.mode = 'move';
@@ -14,6 +16,9 @@ const onClickEraser = () => {
 };
 const onClickWord = () => {
   drawModeStore.mode = 'word';
+};
+const onClickSettings = () => {
+  drawStateStore.settingsPanelOpened = !drawStateStore.settingsPanelOpened;
 };
 </script>
 
@@ -47,7 +52,7 @@ const onClickWord = () => {
     >
       word
     </button>
-    <button :class="$style.tool">settings</button>
+    <button :class="$style.tool" :onclick="onClickSettings">settings</button>
   </div>
 </template>
 

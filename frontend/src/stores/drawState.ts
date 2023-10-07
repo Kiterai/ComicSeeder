@@ -10,6 +10,8 @@ export const useDrawState = defineStore('drawState', () => {
   const nowLayer = ref(0);
   const currentPageIndex = ref(0);
   const currentWorkId = ref<string | null>(null);
+  const settingsPanelOpened = ref(false);
+
   return {
     penWidth,
     penWidthList,
@@ -18,6 +20,7 @@ export const useDrawState = defineStore('drawState', () => {
     eraserWidthList,
     nowLayer,
     currentPageIndex,
-    currentWorkId
+    currentWorkId,
+    settingsPanelOpened
   };
 });
