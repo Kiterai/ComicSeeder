@@ -101,7 +101,7 @@ watch(pageSize, (newVal, oldVal) => {
       <dt>Title</dt>
       <dd><input type="text" :class="$style.titleInput" v-model="currentWork.title" /></dd>
     </dl>
-    <dl>
+    <!-- <dl>
       <dt>Size</dt>
       <dd>
         <select v-model="pageSize" :class="$style.pageSizeInput">
@@ -110,7 +110,7 @@ watch(pageSize, (newVal, oldVal) => {
           <option value="other">その他</option>
         </select>
       </dd>
-    </dl>
+    </dl>-->
   </div>
 </template>
 
