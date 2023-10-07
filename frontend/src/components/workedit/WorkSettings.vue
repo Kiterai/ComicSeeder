@@ -84,6 +84,14 @@ watch(pageSize, (newVal, oldVal) => {
     }
   });
 });
+
+// watch(workPageStore.currentPage.size, (newVal, oldVal) => {
+//   for (const [name, size] of pageSizeMap.entries()) {
+//     if (newVal.width == size.width && newVal.height == size.height) {
+//       pageSize.value = name;
+//     }
+//   }
+// });
 </script>
 
 <template>
