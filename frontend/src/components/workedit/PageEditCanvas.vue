@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, readonly, ref } from 'vue';
 import { useDrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/stores/canvasSizing';
@@ -38,6 +38,13 @@ onMounted(() => {
 const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
+const wordHandleSize = computed(() => {
+  return Math.max(32, 32 / canvasSizing.getCanvasScale());
+});
+const wordHandleBorderThickness = computed(() => {
+  return Math.max(2, 2 / canvasSizing.getCanvasScale());
+});
+
 function getWordElem(id: number) {
   const elem = document.querySelector(`[data-word-id="${id}"]`);
   if (elem instanceof HTMLElement) return elem;
@@ -50,14 +57,17 @@ const isTextEditing = () => {
   return document.activeElement.isContentEditable;
 };
 
-let lastSelectedWordId: number | null = null;
+let lastSelectedWordId = ref<number | null>(null);
+const lastSelectedWord = computed(() => {
+  return pageWords.value.find((word) => word.id === lastSelectedWordId.value);
+});
 
 const onSelectWord = (id: number) => {
-  lastSelectedWordId = id;
+  lastSelectedWordId.value = id;
 };
 
 const tryDeleteWord = () => {
-  const targetId = lastSelectedWordId;
+  const targetId = lastSelectedWordId.value;
   const index = pageWords.value.findIndex((word) => word.id === targetId);
   if (index !== -1) {
     opeHistory.beginOperation();
@@ -207,6 +217,32 @@ const onmousemove = (e: MouseEvent) => {
         v-model="pageWords[index].word"
       >
       </textarea>
+      <div
+        v-if="lastSelectedWord && drawModeStore.mode == 'word'"
+        :style="{
+          width: `${wordHandleSize}px`,
+          height: `${wordHandleSize}px`,
+          backgroundColor: `#8FF`,
+          transform: `translate(${lastSelectedWord.rect.left + lastSelectedWord.rect.width}px, ${
+            lastSelectedWord.rect.top - wordHandleSize
+          }px)`,
+          border: `${wordHandleBorderThickness}px solid #333`,
+          position: 'absolute'
+        }"
+      ></div>
+      <div
+        v-if="lastSelectedWord && drawModeStore.mode == 'word'"
+        :style="{
+          width: `${wordHandleSize}px`,
+          height: `${wordHandleSize}px`,
+          backgroundColor: `#8FF`,
+          transform: `translate(${lastSelectedWord.rect.left - wordHandleSize}px, ${
+            lastSelectedWord.rect.top + lastSelectedWord.rect.height
+          }px)`,
+          border: `${wordHandleBorderThickness}px solid #333`,
+          position: 'absolute'
+        }"
+      ></div>
     </div>
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
@@ -298,8 +334,9 @@ const onmousemove = (e: MouseEvent) => {
 .surface {
   position: absolute;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100dvw;
+  height: 100dvh;
+  top: 0;
   touch-action: none;
 }
 </style>
