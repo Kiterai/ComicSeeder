@@ -44,6 +44,7 @@ onUnmounted(() => {
   background: #ccc;
   height: 100dvh;
   padding: 1rem;
+  box-shadow: 0 0 2rem #0008;
 }
 
 .titleInput {
