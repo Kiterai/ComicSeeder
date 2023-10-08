@@ -16,6 +16,7 @@ export class WordToolHandler implements ToolHandler {
 
   mode: 'move' | 'resize' | null = null;
   oldRect: Rect | null = null;
+  firstPenInput: PenInput | null = null;
 
   wordHandleSize() {
     return Math.max(32, 32 / this.canvasSizing.getCanvasScale());
@@ -64,6 +65,7 @@ export class WordToolHandler implements ToolHandler {
         this.opeHistory.beginOperation();
         this.mode = 'move';
         this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
+        this.firstPenInput = penInput;
         return;
       }
       // resize handle
@@ -82,6 +84,7 @@ export class WordToolHandler implements ToolHandler {
         this.opeHistory.beginOperation();
         this.mode = 'resize';
         this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
+        this.firstPenInput = penInput;
         return;
       }
       this.mode = null;
@@ -125,18 +128,23 @@ export class WordToolHandler implements ToolHandler {
     if (!this.opeHistory.isOperating()) return;
     const penInput = eventToPenInput(e);
     if (this.mode === 'move') {
+      const x2 = penInput.x + (this.oldRect!.left + this.oldRect!.width - this.firstPenInput!.x);
+      const y2 = penInput.y + (this.oldRect!.top - this.firstPenInput!.y);
+
       this.lastSelectedWord.value!.rect = {
-        left: penInput.x - this.oldRect!.width,
-        top: penInput.y,
+        left: x2 - this.oldRect!.width,
+        top: y2,
         width: this.oldRect!.width,
         height: this.oldRect!.height
       };
     } else if (this.mode === 'resize') {
+      const x2 = penInput.x + (this.oldRect!.left - this.firstPenInput!.x);
+      const y2 = penInput.y + (this.oldRect!.top + this.oldRect!.height - this.firstPenInput!.y);
       this.lastSelectedWord.value!.rect = {
-        left: penInput.x,
-        top: Math.min(this.oldRect!.top, penInput.y),
-        width: Math.max(this.oldRect!.left + this.oldRect!.width - penInput.x, 0),
-        height: Math.max(penInput.y - this.oldRect!.top, 0)
+        left: x2,
+        top: Math.min(this.oldRect!.top, y2),
+        width: Math.max(this.oldRect!.left + this.oldRect!.width - x2, 0),
+        height: Math.max(y2 - this.oldRect!.top, 0)
       };
     } else {
       this.pageWords.value[this.pageWords.value.length - 1].rect = {
