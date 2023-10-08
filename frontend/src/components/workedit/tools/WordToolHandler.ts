@@ -3,7 +3,7 @@ import { eventToPenInput, type PenInput } from './PenInput';
 import type { ToolHandler } from './ToolHandler';
 import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages, type PageWord } from '@/stores/workPages';
-import { computed, type ComputedRef } from 'vue';
+import { computed, ref, type ComputedRef } from 'vue';
 
 export class WordToolHandler implements ToolHandler {
   lastPenInput: null | PenInput;
@@ -12,6 +12,18 @@ export class WordToolHandler implements ToolHandler {
   pageWords: ComputedRef<PageWord[]>;
   getWordElem: (id: number) => HTMLElement | null;
   onSelect: (id: number) => void | null;
+
+  wordHandleSize() {
+    return Math.max(32, 32 / this.canvasSizing.getCanvasScale());
+  }
+  wordHandleBorderThickness() {
+    return Math.max(2, 2 / this.canvasSizing.getCanvasScale());
+  }
+
+  lastSelectedWordId = ref<number | null>(null);
+  lastSelectedWord = computed(() => {
+    return this.pageWords.value.find((word) => word.id === this.lastSelectedWordId.value);
+  });
 
   constructor(
     getWordElem: (id: number) => HTMLElement | null,

@@ -38,13 +38,6 @@ onMounted(() => {
 const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
-const wordHandleSize = computed(() => {
-  return Math.max(32, 32 / canvasSizing.getCanvasScale());
-});
-const wordHandleBorderThickness = computed(() => {
-  return Math.max(2, 2 / canvasSizing.getCanvasScale());
-});
-
 function getWordElem(id: number) {
   const elem = document.querySelector(`[data-word-id="${id}"]`);
   if (elem instanceof HTMLElement) return elem;
@@ -114,12 +107,21 @@ const pageWords = computed(() =>
   workPagesStore.currentPage ? workPagesStore.currentPage.words : []
 );
 
+const wordTool = new WordToolHandler(getWordElem, onSelectWord);
+
 const toolHandlers = {
   move: new MoveToolHandler(),
   pen: new PenToolHandler(),
   eraser: new EraserToolHandler(),
-  word: new WordToolHandler(getWordElem, onSelectWord)
+  word: wordTool
 };
+
+const wordHandleSize = computed(() => {
+  return wordTool.wordHandleSize();
+});
+const wordHandleBorderThickness = computed(() => {
+  return wordTool.wordHandleBorderThickness();
+});
 
 let toolHandler = toolHandlers[drawModeStore.mode];
 
