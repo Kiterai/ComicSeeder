@@ -11,6 +11,8 @@ import { MoveToolHandler } from './tools/MoveToolHandler';
 import { PenToolHandler } from './tools/PenToolHandler';
 import { EraserToolHandler } from './tools/EraserToolHandler';
 import { WordToolHandler } from './tools/WordToolHandler';
+import { useWorks, type WorkData } from '@/stores/works';
+import { useDrawState } from '@/stores/drawState';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -22,6 +24,23 @@ const mainCanvasRef = ref(null);
 
 const opeHistory = useOpeHistory();
 const pageOperation = usePageOperation();
+const worksStore = useWorks();
+const drawState = useDrawState();
+
+const currentWork = computed(() => {
+  const dummy: WorkData = {
+    id: '',
+    title: 'dummy',
+    pageIds: [],
+    pageDirection: 'R2L',
+    createdAt: '',
+    updatedAt: ''
+  };
+  if (!drawState.currentWorkId) return dummy;
+  const tmp = worksStore.works.find((work) => work.id === drawState.currentWorkId);
+  if (!tmp) throw new Error(`invalid work id: ${drawState.currentWorkId}`);
+  return tmp;
+});
 
 const canvas = useCanvas();
 
@@ -88,11 +107,13 @@ useKeyboard(
       opeHistory.tryRedo();
     }
     if (e.key == 'ArrowRight') {
-      await pageOperation.tryGotoNextPage();
+      if (currentWork.value.pageDirection === 'L2R') await pageOperation.tryGotoNextPage();
+      else if (currentWork.value.pageDirection === 'R2L') await pageOperation.tryGotoPrevPage();
       canvasSizing.initView();
     }
     if (e.key == 'ArrowLeft') {
-      await pageOperation.tryGotoPrevPage();
+      if (currentWork.value.pageDirection === 'L2R') await pageOperation.tryGotoPrevPage();
+      else if (currentWork.value.pageDirection === 'R2L') await pageOperation.tryGotoNextPage();
       canvasSizing.initView();
     }
     if (e.key == 'D') {

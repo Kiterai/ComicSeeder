@@ -22,6 +22,7 @@ const currentWork = computed(() => {
     id: '',
     title: 'dummy',
     pageIds: [],
+    pageDirection: 'R2L',
     createdAt: '',
     updatedAt: ''
   };
@@ -102,6 +103,15 @@ watch(pageSize, (newVal, oldVal) => {
     <dl>
       <dt>Title</dt>
       <dd><input type="text" v-model="currentWork.title" /></dd>
+    </dl>
+    <dl>
+      <dt>Direction</dt>
+      <dd>
+        <select v-model="currentWork.pageDirection">
+          <option value="R2L">右から左</option>
+          <option value="L2R">左から右</option>
+        </select>
+      </dd>
     </dl>
     <h3>Tool setting</h3>
     <dl v-if="drawMode.mode == 'pen'">

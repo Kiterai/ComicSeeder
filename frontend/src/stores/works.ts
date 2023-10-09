@@ -6,6 +6,7 @@ export type WorkData = {
   id: string;
   title: string;
   pageIds: string[];
+  pageDirection: 'L2R' | 'R2L';
   createdAt: string;
   updatedAt: string;
 };
