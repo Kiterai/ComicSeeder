@@ -59,13 +59,18 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     isOperating.value = false;
   }
 
+  function clearHistory() {
+    undoHistory.value = [];
+    drawHistory.value = [];
+  }
+
   return {
     beginOperation,
     cancelOperation,
     commitOperation,
     tryRedo,
     tryUndo,
-
+    clearHistory,
     isOperating: () => {
       return isOperating.value;
     }
