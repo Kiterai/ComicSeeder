@@ -13,6 +13,7 @@ export const usePageOperation = () => {
       id: '',
       title: 'dummy',
       pageIds: [],
+      pageDirection: 'R2L',
       createdAt: '',
       updatedAt: ''
     };

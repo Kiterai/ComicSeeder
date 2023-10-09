@@ -20,9 +20,10 @@ export const useWorks = defineStore('works', () => {
 
   const addWork = async () => {
     const newId = generateNewId();
-    const newWork = {
+    const newWork: WorkData = {
       id: newId,
       title: 'untitled',
+      pageDirection: 'R2L',
       pageIds: [],
       createdAt: '-',
       updatedAt: '-'
