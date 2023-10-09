@@ -4,9 +4,13 @@ import PageEdit from './PageEdit.vue';
 import WorkSettings from './WorkSettings.vue';
 import PageEditTools from './PageEditTools.vue';
 import { useDrawState } from '@/stores/drawState';
+import { onUnmounted } from 'vue';
 
 const drawState = useDrawState();
 
+onUnmounted(() => {
+  drawState.currentPageIndex = 0;
+});
 </script>
 
 <template>
