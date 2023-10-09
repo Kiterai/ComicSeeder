@@ -7,6 +7,7 @@ export const useDrawState = defineStore('drawState', () => {
   const penColor = ref('#444');
   const eraserWidth = ref(100);
   const eraserWidthList = ref([5, 10, 20, 40, 50]);
+  const defaultFontSize = ref(32);
   const nowLayer = ref(0);
   const currentPageIndex = ref(0);
   const currentWorkId = ref<string | null>(null);
@@ -18,6 +19,7 @@ export const useDrawState = defineStore('drawState', () => {
     penColor,
     eraserWidth,
     eraserWidthList,
+    defaultFontSize,
     nowLayer,
     currentPageIndex,
     currentWorkId,

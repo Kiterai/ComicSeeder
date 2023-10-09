@@ -5,6 +5,7 @@ import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages, type PageWord } from '@/stores/workPages';
 import { computed, ref, type ComputedRef, toRaw } from 'vue';
 import type { Rect } from '@/lib/types';
+import { useDrawState } from '@/stores/drawState';
 
 export class WordToolHandler implements ToolHandler {
   lastPenInput: null | PenInput;
@@ -13,6 +14,7 @@ export class WordToolHandler implements ToolHandler {
   pageWords: ComputedRef<PageWord[]>;
   getWordElem: (id: number) => HTMLElement | null;
   onSelect: (id: number) => void | null;
+  drawStateStore: ReturnType<typeof useDrawState>;
 
   mode: 'move' | 'resize' | null = null;
   oldRect: Rect | null = null;
@@ -37,6 +39,7 @@ export class WordToolHandler implements ToolHandler {
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
     this.canvasSizing = useCanvasSizing();
+    this.drawStateStore = useDrawState();
 
     const workPagesStore = useWorkPages();
     this.pageWords = computed(() =>
@@ -113,7 +116,7 @@ export class WordToolHandler implements ToolHandler {
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
     this.pageWords.value.push({
-      fontSize: 32,
+      fontSize: this.drawStateStore.defaultFontSize,
       id: this.pageWords.value.length,
       rect: {
         left: penInput.x,

@@ -116,6 +116,10 @@ watch(pageSize, (newVal, oldVal) => {
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidth" /></dd>
     </dl>
+    <dl v-if="drawMode.mode == 'word'">
+      <dt>default font size</dt>
+      <dd><input type="number" v-model="drawState.defaultFontSize" /></dd>
+    </dl>
     <!-- <dl>
       <dt>Size</dt>
       <dd>
