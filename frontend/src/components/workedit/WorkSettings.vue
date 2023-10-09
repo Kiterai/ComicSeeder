@@ -2,6 +2,7 @@
 import { usePageOperation } from '@/composables/usePageOperation';
 import type { Size } from '@/lib/types';
 import { useCanvas } from '@/stores/canvas';
+import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages } from '@/stores/workPages';
@@ -11,6 +12,7 @@ import { computed, onUnmounted, ref, toRaw, watch } from 'vue';
 const worksStore = useWorks();
 const workPageStore = useWorkPages();
 const drawState = useDrawState();
+const drawMode = useDrawMode();
 const canvas = useCanvas();
 const opeHistory = useOpeHistory();
 const pageOperation = usePageOperation();
@@ -99,7 +101,20 @@ watch(pageSize, (newVal, oldVal) => {
     <h2>Settings</h2>
     <dl>
       <dt>Title</dt>
-      <dd><input type="text" :class="$style.titleInput" v-model="currentWork.title" /></dd>
+      <dd><input type="text" v-model="currentWork.title" /></dd>
+    </dl>
+    <h3>Tool setting</h3>
+    <dl v-if="drawMode.mode == 'pen'">
+      <dt>pen size</dt>
+      <dd><input type="number" v-model="drawState.penWidth" /></dd>
+    </dl>
+    <dl v-if="drawMode.mode == 'pen'">
+      <dt>pen color</dt>
+      <dd><input type="color" v-model="drawState.penColor" /></dd>
+    </dl>
+    <dl v-if="drawMode.mode == 'eraser'">
+      <dt>eraser size</dt>
+      <dd><input type="number" v-model="drawState.eraserWidth" /></dd>
     </dl>
     <!-- <dl>
       <dt>Size</dt>
@@ -126,10 +141,16 @@ watch(pageSize, (newVal, oldVal) => {
   box-shadow: 0 0 2rem #0008;
 }
 
-.titleInput {
+input {
   font-size: 1.3rem;
 }
+
+h3 {
+  margin-top: 1rem;
+}
+
+.titleInput {
+}
 .pageSizeInput {
-  font-size: 1.3rem;
 }
 </style>
