@@ -8,34 +8,20 @@ export const usePageOperation = () => {
   const workPagesStore = useWorkPages();
   const drawState = useDrawState();
 
-  const currentWork = computed(() => {
-    const dummy: WorkData = {
-      id: '',
-      title: 'dummy',
-      pageIds: [],
-      pageDirection: 'R2L',
-      createdAt: '',
-      updatedAt: ''
-    };
-    if (!drawState.currentWorkId) return dummy;
-    const tmp = worksStore.works.find((work) => work.id === drawState.currentWorkId);
-    if (!tmp) throw new Error(`invalid work id: ${drawState.currentWorkId}`);
-    return tmp;
-  });
   const currentPageIndex = computed(() => {
     return drawState.currentPageIndex;
   });
   const currentWorkPagesNum = computed(() => {
-    return currentWork.value.pageIds.length;
+    return drawState.currentWork.pageIds.length;
   });
 
   async function completePages() {
     while (currentWorkPagesNum.value <= drawState.currentPageIndex)
-      currentWork.value.pageIds.push(await workPagesStore.addBlankPage());
-    worksStore.updateWork(toRaw(currentWork.value));
+      drawState.currentWork.pageIds.push(await workPagesStore.addBlankPage());
+    worksStore.updateWork(toRaw(drawState.currentWork));
   }
   async function loadCurrentIndexPage() {
-    await workPagesStore.loadPage(currentWork.value.pageIds[drawState.currentPageIndex]);
+    await workPagesStore.loadPage(drawState.currentWork.pageIds[drawState.currentPageIndex]);
   }
 
   let pageLoading = false;
@@ -72,7 +58,7 @@ export const usePageOperation = () => {
     if (pageLoading) return;
     pageLoading = true;
     if (currentWorkPagesNum.value > 1) {
-      currentWork.value.pageIds.splice(drawState.currentPageIndex, 1);
+      drawState.currentWork.pageIds.splice(drawState.currentPageIndex, 1);
       drawState.currentPageIndex = Math.min(
         drawState.currentPageIndex,
         currentWorkPagesNum.value - 1

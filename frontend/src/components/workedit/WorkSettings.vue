@@ -6,8 +6,8 @@ import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages } from '@/stores/workPages';
-import { useWorks, type WorkData } from '@/stores/works';
-import { computed, onUnmounted, ref, toRaw, watch } from 'vue';
+import { useWorks } from '@/stores/works';
+import { onUnmounted, ref, toRaw, watch } from 'vue';
 
 const worksStore = useWorks();
 const workPageStore = useWorkPages();
@@ -17,23 +17,8 @@ const canvas = useCanvas();
 const opeHistory = useOpeHistory();
 const pageOperation = usePageOperation();
 
-const currentWork = computed(() => {
-  const dummy: WorkData = {
-    id: '',
-    title: 'dummy',
-    pageIds: [],
-    pageDirection: 'R2L',
-    createdAt: '',
-    updatedAt: ''
-  };
-  if (!drawState.currentWorkId) return dummy;
-  const tmp = worksStore.works.find((work) => work.id === drawState.currentWorkId);
-  if (!tmp) throw new Error(`invalid work id: ${drawState.currentWorkId}`);
-  return tmp;
-});
-
 onUnmounted(() => {
-  worksStore.updateWork(toRaw(currentWork.value));
+  worksStore.updateWork(toRaw(drawState.currentWork));
 });
 
 const pageSizeMap = new Map<string, Size>([
@@ -102,12 +87,12 @@ watch(pageSize, (newVal, oldVal) => {
     <h2>Settings</h2>
     <dl>
       <dt>Title</dt>
-      <dd><input type="text" v-model="currentWork.title" /></dd>
+      <dd><input type="text" v-model="drawState.currentWork.title" /></dd>
     </dl>
     <dl>
       <dt>Direction</dt>
       <dd>
-        <select v-model="currentWork.pageDirection">
+        <select v-model="drawState.currentWork.pageDirection">
           <option value="R2L">右から左</option>
           <option value="L2R">左から右</option>
         </select>

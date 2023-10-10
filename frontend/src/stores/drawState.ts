@@ -1,5 +1,6 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { useWorks, type WorkData } from './works';
 
 export const useDrawState = defineStore('drawState', () => {
   const penWidth = ref(10);
@@ -13,6 +14,23 @@ export const useDrawState = defineStore('drawState', () => {
   const currentWorkId = ref<string | null>(null);
   const settingsPanelOpened = ref(false);
 
+  const worksStore = useWorks();
+
+  const currentWork = computed(() => {
+    const dummy: WorkData = {
+      id: '',
+      title: 'dummy',
+      pageIds: [],
+      pageDirection: 'R2L',
+      createdAt: '',
+      updatedAt: ''
+    };
+    if (!currentWorkId.value) return dummy;
+    const tmp = worksStore.works.find((work) => work.id === currentWorkId.value);
+    if (!tmp) throw new Error(`invalid work id: ${currentWorkId.value}`);
+    return tmp;
+  });
+
   return {
     penWidth,
     penWidthList,
@@ -23,6 +41,7 @@ export const useDrawState = defineStore('drawState', () => {
     nowLayer,
     currentPageIndex,
     currentWorkId,
-    settingsPanelOpened
+    settingsPanelOpened,
+    currentWork
   };
 });
