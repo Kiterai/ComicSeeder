@@ -73,17 +73,8 @@ const isInputEditing = () => {
   return document.activeElement.isContentEditable;
 };
 
-let lastSelectedWordId = ref<number | null>(null);
-const lastSelectedWord = computed(() => {
-  return pageWords.value.find((word) => word.id === lastSelectedWordId.value);
-});
-
-const onSelectWord = (id: number) => {
-  lastSelectedWordId.value = id;
-};
-
 const tryDeleteWord = () => {
-  const targetId = lastSelectedWordId.value;
+  const targetId = wordTool.lastSelectedWordId.value;
   const index = pageWords.value.findIndex((word) => word.id === targetId);
   if (index !== -1) {
     opeHistory.beginOperation();
@@ -132,7 +123,7 @@ const pageWords = computed(() =>
   workPagesStore.currentPage ? workPagesStore.currentPage.words : []
 );
 
-const wordTool = new WordToolHandler(getWordElem, onSelectWord);
+const wordTool = new WordToolHandler(getWordElem);
 
 const toolHandlers = {
   move: new MoveToolHandler(),
