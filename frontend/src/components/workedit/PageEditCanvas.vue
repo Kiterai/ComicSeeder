@@ -13,6 +13,7 @@ import { EraserToolHandler } from './tools/EraserToolHandler';
 import { WordToolHandler } from './tools/WordToolHandler';
 import { useWorks, type WorkData } from '@/stores/works';
 import { useDrawState } from '@/stores/drawState';
+import PageEditWordsView from './PageEditWordsView.vue';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -225,51 +226,7 @@ const onmousemove = (e: MouseEvent) => {
       :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
-    <div :style="canvasSizing.canvasStyle" :class="$style.pageWordContainer">
-      <textarea
-        v-for="(pageWord, index) in pageWords"
-        :key="pageWord.id"
-        :data-word-id="pageWord.id"
-        :contenteditable="drawModeStore.mode == 'word'"
-        spellcheck="false"
-        :class="$style.pageWord"
-        :style="{
-          transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
-          fontSize: `${pageWord.fontSize}px`,
-          width: `${pageWord.rect.width}px`,
-          height: `${pageWord.rect.height}px`,
-          border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
-        }"
-        v-model="pageWords[index].word"
-      >
-      </textarea>
-      <div
-        v-if="lastSelectedWord && drawModeStore.mode == 'word'"
-        :style="{
-          width: `${wordHandleSize}px`,
-          height: `${wordHandleSize}px`,
-          backgroundColor: `#8FF`,
-          transform: `translate(${lastSelectedWord.rect.left + lastSelectedWord.rect.width}px, ${
-            lastSelectedWord.rect.top - wordHandleSize
-          }px)`,
-          border: `${wordHandleBorderThickness}px solid #333`,
-          position: 'absolute'
-        }"
-      ></div>
-      <div
-        v-if="lastSelectedWord && drawModeStore.mode == 'word'"
-        :style="{
-          width: `${wordHandleSize}px`,
-          height: `${wordHandleSize}px`,
-          backgroundColor: `#8FF`,
-          transform: `translate(${lastSelectedWord.rect.left - wordHandleSize}px, ${
-            lastSelectedWord.rect.top + lastSelectedWord.rect.height
-          }px)`,
-          border: `${wordHandleBorderThickness}px solid #333`,
-          position: 'absolute'
-        }"
-      ></div>
-    </div>
+    <PageEditWordsView :word-tool-handler="wordTool"></PageEditWordsView>
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
