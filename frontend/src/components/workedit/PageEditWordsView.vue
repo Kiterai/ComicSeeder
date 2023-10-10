@@ -5,9 +5,19 @@ import { useWorkPages } from '@/stores/workPages';
 import { computed } from 'vue';
 import type { WordToolHandler } from './tools/WordToolHandler';
 
-defineProps<{
-  wordToolHandler: WordToolHandler;
+const prop = defineProps<{
+  wordTool: WordToolHandler;
 }>();
+
+const wordHandleSize = computed(() => {
+  return prop.wordTool.wordHandleSize();
+});
+const wordHandleBorderThickness = computed(() => {
+  return prop.wordTool.wordHandleBorderThickness();
+});
+const lastSelectedWord = computed(() => {
+  return prop.wordTool.lastSelectedWord.value;
+});
 
 const canvasSizing = useCanvasSizing();
 const drawModeStore = useDrawMode();
@@ -38,34 +48,28 @@ const pageWords = computed(() =>
     >
     </textarea>
     <div
-      v-if="wordToolHandler.lastSelectedWord.value && drawModeStore.mode == 'word'"
+      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
       :style="{
-        width: `${wordToolHandler.wordHandleSize()}px`,
-        height: `${wordToolHandler.wordHandleSize()}px`,
+        width: `${wordHandleSize}px`,
+        height: `${wordHandleSize}px`,
         backgroundColor: `#8FF`,
-        transform: `translate(${
-          wordToolHandler.lastSelectedWord.value.rect.left +
-          wordToolHandler.lastSelectedWord.value.rect.width
-        }px, ${
-          wordToolHandler.lastSelectedWord.value.rect.top - wordToolHandler.wordHandleSize()
+        transform: `translate(${lastSelectedWord.rect.left + lastSelectedWord.rect.width}px, ${
+          lastSelectedWord.rect.top - wordHandleSize
         }px)`,
-        border: `${wordToolHandler.wordHandleBorderThickness()}px solid #333`,
+        border: `${wordHandleBorderThickness}px solid #333`,
         position: 'absolute'
       }"
     ></div>
     <div
-      v-if="wordToolHandler.lastSelectedWord.value && drawModeStore.mode == 'word'"
+      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
       :style="{
-        width: `${wordToolHandler.wordHandleSize()}px`,
-        height: `${wordToolHandler.wordHandleSize()}px`,
+        width: `${wordHandleSize}px`,
+        height: `${wordHandleSize}px`,
         backgroundColor: `#8FF`,
-        transform: `translate(${
-          wordToolHandler.lastSelectedWord.value.rect.left - wordToolHandler.wordHandleSize()
-        }px, ${
-          wordToolHandler.lastSelectedWord.value.rect.top +
-          wordToolHandler.lastSelectedWord.value.rect.height
+        transform: `translate(${lastSelectedWord.rect.left - wordHandleSize}px, ${
+          lastSelectedWord.rect.top + lastSelectedWord.rect.height
         }px)`,
-        border: `${wordToolHandler.wordHandleBorderThickness()}px solid #333`,
+        border: `${wordHandleBorderThickness}px solid #333`,
         position: 'absolute'
       }"
     ></div>

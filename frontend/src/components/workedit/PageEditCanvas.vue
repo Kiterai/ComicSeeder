@@ -141,13 +141,6 @@ const toolHandlers = {
   word: wordTool
 };
 
-const wordHandleSize = computed(() => {
-  return wordTool.wordHandleSize();
-});
-const wordHandleBorderThickness = computed(() => {
-  return wordTool.wordHandleBorderThickness();
-});
-
 let toolHandler = toolHandlers[drawModeStore.mode];
 
 const penDownHandler = (e: PointerEvent) => {
