@@ -103,7 +103,6 @@ const tryDeleteWord = () => {
 useKeyboard(
   async (e) => {
     if (isInputEditing()) return;
-    console.log(isInputEditing());
     if (e.ctrlKey && e.key == 'z') {
       opeHistory.tryUndo();
     }
