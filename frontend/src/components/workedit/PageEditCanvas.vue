@@ -63,9 +63,12 @@ function getWordElem(id: number) {
   return null;
 }
 
-const isTextEditing = () => {
+const isInputEditing = () => {
   if (!document.activeElement) return false;
   if (!(document.activeElement instanceof HTMLElement)) return false;
+  if (document.activeElement instanceof HTMLInputElement) return true;
+  if (document.activeElement instanceof HTMLSelectElement) return true;
+  if (document.activeElement instanceof HTMLTextAreaElement) return true;
   return document.activeElement.isContentEditable;
 };
 
@@ -99,7 +102,8 @@ const tryDeleteWord = () => {
 
 useKeyboard(
   async (e) => {
-    if (isTextEditing()) return;
+    if (isInputEditing()) return;
+    console.log(isInputEditing());
     if (e.ctrlKey && e.key == 'z') {
       opeHistory.tryUndo();
     }
