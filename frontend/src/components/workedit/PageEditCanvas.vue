@@ -74,22 +74,7 @@ const isInputEditing = () => {
 };
 
 const tryDeleteWord = () => {
-  const targetId = wordTool.lastSelectedWordId.value;
-  const index = pageWords.value.findIndex((word) => word.id === targetId);
-  if (index !== -1) {
-    opeHistory.beginOperation();
-    const word = pageWords.value[index];
-    pageWords.value.splice(index, 1);
-    opeHistory.commitOperation({
-      redo: async () => {
-        const index = pageWords.value.findIndex((word) => word.id === targetId);
-        if (index !== -1) pageWords.value.splice(index, 1);
-      },
-      undo: async () => {
-        pageWords.value.push(word);
-      }
-    });
-  }
+  wordTool.tryDeleteWord();
 };
 
 useKeyboard(

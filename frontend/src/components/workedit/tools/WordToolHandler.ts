@@ -109,9 +109,11 @@ export class WordToolHandler implements ToolHandler {
     }
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
+
+    const newId = this.pageWords.value.length;
     this.pageWords.value.push({
       fontSize: this.drawStateStore.defaultFontSize,
-      id: this.pageWords.value.length,
+      id: newId,
       rect: {
         left: penInput.x,
         top: penInput.y,
@@ -183,6 +185,7 @@ export class WordToolHandler implements ToolHandler {
     }
     const elem = this.getWordElem(working.id);
     if (elem instanceof HTMLElement) {
+      this.lastSelectedWordId.value = working.id;
       elem.focus();
     }
 
@@ -195,5 +198,24 @@ export class WordToolHandler implements ToolHandler {
         this.pageWords.value.push(working);
       }
     });
+  }
+
+  tryDeleteWord() {
+    const targetId = this.lastSelectedWordId.value;
+    const index = this.pageWords.value.findIndex((word) => word.id === targetId);
+    if (index !== -1) {
+      this.opeHistory.beginOperation();
+      const word = this.pageWords.value[index];
+      this.pageWords.value.splice(index, 1);
+      this.opeHistory.commitOperation({
+        redo: async () => {
+          const index = this.pageWords.value.findIndex((word) => word.id === targetId);
+          if (index !== -1) this.pageWords.value.splice(index, 1);
+        },
+        undo: async () => {
+          this.pageWords.value.push(word);
+        }
+      });
+    }
   }
 }
