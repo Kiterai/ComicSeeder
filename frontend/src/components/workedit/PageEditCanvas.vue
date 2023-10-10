@@ -210,7 +210,7 @@ const onmousemove = (e: MouseEvent) => {
       :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
-    <PageEditWordsView :word-tool-handler="wordTool"></PageEditWordsView>
+    <PageEditWordsView :word-tool="wordTool"></PageEditWordsView>
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
