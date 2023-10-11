@@ -235,7 +235,7 @@ function onDeleteEraser() {
     </div>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
-      <dd><input type="number" v-model="drawState.eraserWidth" /></dd>
+      <dd><input type="number" v-model="drawState.eraserWidthList[drawState.eraserIndex]" /></dd>
       <button
         style="
           background-color: #f00;

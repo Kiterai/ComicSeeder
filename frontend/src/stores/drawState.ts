@@ -32,7 +32,7 @@ export const useDrawState = defineStore('drawState', () => {
   const penPressureEnabled = computed(
     () => penSettingList.value[penSettingIndex.value].enablePressure
   );
-  const eraserWidthList = ref([5, 10, 20, 40, 50]);
+  const eraserWidthList = ref([10, 50, 100]);
   const eraserIndex = ref(0);
   const eraserWidth = computed(() => eraserWidthList.value[eraserIndex.value]);
   const defaultFontSize = ref(32);
