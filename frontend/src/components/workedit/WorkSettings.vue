@@ -92,6 +92,15 @@ function onAddPen() {
     enablePressure: true
   });
 }
+function onDeletePen() {
+  if (drawState.penSettingList.length == 1) return;
+  if (drawState.penSettingIndex >= drawState.penSettingList.length - 1) {
+    drawState.penSettingIndex--;
+    drawState.penSettingList.pop();
+  } else {
+    drawState.penSettingList.splice(drawState.penSettingIndex, 1);
+  }
+}
 </script>
 
 <template>
@@ -111,7 +120,7 @@ function onAddPen() {
       </dd>
     </dl>
     <h3>Tool setting</h3>
-    <div v-if="drawMode.mode == 'pen'" style="display: flex; flex-wrap: wrap;">
+    <div v-if="drawMode.mode == 'pen'" style="display: flex; flex-wrap: wrap">
       <div
         v-for="(setting, index) in drawState.penSettingList"
         :key="index"
@@ -144,6 +153,36 @@ function onAddPen() {
         +
       </div>
     </div>
+    <dl v-if="drawMode.mode == 'pen'">
+      <dt>pen size</dt>
+      <dd>
+        <input type="number" v-model="drawState.penSettingList[drawState.penSettingIndex].width" />
+      </dd>
+      <dt>pen color</dt>
+      <dd>
+        <input type="text" v-model="drawState.penSettingList[drawState.penSettingIndex].color" />
+      </dd>
+      <dt>pressure enable</dt>
+      <dd>
+        <input
+          type="checkbox"
+          v-model="drawState.penSettingList[drawState.penSettingIndex].enablePressure"
+        />
+      </dd>
+      <button
+        style="
+          background-color: #f00;
+          color: #fff;
+          padding: 0.3rem;
+          border: 0.1rem solid #000;
+          border-radius: 0.5rem;
+          cursor: pointer;
+        "
+        :onclick="onDeletePen"
+      >
+        Delete
+      </button>
+    </dl>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidth" /></dd>
