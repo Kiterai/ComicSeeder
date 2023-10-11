@@ -109,6 +109,7 @@ export class WordToolHandler implements ToolHandler {
     }
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
+    this.lastSelectedWordId.value = null;
 
     const newId = this.pageWords.value.length;
     this.pageWords.value.push({

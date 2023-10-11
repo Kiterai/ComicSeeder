@@ -193,13 +193,22 @@ const onmousemove = (e: MouseEvent) => {
       :onmousemove="onmousemove"
       :onwheel="canvasSizing.onwheel"
     ></div>
-    <button
-      v-if="drawModeStore.mode == 'word'"
-      :class="$style.pageWordDelButton"
-      :onclick="tryDeleteWord"
-    >
-      削除
-    </button>
+    <div :class="$style.canvasUnderContainer">
+      <button
+        v-if="drawModeStore.mode == 'word' && wordTool.lastSelectedWordId.value !== null"
+        :class="$style.pageWordDelButton"
+        :onclick="tryDeleteWord"
+      >
+        削除
+      </button>
+      <input
+        v-if="wordTool.lastSelectedWord.value !== undefined"
+        type="number"
+        step="0.5"
+        v-model="wordTool.lastSelectedWord.value.fontSize"
+        :class="$style.pageWordFontSizeInput"
+      />
+    </div>
   </div>
 </template>
 
@@ -240,6 +249,18 @@ const onmousemove = (e: MouseEvent) => {
   border-color: #f00 !important;
 }
 
+.canvasUnderContainer {
+  position: fixed;
+  bottom: 4rem;
+  left: 1rem;
+}
+
+.pageWordFontSizeInput {
+  width: 6rem;
+  font-size: 2rem;
+  margin-left: 1rem;
+}
+
 .pageWordDelButton {
   background-color: #f44;
   color: #fff;
@@ -247,9 +268,6 @@ const onmousemove = (e: MouseEvent) => {
   height: 5rem;
   border: 0.2rem solid #000;
   outline: none;
-  position: fixed;
-  bottom: 4rem;
-  left: 1rem;
   border-radius: 1rem;
   font-size: 1.5rem;
   cursor: pointer;
