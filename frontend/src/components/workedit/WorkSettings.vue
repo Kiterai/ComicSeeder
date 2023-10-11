@@ -19,6 +19,7 @@ const pageOperation = usePageOperation();
 
 onUnmounted(() => {
   worksStore.updateWork(toRaw(drawState.currentWork));
+  drawState.saveDrawStateConfig();
 });
 
 const pageSizeMap = new Map<string, Size>([

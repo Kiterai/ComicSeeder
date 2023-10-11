@@ -94,6 +94,9 @@ export const useDrawState = defineStore('drawState', () => {
       eraserWidthList.value = res.eraserWidthList;
       eraserIndex.value = res.eraserIndex;
       defaultFontSize.value = res.defaultFontSize;
+    })
+    .catch((e) => {
+      console.log('no draw settings saved');
     });
 
   return {
