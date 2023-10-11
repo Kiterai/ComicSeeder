@@ -239,8 +239,8 @@ const onmousemove = (e: MouseEvent) => {
           :style="{
             backgroundColor: '#fff',
             border: '0.1rem solid #000',
-            width: `${Math.min(4, eraserWidth * 0.05)}rem`,
-            height: `${Math.min(4, eraserWidth * 0.05)}rem`,
+            width: `${Math.min(4, eraserWidth * 0.02)}rem`,
+            height: `${Math.min(4, eraserWidth * 0.02)}rem`,
             borderRadius: `2rem`
           }"
         ></div>
