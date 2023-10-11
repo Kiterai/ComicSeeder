@@ -32,8 +32,9 @@ export const useDrawState = defineStore('drawState', () => {
   const penPressureEnabled = computed(
     () => penSettingList.value[penSettingIndex.value].enablePressure
   );
-  const eraserWidth = ref(100);
   const eraserWidthList = ref([5, 10, 20, 40, 50]);
+  const eraserIndex = ref(0);
+  const eraserWidth = computed(() => eraserWidthList.value[eraserIndex.value]);
   const defaultFontSize = ref(32);
   const nowLayer = ref(0);
   const currentPageIndex = ref(0);
@@ -63,8 +64,9 @@ export const useDrawState = defineStore('drawState', () => {
     penWidth,
     penColor,
     penPressureEnabled,
-    eraserWidth,
     eraserWidthList,
+    eraserIndex,
+    eraserWidth,
     defaultFontSize,
     nowLayer,
     currentPageIndex,

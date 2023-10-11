@@ -42,8 +42,13 @@ const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
 function onSelectPen(e: MouseEvent) {
-  if (!(e.target instanceof HTMLElement)) return;
-  drawState.penSettingIndex = Number(e.target.dataset.index);
+  if (!(e.currentTarget instanceof HTMLElement)) return;
+  drawState.penSettingIndex = Number(e.currentTarget.dataset.index);
+}
+
+function onSelectEraser(e: MouseEvent) {
+  if (!(e.currentTarget instanceof HTMLElement)) return;
+  drawState.eraserIndex = Number(e.currentTarget.dataset.index);
 }
 
 function getWordElem(id: number) {
@@ -216,6 +221,26 @@ const onmousemove = (e: MouseEvent) => {
             backgroundColor: penSetting.color,
             width: `${Math.min(4, penSetting.width * 0.05)}rem`,
             height: `${Math.min(4, penSetting.width * 0.05)}rem`,
+            borderRadius: `2rem`
+          }"
+        ></div>
+      </div>
+    </div>
+    <div v-if="drawModeStore.mode == 'eraser'" :class="$style.canvasUnderContainer">
+      <div
+        v-for="(eraserWidth, index) in drawState.eraserWidthList"
+        :key="index"
+        :class="$style.penSetting"
+        :data-index="index"
+        :data-current="drawState.eraserIndex === index"
+        :onclick="onSelectEraser"
+      >
+        <div
+          :style="{
+            backgroundColor: '#fff',
+            border: '0.1rem solid #000',
+            width: `${Math.min(4, eraserWidth * 0.05)}rem`,
+            height: `${Math.min(4, eraserWidth * 0.05)}rem`,
             borderRadius: `2rem`
           }"
         ></div>
