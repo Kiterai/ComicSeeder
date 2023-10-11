@@ -67,6 +67,17 @@ export const usePageOperation = () => {
     }
     pageLoading = false;
   }
+  async function tryAddPage() {
+    if (pageLoading) return;
+    pageLoading = true;
+    drawState.currentWork.pageIds.splice(
+      drawState.currentPageIndex,
+      0,
+      await workPagesStore.addBlankPage()
+    );
+    await loadCurrentIndexPage();
+    pageLoading = false;
+  }
   async function setup() {
     await completePages();
     await loadCurrentIndexPage();
@@ -77,6 +88,7 @@ export const usePageOperation = () => {
     tryGotoNextPage,
     tryDeleteNowPage,
     tryGotoPageByIndex,
+    tryAddPage,
     setup,
     currentWorkPagesNum,
     currentPageIndex

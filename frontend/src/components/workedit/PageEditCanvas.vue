@@ -83,6 +83,10 @@ useKeyboard(
       await pageOperation.tryDeleteNowPage();
       canvasSizing.initView();
     }
+    if (e.key == 'A') {
+      await pageOperation.tryAddPage();
+      canvasSizing.initView();
+    }
   },
   () => {}
 );
