@@ -17,6 +17,7 @@ const worksStore = useWorks();
         ><div :class="$style.workMeta">
           <div>{{ work.title }}</div>
           <div>{{ work.pageIds.length }} P</div>
+          <div>{{ work.updatedAt }}</div>
         </div>
       </RouterLink>
     </div>

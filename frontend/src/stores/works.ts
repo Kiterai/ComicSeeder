@@ -20,13 +20,14 @@ export const useWorks = defineStore('works', () => {
 
   const addWork = async () => {
     const newId = generateNewId();
+    const now = new Date().toLocaleString();
     const newWork: WorkData = {
       id: newId,
       title: 'untitled',
       pageDirection: 'R2L',
       pageIds: [],
-      createdAt: '-',
-      updatedAt: '-'
+      createdAt: now,
+      updatedAt: now
     };
 
     await connectDb().then((db) => {
@@ -41,6 +42,7 @@ export const useWorks = defineStore('works', () => {
 
   const updateWork = async (work: WorkData) => {
     await connectDb().then(async (db) => {
+      work.updatedAt = new Date().toLocaleString();
       const tra = db.transaction('works', 'readwrite');
       const objStore = tra.objectStore('works');
       await makeDbReqPromise(objStore.put(work));
