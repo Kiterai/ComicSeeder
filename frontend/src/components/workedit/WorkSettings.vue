@@ -101,6 +101,23 @@ function onDeletePen() {
     drawState.penSettingList.splice(drawState.penSettingIndex, 1);
   }
 }
+
+function onSelectEraser(e: MouseEvent) {
+  if (!(e.target instanceof HTMLElement)) return;
+  drawState.eraserIndex = Number(e.target.dataset.index);
+}
+function onAddEraser() {
+  drawState.eraserWidthList.push(100);
+}
+function onDeleteEraser() {
+  if (drawState.eraserWidthList.length == 1) return;
+  if (drawState.eraserIndex >= drawState.eraserWidthList.length - 1) {
+    drawState.eraserIndex--;
+    drawState.eraserWidthList.pop();
+  } else {
+    drawState.eraserWidthList.splice(drawState.eraserIndex, 1);
+  }
+}
 </script>
 
 <template>
@@ -183,9 +200,55 @@ function onDeletePen() {
         Delete
       </button>
     </dl>
+    <div v-if="drawMode.mode == 'eraser'" style="display: flex; flex-wrap: wrap">
+      <div
+        v-for="(width, index) in drawState.eraserWidthList"
+        :key="index"
+        :style="{
+          width: '3rem',
+          height: '3rem',
+          backgroundColor: '#fff',
+          margin: '0.2rem',
+          border: index == drawState.eraserIndex ? '0.2rem solid #000' : 'none',
+          cursor: 'pointer'
+        }"
+        :data-index="index"
+        :onclick="onSelectEraser"
+      ></div>
+      <div
+        :style="{
+          width: '3rem',
+          height: '3rem',
+          margin: '0.2rem',
+          border: '0.2rem solid #fff',
+          cursor: 'pointer',
+          color: '#fff',
+          fontSize: '3rem',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }"
+        :onclick="onAddEraser"
+      >
+        +
+      </div>
+    </div>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidth" /></dd>
+      <button
+        style="
+          background-color: #f00;
+          color: #fff;
+          padding: 0.3rem;
+          border: 0.1rem solid #000;
+          border-radius: 0.5rem;
+          cursor: pointer;
+        "
+        :onclick="onDeleteEraser"
+      >
+        Delete
+      </button>
     </dl>
     <dl v-if="drawMode.mode == 'word'">
       <dt>default font size</dt>
