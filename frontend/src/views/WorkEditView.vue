@@ -20,7 +20,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 </script>
 
 <template>
-  <RouterLink to="/works" :class="$style.menu">Return to WorkList</RouterLink>
+  <RouterLink to="/works" :class="$style.menu">return</RouterLink>
 
   <WorkEdit></WorkEdit>
 </template>
@@ -29,5 +29,13 @@ onBeforeRouteLeave(async (to, from, next) => {
 .menu {
   position: fixed;
   z-index: 1;
+  width: 4rem;
+  height: 4rem;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  border: 0.1rem solid #000;
 }
 </style>
