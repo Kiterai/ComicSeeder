@@ -1,11 +1,20 @@
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorks, type WorkData } from './works';
+import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
 
 type PenSetting = {
   width: number;
   color: string;
   enablePressure: boolean;
+};
+
+type SavedState = {
+  penSettingList: PenSetting[];
+  penSettingIndex: number;
+  eraserWidthList: number[];
+  eraserIndex: number;
+  defaultFontSize: number;
 };
 
 export const useDrawState = defineStore('drawState', () => {
@@ -58,7 +67,37 @@ export const useDrawState = defineStore('drawState', () => {
     return tmp;
   });
 
+  const saveDrawStateConfig = async () => {
+    await connectDb().then(async (db) => {
+      const tra = db.transaction('drawStates', 'readwrite');
+      const objStore = tra.objectStore('drawStates');
+      const state: SavedState = {
+        penSettingList: toRaw(penSettingList.value),
+        penSettingIndex: penSettingIndex.value,
+        eraserWidthList: toRaw(eraserWidthList.value),
+        eraserIndex: eraserIndex.value,
+        defaultFontSize: defaultFontSize.value
+      };
+      await makeDbReqPromise(objStore.put(state, 'state'));
+    });
+  };
+
+  connectDb()
+    .then((db) => {
+      const tra = db.transaction('drawStates', 'readonly');
+      const objStore = tra.objectStore('drawStates');
+      return makeDbReqPromise<SavedState>(objStore.get('state'));
+    })
+    .then((res) => {
+      penSettingList.value = res.penSettingList;
+      penSettingIndex.value = res.penSettingIndex;
+      eraserWidthList.value = res.eraserWidthList;
+      eraserIndex.value = res.eraserIndex;
+      defaultFontSize.value = res.defaultFontSize;
+    });
+
   return {
+    saveDrawStateConfig,
     penSettingList,
     penSettingIndex,
     penWidth,
