@@ -80,6 +80,18 @@ watch(pageSize, (newVal, oldVal) => {
 //     }
 //   }
 // });
+
+function onSelectPen(e: MouseEvent) {
+  if (!(e.target instanceof HTMLElement)) return;
+  drawState.penSettingIndex = Number(e.target.dataset.index);
+}
+function onAddPen() {
+  drawState.penSettingList.push({
+    color: '#444',
+    width: 10,
+    enablePressure: true
+  });
+}
 </script>
 
 <template>
@@ -99,14 +111,39 @@ watch(pageSize, (newVal, oldVal) => {
       </dd>
     </dl>
     <h3>Tool setting</h3>
-    <dl v-if="drawMode.mode == 'pen'">
-      <dt>pen size</dt>
-      <dd><input type="number" v-model="drawState.penWidth" /></dd>
-    </dl>
-    <dl v-if="drawMode.mode == 'pen'">
-      <dt>pen color</dt>
-      <dd><input type="color" v-model="drawState.penColor" /></dd>
-    </dl>
+    <div v-if="drawMode.mode == 'pen'" style="display: flex; flex-wrap: wrap;">
+      <div
+        v-for="(setting, index) in drawState.penSettingList"
+        :key="index"
+        :style="{
+          width: '3rem',
+          height: '3rem',
+          backgroundColor: setting.color,
+          margin: '0.2rem',
+          border: index == drawState.penSettingIndex ? '0.2rem solid #fff' : 'none',
+          cursor: 'pointer'
+        }"
+        :data-index="index"
+        :onclick="onSelectPen"
+      ></div>
+      <div
+        :style="{
+          width: '3rem',
+          height: '3rem',
+          margin: '0.2rem',
+          border: '0.2rem solid #fff',
+          cursor: 'pointer',
+          color: '#fff',
+          fontSize: '3rem',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }"
+        :onclick="onAddPen"
+      >
+        +
+      </div>
+    </div>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidth" /></dd>

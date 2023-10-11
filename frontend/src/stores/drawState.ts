@@ -2,10 +2,36 @@ import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorks, type WorkData } from './works';
 
+type PenSetting = {
+  width: number;
+  color: string;
+  enablePressure: boolean;
+};
+
 export const useDrawState = defineStore('drawState', () => {
-  const penWidth = ref(10);
-  const penWidthList = ref([5, 10, 20, 40, 50]);
-  const penColor = ref('#444');
+  const penSettingList = ref<PenSetting[]>([
+    {
+      width: 10,
+      color: '#444',
+      enablePressure: true
+    },
+    {
+      width: 10,
+      color: '#f44',
+      enablePressure: true
+    },
+    {
+      width: 10,
+      color: '#44f',
+      enablePressure: true
+    }
+  ]);
+  const penSettingIndex = ref(0);
+  const penWidth = computed(() => penSettingList.value[penSettingIndex.value].width);
+  const penColor = computed(() => penSettingList.value[penSettingIndex.value].color);
+  const penPressureEnabled = computed(
+    () => penSettingList.value[penSettingIndex.value].enablePressure
+  );
   const eraserWidth = ref(100);
   const eraserWidthList = ref([5, 10, 20, 40, 50]);
   const defaultFontSize = ref(32);
@@ -32,9 +58,11 @@ export const useDrawState = defineStore('drawState', () => {
   });
 
   return {
+    penSettingList,
+    penSettingIndex,
     penWidth,
-    penWidthList,
     penColor,
+    penPressureEnabled,
     eraserWidth,
     eraserWidthList,
     defaultFontSize,
