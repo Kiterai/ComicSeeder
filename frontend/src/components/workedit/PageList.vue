@@ -62,6 +62,7 @@ const onSelectPage = (e: MouseEvent) => {
   transition:
     0.1s ease top,
     0.1s ease box-shadow;
+  justify-content: center;
 }
 
 .page {
