@@ -41,6 +41,11 @@ onMounted(() => {
 const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
+function onSelectPen(e: MouseEvent) {
+  if (!(e.target instanceof HTMLElement)) return;
+  drawState.penSettingIndex = Number(e.target.dataset.index);
+}
+
 function getWordElem(id: number) {
   const elem = document.querySelector(`[data-word-id="${id}"]`);
   if (elem instanceof HTMLElement) return elem;
@@ -197,9 +202,28 @@ const onmousemove = (e: MouseEvent) => {
       :onmousemove="onmousemove"
       :onwheel="canvasSizing.onwheel"
     ></div>
-    <div :class="$style.canvasUnderContainer">
+    <div v-if="drawModeStore.mode == 'pen'" :class="$style.canvasUnderContainer">
+      <div
+        v-for="(penSetting, index) in drawState.penSettingList"
+        :key="index"
+        :class="$style.penSetting"
+        :data-index="index"
+        :data-current="drawState.penSettingIndex === index"
+        :onclick="onSelectPen"
+      >
+        <div
+          :style="{
+            backgroundColor: penSetting.color,
+            width: `${Math.min(4, penSetting.width * 0.05)}rem`,
+            height: `${Math.min(4, penSetting.width * 0.05)}rem`,
+            borderRadius: `2rem`
+          }"
+        ></div>
+      </div>
+    </div>
+    <div v-if="drawModeStore.mode == 'word'" :class="$style.canvasUnderContainer">
       <button
-        v-if="drawModeStore.mode == 'word' && wordTool.lastSelectedWordId.value !== null"
+        v-if="wordTool.lastSelectedWordId.value !== null"
         :class="$style.pageWordDelButton"
         :onclick="tryDeleteWord"
       >
@@ -257,6 +281,21 @@ const onmousemove = (e: MouseEvent) => {
   position: fixed;
   bottom: 4rem;
   left: 1rem;
+  display: flex;
+}
+
+.penSetting {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 2rem;
+  margin: 0.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+}
+.penSetting[data-current='true'] {
+  outline: 0.2rem solid #000;
 }
 
 .pageWordFontSizeInput {
