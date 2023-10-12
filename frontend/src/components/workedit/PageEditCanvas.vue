@@ -400,6 +400,7 @@ const onmousemove = (e: MouseEvent) => {
   justify-content: center;
   align-items: center;
   background-color: #fff;
+  outline: 0.1rem solid #ccc;
 }
 .penSetting[data-current='true'] {
   outline: 0.2rem solid #000;
