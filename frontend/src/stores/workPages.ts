@@ -101,6 +101,8 @@ export const useWorkPages = defineStore('workPages', () => {
       const objStore = tra.objectStore('workPages');
       return makeDbReqPromise(objStore.put(toRaw(currentPage.value))); // TODO
     });
+    if (!thumbnail) return;
+    pageThumbnails.value.set(currentPage.value.id, thumbnail);
     await connectDb().then((db) => {
       const tra = db.transaction('thumbnails', 'readwrite');
       const objStore = tra.objectStore('thumbnails');
