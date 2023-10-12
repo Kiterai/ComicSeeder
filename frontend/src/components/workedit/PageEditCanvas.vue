@@ -102,6 +102,21 @@ useKeyboard(
       await pageOperation.tryAddPage();
       canvasSizing.initView();
     }
+    if (e.key == 'v') {
+      drawModeStore.mode = 'move';
+    }
+    if (e.key == 'b') {
+      drawModeStore.mode = 'pen';
+    }
+    if (e.key == 'e') {
+      drawModeStore.mode = 'eraser';
+    }
+    if (e.key == 'w') {
+      drawModeStore.mode = 'word';
+    }
+    if (e.key == 'c') {
+      drawState.settingsPanelOpened = !drawState.settingsPanelOpened;
+    }
   },
   () => {}
 );
