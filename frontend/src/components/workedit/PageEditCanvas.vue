@@ -153,10 +153,10 @@ const onpencancel = (e: PointerEvent) => {
 
 // event handlers
 let touchDeviceState: 'operate' | 'pinchmove' | null = null;
-let touchesNum = 0;
+let touches = new Map<number, PointerEvent>();
 
 const onpointerup = (e: PointerEvent) => {
-  touchesNum--;
+  touches.delete(e.pointerId);
   if (drawState.deviceMode === 'pentouch') {
     if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
     else onpenup(e);
@@ -166,12 +166,13 @@ const onpointerup = (e: PointerEvent) => {
     } else if (touchDeviceState === 'pinchmove') {
       canvasSizing.touchManager.onfingerup(e);
     }
-    if (touchesNum === 0) {
+    if (touches.size === 0) {
       touchDeviceState = null;
     }
   }
 };
 const onpointermove = (e: PointerEvent) => {
+  touches.set(e.pointerId, e);
   if (drawState.deviceMode === 'pentouch') {
     if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
     else onpenmove(e);
@@ -184,7 +185,7 @@ const onpointermove = (e: PointerEvent) => {
   }
 };
 const onpointerdown = (e: PointerEvent) => {
-  touchesNum++;
+  touches.set(e.pointerId, e);
   if (drawState.deviceMode === 'pentouch') {
     if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
     else onpendown(e);
@@ -194,7 +195,10 @@ const onpointerdown = (e: PointerEvent) => {
       touchDeviceState = 'operate';
     } else if (touchDeviceState === 'operate') {
       onpencancel(e);
-      canvasSizing.touchManager.onfingerdown(e);  // TODO: 指2本分のfingerdownが必要
+      touches.forEach((val, key) => {
+        canvasSizing.touchManager.onfingerdown(val);
+      });
+      touchDeviceState = 'pinchmove';
     } else if (touchDeviceState === 'pinchmove') {
       canvasSizing.touchManager.onfingerdown(e);
     }
