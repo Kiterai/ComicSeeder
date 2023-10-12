@@ -39,15 +39,18 @@ const onSelectPage = (e: MouseEvent) => {
       {{ index + 1 }}
     </div>
   </div>
-  <button
-    :class="$style.openButton"
-    :onclick="onSwitchOpened"
+  <div
+    :class="$style.buttonContainer"
     :style="{
       top: opened ? '10rem' : '0'
     }"
   >
-    Open
-  </button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">Del</button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryAddPage()">Add</button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryGotoLeftPage()">←</button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryGotoRightPage()">→</button>
+    <button :class="[$style.button, $style.openButton]" :onclick="onSwitchOpened">Open</button>
+  </div>
 </template>
 
 <style module>
@@ -81,13 +84,19 @@ const onSelectPage = (e: MouseEvent) => {
   outline: #777 solid 0.3rem;
 }
 
-.openButton {
+.buttonContainer {
   position: fixed;
   right: 0;
-  width: 5rem;
-  height: 3rem;
-  border-radius: 0 0 1rem 1rem;
-  border: none;
   transition: 0.1s ease top;
+}
+.button {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  border: none;
+  margin-left: 0.1rem;
+}
+.openButton {
+  margin-left: 0.5rem;
 }
 </style>
