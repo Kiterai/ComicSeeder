@@ -18,8 +18,8 @@ const onSwitchOpened = () => {
   drawState.pageListPanelOpened = !drawState.pageListPanelOpened;
 };
 const onSelectPage = (e: MouseEvent) => {
-  if (!(e.target instanceof HTMLElement)) return;
-  const index = e.target.dataset.index;
+  if (!(e.currentTarget instanceof HTMLElement)) return;
+  const index = e.currentTarget.dataset.index;
   if (!index) return;
   pageOperation.tryGotoPageByIndex(Number(index));
 };
@@ -40,7 +40,7 @@ const onSelectPage = (e: MouseEvent) => {
       :class="$style.page"
       :data-current="index === drawState.currentPageIndex"
       :data-index="index"
-      :onclick="onSelectPage"
+      :onmousedown="onSelectPage"
     >
       <div :class="$style.pageIndex">{{ index + 1 }}</div>
       <img :class="$style.pageThumbnail" :src="workPages.pageThumbnail(pageId)" />
