@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IconBack from '@/components/icons/IconBack.vue';
 import WorkEdit from '@/components/workedit/WorkEdit.vue';
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
@@ -20,7 +21,9 @@ onBeforeRouteLeave(async (to, from, next) => {
 </script>
 
 <template>
-  <RouterLink to="/works" :class="$style.menu">return</RouterLink>
+  <RouterLink to="/works" :class="$style.menu">
+    <IconBack />
+  </RouterLink>
 
   <WorkEdit></WorkEdit>
 </template>

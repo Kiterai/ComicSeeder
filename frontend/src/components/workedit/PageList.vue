@@ -2,6 +2,12 @@
 import { usePageOperation } from '@/composables/usePageOperation';
 import { useDrawState } from '@/stores/drawState';
 import { ref } from 'vue';
+import IconBin from '../icons/IconBin.vue';
+import IconPlus from '../icons/IconPlus.vue';
+import IconTriangleLeft from '../icons/IconTriangleLeft.vue';
+import IconTriangleRight from '../icons/IconTriangleRight.vue';
+import IconChevronDown from '../icons/IconChevronDown.vue';
+import IconChevronUp from '../icons/IconChevronUp.vue';
 
 const drawState = useDrawState();
 const pageOperation = usePageOperation();
@@ -45,11 +51,20 @@ const onSelectPage = (e: MouseEvent) => {
       top: opened ? '10rem' : '0'
     }"
   >
-    <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">Del</button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryAddPage()">Add</button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryGotoLeftPage()">←</button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryGotoRightPage()">→</button>
-    <button :class="[$style.button, $style.openButton]" :onclick="onSwitchOpened">Open</button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">
+      <IconBin />
+    </button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryAddPage()"><IconPlus /></button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryGotoLeftPage()">
+      <IconTriangleLeft />
+    </button>
+    <button :class="$style.button" :onclick="() => pageOperation.tryGotoRightPage()">
+      <IconTriangleRight />
+    </button>
+    <button :class="[$style.button, $style.openButton]" :onclick="onSwitchOpened">
+      <IconChevronDown v-if="!opened" />
+      <IconChevronUp v-else />
+    </button>
   </div>
 </template>
 
@@ -88,6 +103,7 @@ const onSelectPage = (e: MouseEvent) => {
   position: fixed;
   right: 0;
   transition: 0.1s ease top;
+  display: flex;
 }
 .button {
   width: 3rem;

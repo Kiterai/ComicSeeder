@@ -2,6 +2,13 @@
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
 import { useOpeHistory } from '@/stores/opeHistory';
+import IconUndo from '../icons/IconUndo.vue';
+import IconRedo from '../icons/IconRedo.vue';
+import IconMove from '../icons/IconMove.vue';
+import IconPencil from '../icons/IconPencil.vue';
+import IconEraser from '../icons/IconEraser.vue';
+import IconCog from '../icons/IconCog.vue';
+import IconDocument from '../icons/IconDocument.vue';
 
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
@@ -39,7 +46,7 @@ const onClickSettings = () => {
         color: opeHistory.isUndoAvailable() ? '#000' : '#aaa'
       }"
     >
-      undo
+      <IconUndo />
     </button>
     <button
       :onclick="onClickRedo"
@@ -48,37 +55,39 @@ const onClickSettings = () => {
         color: opeHistory.isRedoAvailable() ? '#000' : '#aaa'
       }"
     >
-      redo
+      <IconRedo />
     </button>
     <button
       :onclick="onClickMove"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'move'"
     >
-      move
+      <IconMove />
     </button>
     <button
       :onclick="onClickPen"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'pen'"
     >
-      pen
+      <IconPencil />
     </button>
     <button
       :onclick="onClickEraser"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'eraser'"
     >
-      eraser
+      <IconEraser />
     </button>
     <button
       :onclick="onClickWord"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'word'"
     >
-      word
+      <IconDocument />
     </button>
-    <button :class="$style.tool" :onclick="onClickSettings">settings</button>
+    <button :class="$style.tool" :onclick="onClickSettings">
+      <IconCog />
+    </button>
   </div>
 </template>
 
