@@ -13,6 +13,7 @@ import { EraserToolHandler } from './tools/EraserToolHandler';
 import { WordToolHandler } from './tools/WordToolHandler';
 import { useDrawState } from '@/stores/drawState';
 import PageEditWordsView from './PageEditWordsView.vue';
+import IconBin from '../icons/IconBin.vue';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -298,7 +299,7 @@ const onmousemove = (e: MouseEvent) => {
         :class="$style.pageWordDelButton"
         :onclick="tryDeleteWord"
       >
-        削除
+        <IconBin />
       </button>
       <input
         v-if="wordTool.lastSelectedWord.value !== undefined"

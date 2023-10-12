@@ -8,6 +8,7 @@ import { useOpeHistory } from '@/stores/opeHistory';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
 import { onUnmounted, ref, toRaw, watch } from 'vue';
+import IconPlus from '../icons/IconPlus.vue';
 
 const worksStore = useWorks();
 const workPageStore = useWorkPages();
@@ -177,7 +178,7 @@ function onDeleteEraser() {
         }"
         :onclick="onAddPen"
       >
-        +
+        <IconPlus />
       </div>
     </div>
     <dl v-if="drawMode.mode == 'pen'">
@@ -240,7 +241,7 @@ function onDeleteEraser() {
         }"
         :onclick="onAddEraser"
       >
-        +
+        <IconPlus />
       </div>
     </div>
     <dl v-if="drawMode.mode == 'eraser'">
