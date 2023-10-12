@@ -8,9 +8,11 @@ import IconTriangleLeft from '../icons/IconTriangleLeft.vue';
 import IconTriangleRight from '../icons/IconTriangleRight.vue';
 import IconChevronDown from '../icons/IconChevronDown.vue';
 import IconChevronUp from '../icons/IconChevronUp.vue';
+import { useWorkPages } from '@/stores/workPages';
 
 const drawState = useDrawState();
 const pageOperation = usePageOperation();
+const workPages = useWorkPages();
 
 const onSwitchOpened = () => {
   drawState.pageListPanelOpened = !drawState.pageListPanelOpened;
@@ -40,7 +42,8 @@ const onSelectPage = (e: MouseEvent) => {
       :data-index="index"
       :onclick="onSelectPage"
     >
-      {{ index + 1 }}
+      <div :class="$style.pageIndex">{{ index + 1 }}</div>
+      <img :class="$style.pageThumbnail" :src="workPages.pageThumbnail(pageId)" />
     </div>
   </div>
   <div
@@ -83,10 +86,12 @@ const onSelectPage = (e: MouseEvent) => {
 
 .page {
   height: 8rem;
-  width: 7rem;
-  background-color: #fff;
   margin: 1rem;
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .page:hover {
@@ -95,6 +100,20 @@ const onSelectPage = (e: MouseEvent) => {
 
 .page[data-current='true'] {
   outline: #777 solid 0.3rem;
+}
+
+.pageIndex {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0 0.3rem;
+  background-color: #fff;
+}
+
+.pageThumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  background-color: #fff;
 }
 
 .buttonContainer {
