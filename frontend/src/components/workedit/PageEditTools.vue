@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import { useDrawMode } from '@/stores/drawMode';
 import { useDrawState } from '@/stores/drawState';
+import { useOpeHistory } from '@/stores/opeHistory';
 
 const drawModeStore = useDrawMode();
 const drawStateStore = useDrawState();
+const opeHistory = useOpeHistory();
 
+const onClickUndo = async () => {
+  await opeHistory.tryUndo();
+};
+const onClickRedo = async () => {
+  await opeHistory.tryRedo();
+};
 const onClickMove = () => {
   drawModeStore.mode = 'move';
 };
@@ -24,6 +32,8 @@ const onClickSettings = () => {
 
 <template>
   <div :class="$style.tools">
+    <button :onclick="onClickUndo" :class="$style.tool">undo</button>
+    <button :onclick="onClickRedo" :class="$style.tool">redo</button>
     <button
       :onclick="onClickMove"
       :class="$style.tool"
