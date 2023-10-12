@@ -55,14 +55,14 @@ const onSelectPage = (e: MouseEvent) => {
     <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">
       <IconBin />
     </button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryAddPage()"><IconPlus /></button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryGotoLeftPage()">
+    <button :class="$style.button" :onmousedown="() => pageOperation.tryAddPage()"><IconPlus /></button>
+    <button :class="$style.button" :onmousedown="() => pageOperation.tryGotoLeftPage()">
       <IconTriangleLeft />
     </button>
-    <button :class="$style.button" :onclick="() => pageOperation.tryGotoRightPage()">
+    <button :class="$style.button" :onmousedown="() => pageOperation.tryGotoRightPage()">
       <IconTriangleRight />
     </button>
-    <button :class="[$style.button, $style.openButton]" :onclick="onSwitchOpened">
+    <button :class="[$style.button, $style.openButton]" :onmousedown="onSwitchOpened">
       <IconChevronDown v-if="!drawState.pageListPanelOpened" />
       <IconChevronUp v-else />
     </button>
