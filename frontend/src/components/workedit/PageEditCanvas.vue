@@ -96,6 +96,9 @@ useKeyboard(
     if (e.key == 'ArrowUp') {
       drawState.pageListPanelOpened = false;
     }
+    if (e.key == 'q') {
+      drawState.pageListPanelOpened = !drawState.pageListPanelOpened;
+    }
     if (e.key == 'D') {
       await pageOperation.tryDeleteNowPage();
       canvasSizing.initView();
