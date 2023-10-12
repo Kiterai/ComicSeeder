@@ -20,40 +20,45 @@ type SavedState = {
   deviceMode: DeviceMode;
 };
 
+const defaultPenSettingList = [
+  {
+    width: 10,
+    color: '#444',
+    enablePressure: true
+  },
+  {
+    width: 10,
+    color: '#f44',
+    enablePressure: true
+  },
+  {
+    width: 10,
+    color: '#44f',
+    enablePressure: true
+  }
+];
+const defaultEraserWidthList = [10, 50, 100];
+const defaultDefaultFontSize = 32;
+const defaultDeviceMode = 'pentouch';
+
 export const useDrawState = defineStore('drawState', () => {
-  const penSettingList = ref<PenSetting[]>([
-    {
-      width: 10,
-      color: '#444',
-      enablePressure: true
-    },
-    {
-      width: 10,
-      color: '#f44',
-      enablePressure: true
-    },
-    {
-      width: 10,
-      color: '#44f',
-      enablePressure: true
-    }
-  ]);
+  const penSettingList = ref<PenSetting[]>(defaultPenSettingList);
   const penSettingIndex = ref(0);
   const penWidth = computed(() => penSettingList.value[penSettingIndex.value].width);
   const penColor = computed(() => penSettingList.value[penSettingIndex.value].color);
   const penPressureEnabled = computed(
     () => penSettingList.value[penSettingIndex.value].enablePressure
   );
-  const eraserWidthList = ref([10, 50, 100]);
+  const eraserWidthList = ref(defaultEraserWidthList);
   const eraserIndex = ref(0);
   const eraserWidth = computed(() => eraserWidthList.value[eraserIndex.value]);
-  const defaultFontSize = ref(32);
+  const defaultFontSize = ref(defaultDefaultFontSize);
   const nowLayer = ref(0);
   const currentPageIndex = ref(0);
   const currentWorkId = ref<string | null>(null);
   const settingsPanelOpened = ref(false);
 
-  const deviceMode = ref<DeviceMode>('pentouch');
+  const deviceMode = ref<DeviceMode>(defaultDeviceMode);
 
   const worksStore = useWorks();
 
@@ -95,12 +100,12 @@ export const useDrawState = defineStore('drawState', () => {
       return makeDbReqPromise<SavedState>(objStore.get('state'));
     })
     .then((res) => {
-      penSettingList.value = res.penSettingList;
-      penSettingIndex.value = res.penSettingIndex;
-      eraserWidthList.value = res.eraserWidthList;
-      eraserIndex.value = res.eraserIndex;
-      defaultFontSize.value = res.defaultFontSize;
-      deviceMode.value = res.deviceMode;
+      penSettingList.value = res.penSettingList ?? defaultPenSettingList;
+      penSettingIndex.value = res.penSettingIndex ?? 0;
+      eraserWidthList.value = res.eraserWidthList ?? defaultEraserWidthList;
+      eraserIndex.value = res.eraserIndex ?? 0;
+      defaultFontSize.value = res.defaultFontSize ?? defaultDefaultFontSize;
+      deviceMode.value = res.deviceMode ?? defaultDeviceMode;
     })
     .catch((e) => {
       console.log('no draw settings saved');
