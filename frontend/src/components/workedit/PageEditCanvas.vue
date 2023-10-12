@@ -88,6 +88,12 @@ useKeyboard(
       await pageOperation.tryGotoLeftPage();
       canvasSizing.initView();
     }
+    if (e.key == 'ArrowDown') {
+      drawState.pageListPanelOpened = true;
+    }
+    if (e.key == 'ArrowUp') {
+      drawState.pageListPanelOpened = false;
+    }
     if (e.key == 'D') {
       await pageOperation.tryDeleteNowPage();
       canvasSizing.initView();

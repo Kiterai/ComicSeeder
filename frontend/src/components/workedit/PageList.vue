@@ -12,10 +12,8 @@ import IconChevronUp from '../icons/IconChevronUp.vue';
 const drawState = useDrawState();
 const pageOperation = usePageOperation();
 
-const opened = ref(false);
-
 const onSwitchOpened = () => {
-  opened.value = !opened.value;
+  drawState.pageListPanelOpened = !drawState.pageListPanelOpened;
 };
 const onSelectPage = (e: MouseEvent) => {
   if (!(e.target instanceof HTMLElement)) return;
@@ -30,8 +28,8 @@ const onSelectPage = (e: MouseEvent) => {
     :class="$style.pagelist"
     :style="{
       flexDirection: drawState.currentWork.pageDirection == 'R2L' ? 'row-reverse' : 'row',
-      top: opened ? '0' : '-10rem',
-      boxShadow: opened ? '0 0 2rem #0008' : '0 0 2rem transparent'
+      top: drawState.pageListPanelOpened ? '0' : '-10rem',
+      boxShadow: drawState.pageListPanelOpened ? '0 0 2rem #0008' : '0 0 2rem transparent'
     }"
   >
     <div
@@ -48,7 +46,7 @@ const onSelectPage = (e: MouseEvent) => {
   <div
     :class="$style.buttonContainer"
     :style="{
-      top: opened ? '10rem' : '0'
+      top: drawState.pageListPanelOpened ? '10rem' : '0'
     }"
   >
     <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">
@@ -62,7 +60,7 @@ const onSelectPage = (e: MouseEvent) => {
       <IconTriangleRight />
     </button>
     <button :class="[$style.button, $style.openButton]" :onclick="onSwitchOpened">
-      <IconChevronDown v-if="!opened" />
+      <IconChevronDown v-if="!drawState.pageListPanelOpened" />
       <IconChevronUp v-else />
     </button>
   </div>

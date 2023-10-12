@@ -57,6 +57,7 @@ export const useDrawState = defineStore('drawState', () => {
   const currentPageIndex = ref(0);
   const currentWorkId = ref<string | null>(null);
   const settingsPanelOpened = ref(false);
+  const pageListPanelOpened = ref(false);
 
   const deviceMode = ref<DeviceMode>(defaultDeviceMode);
 
@@ -126,6 +127,7 @@ export const useDrawState = defineStore('drawState', () => {
     currentPageIndex,
     currentWorkId,
     settingsPanelOpened,
+    pageListPanelOpened,
     deviceMode,
     currentWork
   };
