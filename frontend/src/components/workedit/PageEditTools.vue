@@ -32,8 +32,24 @@ const onClickSettings = () => {
 
 <template>
   <div :class="$style.tools">
-    <button :onclick="onClickUndo" :class="$style.tool">undo</button>
-    <button :onclick="onClickRedo" :class="$style.tool">redo</button>
+    <button
+      :onclick="onClickUndo"
+      :class="$style.tool"
+      :style="{
+        color: opeHistory.isUndoAvailable() ? '#000' : '#aaa'
+      }"
+    >
+      undo
+    </button>
+    <button
+      :onclick="onClickRedo"
+      :class="$style.tool"
+      :style="{
+        color: opeHistory.isRedoAvailable() ? '#000' : '#aaa'
+      }"
+    >
+      redo
+    </button>
     <button
       :onclick="onClickMove"
       :class="$style.tool"

@@ -64,6 +64,13 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     drawHistory.value = [];
   }
 
+  function isUndoAvailable() {
+    return drawHistory.value.length > 0;
+  }
+  function isRedoAvailable() {
+    return undoHistory.value.length > 0;
+  }
+
   return {
     beginOperation,
     cancelOperation,
@@ -73,6 +80,8 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     clearHistory,
     isOperating: () => {
       return isOperating.value;
-    }
+    },
+    isUndoAvailable,
+    isRedoAvailable
   };
 });
