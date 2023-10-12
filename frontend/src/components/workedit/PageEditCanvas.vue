@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, readonly, ref } from 'vue';
-import { useDrawMode } from '@/stores/drawMode';
+import { computed, onMounted, readonly, ref, toRaw, toValue } from 'vue';
+import { useDrawMode, type DrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
@@ -71,6 +71,8 @@ const tryDeleteWord = () => {
   wordTool.tryDeleteWord();
 };
 
+let tmpOldDrawMode: DrawMode | null = null;
+
 useKeyboard(
   async (e) => {
     if (isInputEditing()) return;
@@ -117,8 +119,17 @@ useKeyboard(
     if (e.key == 'c') {
       drawState.settingsPanelOpened = !drawState.settingsPanelOpened;
     }
+    if (e.key == ' ' && !e.repeat) {
+      tmpOldDrawMode = drawModeStore.mode;
+      drawModeStore.mode = 'move';
+    }
   },
-  () => {}
+  async (e) => {
+    if (e.key == ' ' && tmpOldDrawMode !== null) {
+      drawModeStore.mode = tmpOldDrawMode;
+      tmpOldDrawMode = null;
+    }
+  }
 );
 
 const pageWords = computed(() =>
