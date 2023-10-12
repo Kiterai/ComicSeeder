@@ -84,4 +84,8 @@ export class PenToolHandler implements ToolHandler {
       }
     });
   }
+  cancel() {
+    this.canvas.clearTmp();
+    this.opeHistory.cancelOperation();
+  }
 }

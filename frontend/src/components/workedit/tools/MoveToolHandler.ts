@@ -16,4 +16,5 @@ export class MoveToolHandler implements ToolHandler {
   up(e: PointerEvent) {
     this.touchManager.onfingerup(e);
   }
+  cancel() {}
 }

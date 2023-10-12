@@ -219,4 +219,18 @@ export class WordToolHandler implements ToolHandler {
       });
     }
   }
+  cancel() {
+    if (this.mode === 'move' || this.mode === 'resize') {
+      const id = this.lastSelectedWordId.value;
+      const oldRect = this.oldRect!;
+      this.pageWords.value.find((word) => {
+        return word.id === id;
+      })!.rect = oldRect;
+      this.mode = null;
+    } else {
+      this.pageWords.value.pop();
+    }
+
+    this.opeHistory.cancelOperation();
+  }
 }

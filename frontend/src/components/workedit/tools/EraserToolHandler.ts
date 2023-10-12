@@ -68,4 +68,11 @@ export class EraserToolHandler implements ToolHandler {
       }
     });
   }
+  cancel() {
+    const undoImg = this.imgAtBegin!;
+    const ctx = this.canvas.ctx!;
+    ctx.putImageData(undoImg, 0, 0);
+
+    this.opeHistory.cancelOperation();
+  }
 }
