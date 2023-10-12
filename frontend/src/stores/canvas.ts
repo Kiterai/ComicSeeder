@@ -29,5 +29,5 @@ export const useCanvas = defineStore('canvas', () => {
     tmpctx.value!.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
   }
 
-  return { setup, ctx, tmpctx, getImage, putImage, clear, clearTmp };
+  return { setup, ctx, tmpctx, mainCanvas, getImage, putImage, clear, clearTmp };
 });
