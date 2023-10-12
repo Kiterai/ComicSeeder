@@ -109,6 +109,9 @@ const onClickSettings = () => {
   outline: none;
   padding: 0;
   border-top: 0.1rem solid #444;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .tool[dat-tool-active='true'] {

@@ -87,6 +87,7 @@ const pageWords = computed(() =>
   white-space: pre;
   resize: none;
   overflow: hidden;
+  cursor: auto;
 }
 .pageWord[contenteditable='true'] {
   border-color: #000 !important;
