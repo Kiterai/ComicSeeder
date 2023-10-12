@@ -39,6 +39,10 @@ onBeforeRouteLeave(async (to, from, next) => {
   justify-content: center;
   align-items: center;
   background-color: #ccc;
-  border: 0.1rem solid #000;
+  box-shadow: 0 0 0.5rem #0008;
+  transition: background-color 0.1s ease;
+}
+.menu:hover {
+  background-color: #aaa;
 }
 </style>

@@ -128,6 +128,12 @@ const onSelectPage = (e: MouseEvent) => {
   border-radius: 0 0 0.5rem 0.5rem;
   border: none;
   margin-left: 0.1rem;
+  background-color: #ddd;
+  transition: background-color 0.1s ease;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #bbb;
 }
 .openButton {
   margin-left: 0.5rem;
