@@ -2,9 +2,20 @@
 import IconBack from '@/components/icons/IconBack.vue';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
+import { computed } from 'vue';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
+
+const sortedWorks = computed(() => {
+  const works = worksStore.works.concat();
+  works.sort((work1, work2) => {
+    if (work1.updatedAt < work2.updatedAt) return 1;
+    if (work1.updatedAt > work2.updatedAt) return -1;
+    return 0;
+  });
+  return works;
+});
 </script>
 
 <template>
@@ -14,7 +25,7 @@ const workPages = useWorkPages();
     <div :class="$style.worksContainer">
       <RouterLink
         :class="$style.work"
-        v-for="work in worksStore.works"
+        v-for="work in sortedWorks"
         :key="work.id"
         :to="`/works/${work.id}`"
       >
