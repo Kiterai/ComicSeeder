@@ -119,6 +119,9 @@ useKeyboard(
     if (e.key == 'c') {
       drawState.settingsPanelOpened = !drawState.settingsPanelOpened;
     }
+    if (e.key == 'f') {
+      canvasSizing.initView();
+    }
     if (e.key == ' ' && !e.repeat) {
       tmpOldDrawMode = drawModeStore.mode;
       drawModeStore.mode = 'move';
