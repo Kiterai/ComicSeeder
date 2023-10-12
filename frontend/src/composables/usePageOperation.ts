@@ -44,6 +44,15 @@ export const usePageOperation = () => {
     await loadCurrentIndexPage();
     pageLoading = false;
   }
+  async function tryGotoLeftPage() {
+    if (drawState.currentWork.pageDirection === 'L2R') await tryGotoPrevPage();
+    else if (drawState.currentWork.pageDirection === 'R2L') await tryGotoNextPage();
+  }
+  async function tryGotoRightPage() {
+    if (drawState.currentWork.pageDirection === 'L2R') await tryGotoNextPage();
+    else if (drawState.currentWork.pageDirection === 'R2L') await tryGotoPrevPage();
+  }
+
   async function tryGotoPageByIndex(index: number) {
     if (drawState.currentPageIndex === index) return;
     if (pageLoading) return;
@@ -86,6 +95,8 @@ export const usePageOperation = () => {
   return {
     tryGotoPrevPage,
     tryGotoNextPage,
+    tryGotoLeftPage,
+    tryGotoRightPage,
     tryDeleteNowPage,
     tryGotoPageByIndex,
     tryAddPage,
