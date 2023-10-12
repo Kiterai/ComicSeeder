@@ -80,13 +80,11 @@ useKeyboard(
       opeHistory.tryRedo();
     }
     if (e.key == 'ArrowRight') {
-      if (drawState.currentWork.pageDirection === 'L2R') await pageOperation.tryGotoNextPage();
-      else if (drawState.currentWork.pageDirection === 'R2L') await pageOperation.tryGotoPrevPage();
+      await pageOperation.tryGotoRightPage();
       canvasSizing.initView();
     }
     if (e.key == 'ArrowLeft') {
-      if (drawState.currentWork.pageDirection === 'L2R') await pageOperation.tryGotoPrevPage();
-      else if (drawState.currentWork.pageDirection === 'R2L') await pageOperation.tryGotoNextPage();
+      await pageOperation.tryGotoLeftPage();
       canvasSizing.initView();
     }
     if (e.key == 'D') {
