@@ -1,6 +1,6 @@
 export function connectDb() {
   return new Promise<IDBDatabase>((resolve, reject) => {
-    const req = window.indexedDB.open('ComicSeederDB', 2);
+    const req = window.indexedDB.open('ComicSeederDB', 3);
     req.onupgradeneeded = (e) => {
       const db = req.result;
       if (!db.objectStoreNames.contains('workPages'))
@@ -12,6 +12,7 @@ export function connectDb() {
           keyPath: 'id'
         });
       if (!db.objectStoreNames.contains('drawStates')) db.createObjectStore('drawStates');
+      if (!db.objectStoreNames.contains('thumbnails')) db.createObjectStore('thumbnails');
     };
     req.onsuccess = (e) => {
       resolve(req.result);

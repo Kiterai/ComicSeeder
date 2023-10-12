@@ -17,7 +17,6 @@ export type PageData = {
   images: Array<Uint8Array>;
   words: Array<PageWord>;
   size: Size;
-  thumbnail: string | null;
 };
 
 export const useWorkPages = defineStore('workPages', () => {
@@ -28,8 +27,7 @@ export const useWorkPages = defineStore('workPages', () => {
     size: {
       width: 1,
       height: 1
-    },
-    thumbnail: null
+    }
   });
   const currentPageWidth = computed(() => (currentPage.value ? currentPage.value.size.width : 1));
   const currentPageHeight = computed(() => (currentPage.value ? currentPage.value.size.height : 1));
@@ -48,8 +46,7 @@ export const useWorkPages = defineStore('workPages', () => {
       size: {
         width: 1240, // A4, 150dpi
         height: 1754
-      },
-      thumbnail: null
+      }
     };
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
@@ -98,11 +95,16 @@ export const useWorkPages = defineStore('workPages', () => {
 
   async function saveCurrentPage() {
     currentPage.value.images = [await getImgCompressed(canvas.getImage())];
-    currentPage.value.thumbnail = await generateThumbnailDataUrl();
+    const thumbnail = await generateThumbnailDataUrl();
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
       return makeDbReqPromise(objStore.put(toRaw(currentPage.value))); // TODO
+    });
+    await connectDb().then((db) => {
+      const tra = db.transaction('thumbnails', 'readwrite');
+      const objStore = tra.objectStore('thumbnails');
+      return makeDbReqPromise(objStore.put(thumbnail, currentPage.value.id));
     });
   }
   async function loadPage(id: string) {
@@ -132,12 +134,29 @@ export const useWorkPages = defineStore('workPages', () => {
     }
   }
 
+  const pageThumbnails = ref(new Map<string, string>());
+  const pageThumbnail = computed(() => {
+    return (pageId: string) => {
+      const dat = pageThumbnails.value.get(pageId);
+      if (dat) return dat;
+      connectDb()
+        .then((db) => {
+          const tra = db.transaction('thumbnails', 'readonly');
+          const objStore = tra.objectStore('thumbnails');
+          return makeDbReqPromise<string>(objStore.get(pageId));
+        })
+        .then((loadedDat) => pageThumbnails.value.set(pageId, loadedDat));
+      return '';
+    };
+  });
+
   return {
     currentPage,
     currentPageWidth,
     currentPageHeight,
     saveCurrentPage,
     loadPage,
-    addBlankPage
+    addBlankPage,
+    pageThumbnail
   };
 });
