@@ -126,6 +126,9 @@ const penMoveHandler = (e: PointerEvent) => {
 const penUpHandler = (e: PointerEvent) => {
   toolHandler.up(e);
 };
+const penCancelHandler = (e: PointerEvent) => {
+  toolHandler.cancel();
+};
 
 let nowPenDown = false;
 const onpendown = (e: PointerEvent) => {
@@ -142,16 +145,30 @@ const onpenup = (e: PointerEvent) => {
   penUpHandler(e);
   nowPenDown = false;
 };
+const onpencancel = (e: PointerEvent) => {
+  if (!nowPenDown) return;
+  penCancelHandler(e);
+  nowPenDown = false;
+};
 
 // event handlers
+let touchDeviceState: 'operate' | 'pinchmove' | null = null;
+let touchesNum = 0;
+
 const onpointerup = (e: PointerEvent) => {
+  touchesNum--;
   if (drawState.deviceMode === 'pentouch') {
     if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
     else onpenup(e);
   } else if (drawState.deviceMode === 'touch') {
-    // TODO
-    if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
-    else onpenup(e);
+    if (touchDeviceState === 'operate') {
+      onpenup(e);
+    } else if (touchDeviceState === 'pinchmove') {
+      canvasSizing.touchManager.onfingerup(e);
+    }
+    if (touchesNum === 0) {
+      touchDeviceState = null;
+    }
   }
 };
 const onpointermove = (e: PointerEvent) => {
@@ -159,19 +176,28 @@ const onpointermove = (e: PointerEvent) => {
     if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
     else onpenmove(e);
   } else if (drawState.deviceMode === 'touch') {
-    // TODO
-    if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
-    else onpenmove(e);
+    if (touchDeviceState === 'operate') {
+      onpenmove(e);
+    } else if (touchDeviceState === 'pinchmove') {
+      canvasSizing.touchManager.onfingermove(e);
+    }
   }
 };
 const onpointerdown = (e: PointerEvent) => {
+  touchesNum++;
   if (drawState.deviceMode === 'pentouch') {
     if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
     else onpendown(e);
   } else if (drawState.deviceMode === 'touch') {
-    // TODO
-    if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
-    else onpendown(e);
+    if (touchDeviceState === null) {
+      onpendown(e);
+      touchDeviceState = 'operate';
+    } else if (touchDeviceState === 'operate') {
+      onpencancel(e);
+      canvasSizing.touchManager.onfingerdown(e);  // TODO: 指2本分のfingerdownが必要
+    } else if (touchDeviceState === 'pinchmove') {
+      canvasSizing.touchManager.onfingerdown(e);
+    }
   }
 };
 
