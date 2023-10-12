@@ -371,9 +371,12 @@ const onmousemove = (e: MouseEvent) => {
 }
 
 .pageWordFontSizeInput {
-  width: 6rem;
+  width: 7rem;
   font-size: 2rem;
   margin-left: 1rem;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  border: 0.2rem solid #000;
 }
 
 .pageWordDelButton {
