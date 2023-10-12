@@ -9,12 +9,15 @@ type PenSetting = {
   enablePressure: boolean;
 };
 
+type DeviceMode = 'pentouch' | 'touch';
+
 type SavedState = {
   penSettingList: PenSetting[];
   penSettingIndex: number;
   eraserWidthList: number[];
   eraserIndex: number;
   defaultFontSize: number;
+  deviceMode: DeviceMode;
 };
 
 export const useDrawState = defineStore('drawState', () => {
@@ -50,6 +53,8 @@ export const useDrawState = defineStore('drawState', () => {
   const currentWorkId = ref<string | null>(null);
   const settingsPanelOpened = ref(false);
 
+  const deviceMode = ref<DeviceMode>('pentouch');
+
   const worksStore = useWorks();
 
   const currentWork = computed(() => {
@@ -76,7 +81,8 @@ export const useDrawState = defineStore('drawState', () => {
         penSettingIndex: penSettingIndex.value,
         eraserWidthList: toRaw(eraserWidthList.value),
         eraserIndex: eraserIndex.value,
-        defaultFontSize: defaultFontSize.value
+        defaultFontSize: defaultFontSize.value,
+        deviceMode: deviceMode.value
       };
       await makeDbReqPromise(objStore.put(state, 'state'));
     });
@@ -94,6 +100,7 @@ export const useDrawState = defineStore('drawState', () => {
       eraserWidthList.value = res.eraserWidthList;
       eraserIndex.value = res.eraserIndex;
       defaultFontSize.value = res.defaultFontSize;
+      deviceMode.value = res.deviceMode;
     })
     .catch((e) => {
       console.log('no draw settings saved');
@@ -114,6 +121,7 @@ export const useDrawState = defineStore('drawState', () => {
     currentPageIndex,
     currentWorkId,
     settingsPanelOpened,
+    deviceMode,
     currentWork
   };
 });

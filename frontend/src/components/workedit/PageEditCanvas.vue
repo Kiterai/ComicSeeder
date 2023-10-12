@@ -145,16 +145,34 @@ const onpenup = (e: PointerEvent) => {
 
 // event handlers
 const onpointerup = (e: PointerEvent) => {
-  if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
-  else onpenup(e);
+  if (drawState.deviceMode === 'pentouch') {
+    if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
+    else onpenup(e);
+  } else if (drawState.deviceMode === 'touch') {
+    // TODO
+    if (isFinger(e)) canvasSizing.touchManager.onfingerup(e);
+    else onpenup(e);
+  }
 };
 const onpointermove = (e: PointerEvent) => {
-  if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
-  else onpenmove(e);
+  if (drawState.deviceMode === 'pentouch') {
+    if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
+    else onpenmove(e);
+  } else if (drawState.deviceMode === 'touch') {
+    // TODO
+    if (isFinger(e)) canvasSizing.touchManager.onfingermove(e);
+    else onpenmove(e);
+  }
 };
 const onpointerdown = (e: PointerEvent) => {
-  if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
-  else onpendown(e);
+  if (drawState.deviceMode === 'pentouch') {
+    if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
+    else onpendown(e);
+  } else if (drawState.deviceMode === 'touch') {
+    // TODO
+    if (isFinger(e)) canvasSizing.touchManager.onfingerdown(e);
+    else onpendown(e);
+  }
 };
 
 const onmousemove = (e: MouseEvent) => {
