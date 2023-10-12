@@ -137,6 +137,15 @@ function onDeleteEraser() {
         </select>
       </dd>
     </dl>
+    <dl>
+      <dt>Device Mode</dt>
+      <dd>
+        <select v-model="drawState.deviceMode">
+          <option value="pentouch">ペンタッチデバイス</option>
+          <option value="touch">タッチデバイス</option>
+        </select>
+      </dd>
+    </dl>
     <h3>Tool setting</h3>
     <div v-if="drawMode.mode == 'pen'" style="display: flex; flex-wrap: wrap">
       <div
