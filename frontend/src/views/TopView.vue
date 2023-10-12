@@ -51,6 +51,9 @@ const moveToNewWork = async () => {
   padding: 0.5rem;
   border-radius: 0.5rem;
   font-weight: bold;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 .topButton:hover {
   background-color: #8e8;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IconBack from '@/components/icons/IconBack.vue';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
 
@@ -8,7 +9,7 @@ const workPages = useWorkPages();
 
 <template>
   <div>
-    <RouterLink to="/">Return to Top</RouterLink>
+    <RouterLink to="/" :class="$style.back"><IconBack /></RouterLink>
 
     <div :class="$style.worksContainer">
       <RouterLink
@@ -30,6 +31,21 @@ const workPages = useWorkPages();
 </template>
 
 <style module>
+.back {
+  width: 4rem;
+  height: 4rem;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  box-shadow: 0 0 0.5rem #0008;
+  transition: background-color 0.1s ease;
+}
+.back:hover {
+  background-color: #ddd;
+}
+
 .worksContainer {
   display: flex;
 }

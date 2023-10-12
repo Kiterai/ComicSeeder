@@ -152,32 +152,15 @@ function onDeleteEraser() {
       <div
         v-for="(setting, index) in drawState.penSettingList"
         :key="index"
+        :class="$style.penSetting"
         :style="{
-          width: '3rem',
-          height: '3rem',
-          backgroundColor: setting.color,
-          margin: '0.2rem',
-          border: index == drawState.penSettingIndex ? '0.2rem solid #fff' : 'none',
-          cursor: 'pointer'
+          backgroundColor: setting.color
         }"
+        :data-current="index == drawState.penSettingIndex"
         :data-index="index"
         :onclick="onSelectPen"
       ></div>
-      <div
-        :style="{
-          width: '3rem',
-          height: '3rem',
-          margin: '0.2rem',
-          border: '0.2rem solid #fff',
-          cursor: 'pointer',
-          color: '#fff',
-          fontSize: '3rem',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }"
-        :onclick="onAddPen"
-      >
+      <div :class="$style.addButton" :onclick="onAddPen">
         <IconPlus />
       </div>
     </div>
@@ -197,69 +180,25 @@ function onDeleteEraser() {
           v-model="drawState.penSettingList[drawState.penSettingIndex].enablePressure"
         />
       </dd>
-      <button
-        style="
-          background-color: #f00;
-          color: #fff;
-          padding: 0.3rem;
-          border: 0.1rem solid #000;
-          border-radius: 0.5rem;
-          cursor: pointer;
-        "
-        :onclick="onDeletePen"
-      >
-        Delete
-      </button>
+      <button :class="$style.deleteButton" :onclick="onDeletePen">Delete</button>
     </dl>
     <div v-if="drawMode.mode == 'eraser'" style="display: flex; flex-wrap: wrap">
       <div
         v-for="(width, index) in drawState.eraserWidthList"
         :key="index"
-        :style="{
-          width: '3rem',
-          height: '3rem',
-          backgroundColor: '#fff',
-          margin: '0.2rem',
-          border: index == drawState.eraserIndex ? '0.2rem solid #000' : 'none',
-          cursor: 'pointer'
-        }"
+        :class="$style.eraserSetting"
+        :data-current="index == drawState.eraserIndex"
         :data-index="index"
         :onclick="onSelectEraser"
       ></div>
-      <div
-        :style="{
-          width: '3rem',
-          height: '3rem',
-          margin: '0.2rem',
-          border: '0.2rem solid #fff',
-          cursor: 'pointer',
-          color: '#fff',
-          fontSize: '3rem',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }"
-        :onclick="onAddEraser"
-      >
+      <div :class="$style.addButton" :onclick="onAddEraser">
         <IconPlus />
       </div>
     </div>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidthList[drawState.eraserIndex]" /></dd>
-      <button
-        style="
-          background-color: #f00;
-          color: #fff;
-          padding: 0.3rem;
-          border: 0.1rem solid #000;
-          border-radius: 0.5rem;
-          cursor: pointer;
-        "
-        :onclick="onDeleteEraser"
-      >
-        Delete
-      </button>
+      <button :class="$style.deleteButton" :onclick="onDeleteEraser">Delete</button>
     </dl>
     <dl v-if="drawMode.mode == 'word'">
       <dt>default font size</dt>
@@ -288,6 +227,60 @@ function onDeleteEraser() {
   height: 100dvh;
   padding: 1rem;
   box-shadow: 0 0 2rem #0008;
+}
+
+.penSetting {
+  width: 3rem;
+  height: 3rem;
+  margin: 0.2rem;
+  border: none;
+  cursor: pointer;
+}
+.penSetting:hover {
+  border: 0.2rem solid #888;
+}
+.penSetting[data-current='true'] {
+  border: 0.2rem solid #fff;
+}
+.eraserSetting {
+  width: 3rem;
+  height: 3rem;
+  background-color: #fff;
+  margin: 0.2rem;
+  border: none;
+  cursor: pointer;
+}
+.eraserSetting:hover {
+  border: 0.2rem solid #888;
+}
+.eraserSetting[data-current='true'] {
+  border: 0.2rem solid #000;
+}
+
+.addButton {
+  width: 3rem;
+  height: 3rem;
+  margin: 0.2rem;
+  border: 0.2rem solid #fff;
+  cursor: pointer;
+  color: #fff;
+  font-size: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.addButton:hover {
+  border-color: #eee;
+  color: #eee;
+}
+
+.deleteButton {
+  background-color: #f00;
+  color: #fff;
+  padding: 0.3rem;
+  border: 0.1rem solid #000;
+  border-radius: 0.5rem;
+  cursor: pointer;
 }
 
 input {

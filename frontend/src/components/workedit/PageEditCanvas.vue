@@ -407,6 +407,10 @@ const onmousemove = (e: MouseEvent) => {
   align-items: center;
   background-color: #fff;
   outline: 0.1rem solid #ccc;
+  cursor: pointer;
+}
+.penSetting:hover {
+  outline: 0.2rem solid #666;
 }
 .penSetting[data-current='true'] {
   outline: 0.2rem solid #000;
