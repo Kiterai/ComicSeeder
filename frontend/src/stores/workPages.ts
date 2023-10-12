@@ -68,7 +68,7 @@ export const useWorkPages = defineStore('workPages', () => {
     });
   }
 
-  async function getThumbnailDataUrl() {
+  async function generateThumbnailDataUrl() {
     const maxThumbnailWidth = 250;
     const maxThumbnailHeight = 300;
     const thumbnailWidth =
@@ -98,7 +98,7 @@ export const useWorkPages = defineStore('workPages', () => {
 
   async function saveCurrentPage() {
     currentPage.value.images = [await getImgCompressed(canvas.getImage())];
-    currentPage.value.thumbnail = await getThumbnailDataUrl();
+    currentPage.value.thumbnail = await generateThumbnailDataUrl();
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
