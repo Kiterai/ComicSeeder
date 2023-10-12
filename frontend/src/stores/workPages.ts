@@ -66,16 +66,16 @@ export const useWorkPages = defineStore('workPages', () => {
   }
 
   async function generateThumbnailDataUrl() {
-    const maxThumbnailWidth = 250;
-    const maxThumbnailHeight = 300;
+    const maxThumbnailWidth = 150;
+    const maxThumbnailHeight = 200;
     const thumbnailWidth =
-      maxThumbnailWidth * currentPage.value.size.height >=
-      currentPage.value.size.width * maxThumbnailHeight
+      currentPage.value.size.width * maxThumbnailHeight >=
+      maxThumbnailWidth * currentPage.value.size.height
         ? maxThumbnailWidth
         : (currentPage.value.size.width * maxThumbnailHeight) / currentPage.value.size.height;
     const thumbnailHeight =
-      maxThumbnailHeight * currentPage.value.size.width >=
-      currentPage.value.size.height * maxThumbnailWidth
+      currentPage.value.size.height * maxThumbnailWidth >=
+      maxThumbnailHeight * currentPage.value.size.width
         ? maxThumbnailHeight
         : (currentPage.value.size.height * maxThumbnailWidth) / currentPage.value.size.width;
 
