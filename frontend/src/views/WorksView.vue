@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
 
 const worksStore = useWorks();
+const workPages = useWorkPages();
 </script>
 
 <template>
@@ -15,6 +17,7 @@ const worksStore = useWorks();
         :key="work.id"
         :to="`/works/${work.id}`"
         ><div :class="$style.workMeta">
+          <img :class="$style.pageThumbnail" :src="workPages.pageThumbnail(work.pageIds[0])" />
           <div>{{ work.title }}</div>
           <div>{{ work.pageIds.length }} P</div>
           <div>{{ work.updatedAt }}</div>
@@ -49,4 +52,11 @@ const worksStore = useWorks();
   bottom: 0;
   padding: 0.2rem;
 }
+
+.pageThumbnail {
+  max-height: 5rem;
+  max-width: 5rem;
+  box-shadow: 0 0 0.2rem #0008;
+}
+
 </style>
