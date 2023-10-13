@@ -18,6 +18,10 @@ const moveToNewWork = async () => {
       <RouterLink to="/works" :class="$style.topButton">Works List</RouterLink>
       <button :class="$style.topButton" :onclick="moveToNewWork">New Work</button>
     </div>
+    <div :class="$style.links">
+      <a :class="$style.link" href="https://github.com/Kiterai/ComicSeeder">Repository</a> |
+      <a :class="$style.link" href="https://chaosplant.tech/devs/ComicSeeder/">Web site</a>
+    </div>
   </div>
 </template>
 
@@ -60,5 +64,16 @@ const moveToNewWork = async () => {
   color: #fff;
 }
 .logo {
+}
+
+.links {
+  margin-top: 0.5rem;
+}
+.link {
+  color: #6e6;
+  text-decoration: underline;
+}
+.link:hover {
+  text-decoration: none;
 }
 </style>
