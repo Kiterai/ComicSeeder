@@ -105,7 +105,10 @@ export const useWorkPages = defineStore('workPages', () => {
     });
   }
 
+  const pageUpdated = ref(false);
+
   async function saveCurrentPage() {
+    if (!pageUpdated.value) return;
     currentPage.value.images = [await getImgCompressed(canvas.getImage())];
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
@@ -133,6 +136,8 @@ export const useWorkPages = defineStore('workPages', () => {
     } else {
       canvas.clear();
     }
+
+    pageUpdated.value = false;
   }
 
   const pageThumbnails = ref(new Map<string, string>());
@@ -180,6 +185,7 @@ export const useWorkPages = defineStore('workPages', () => {
     updateThumbnail,
     pageThumbnail,
     getRawPageData,
-    deletePageData
+    deletePageData,
+    pageUpdated
   };
 });

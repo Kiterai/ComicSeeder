@@ -13,6 +13,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
   const drawHistory = ref<Operation[]>([]);
   const undoHistory = ref<Operation[]>([]);
 
+  const workPages = useWorkPages();
   const pageOperation = usePageOperation();
 
   function beginOperation() {
@@ -36,6 +37,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
       }
     });
     undoHistory.value.length = 0;
+    workPages.pageUpdated = true;
   }
 
   async function tryUndo() {

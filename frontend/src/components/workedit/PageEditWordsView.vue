@@ -45,6 +45,7 @@ const pageWords = computed(() =>
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
       }"
       v-model="pageWords[index].word"
+      :oninput="() => (workPagesStore.pageUpdated = true)"
     >
     </textarea>
     <div
