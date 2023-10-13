@@ -48,6 +48,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     isOperating.value = true;
     undoHistory.value.push(last);
     await last.undo();
+    workPages.pageUpdated = true;
     isOperating.value = false;
   }
   async function tryRedo() {
@@ -58,6 +59,7 @@ export const useOpeHistory = defineStore('opeHistory', () => {
     isOperating.value = true;
     drawHistory.value.push(last);
     await last.redo();
+    workPages.pageUpdated = true;
     isOperating.value = false;
   }
 
