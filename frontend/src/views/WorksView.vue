@@ -7,6 +7,7 @@ import { useWorks } from '@/stores/works';
 import { computed, ref } from 'vue';
 import JSZip from 'jszip';
 import streamSaver from 'streamsaver';
+import { getImgDecompressed } from '@/lib/imgCompress';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
@@ -26,13 +27,52 @@ function switchExportMode() {
   exportMode.value = !exportMode.value;
 }
 
-const exportWorks = ref([]);
+const exportWorksId = ref<string[]>([]);
 
+async function zipExportFiles(zip: JSZip) {
+  const exportWorksSet = new Set(exportWorksId.value);
+  const worksProcess = worksStore.works
+    .filter((work) => exportWorksSet.has(work.id))
+    .map(async (work) => {
+      const folder = zip.folder(`${work.title}-id${work.id}`);
+      if (!folder) throw new Error('failed to create zip folder');
+
+      const pageStringLen = work.pageIds.length.toString().length + 2;
+      const pagesProcess = work.pageIds.map(async (pageId, _index) => {
+        const index = _index + 1;
+        const page = await workPages.getRawPageData(pageId);
+
+        const tmpLayerCanvas = new OffscreenCanvas(page.size.width, page.size.height);
+        const tmpLayerCtx = tmpLayerCanvas.getContext('2d');
+        const tmpPageCanvas = new OffscreenCanvas(page.size.width, page.size.height);
+        const tmpPageCtx = tmpPageCanvas.getContext('2d');
+        if (!tmpLayerCtx || !tmpPageCtx) throw new Error('failed to setup offscreen canvas');
+        tmpPageCtx.fillStyle = '#fff';
+        tmpPageCtx.fillRect(0, 0, page.size.width, page.size.height);
+        for (const rawImgData of page.images) {
+          const imageData = new ImageData(
+            await getImgDecompressed(rawImgData),
+            page.size.width,
+            page.size.height
+          );
+          tmpLayerCtx.putImageData(imageData, 0, 0);
+          tmpPageCtx.drawImage(tmpLayerCanvas, 0, 0);
+        }
+        const pageImageBlob = await tmpPageCanvas.convertToBlob();
+
+        const filename = `${index.toString().padStart(pageStringLen, '0')}.png`;
+        folder.file(filename, pageImageBlob);
+      });
+      await Promise.all(pagesProcess);
+    });
+  await Promise.all(worksProcess);
+}
 async function onExport() {
   const zipStream = streamSaver.createWriteStream('works-export.zip');
   const writer = zipStream.getWriter();
   const zip = new JSZip();
-  zip.file('test.txt', 'hogehoge'); // TODO
+  await zipExportFiles(zip);
+
   const blob = await zip.generateAsync({ type: 'blob' });
   const blobStream = blob.stream();
   const blobReader = blobStream.getReader();
@@ -59,7 +99,12 @@ async function onExport() {
     <div :class="$style.worksContainer">
       <div :class="$style.work" v-for="work in sortedWorks" :key="work.id">
         <div v-show="exportMode" :class="$style.workExportOptions">
-          <input :id="`export-${work.id}`" type="checkbox" :value="work.id" v-model="exportWorks" />
+          <input
+            :id="`export-${work.id}`"
+            type="checkbox"
+            :value="work.id"
+            v-model="exportWorksId"
+          />
           Export This
         </div>
         <label :class="$style.exportCheckLabel" :for="`export-${work.id}`"></label>
