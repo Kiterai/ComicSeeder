@@ -93,8 +93,18 @@ export const useWorks = defineStore('works', () => {
       const objStore = tra.objectStore('workPages');
       return makeDbReqPromise<string[]>(objStore.getAllKeys());
     });
+    const allPageThumbs = await connectDb().then((db) => {
+      const tra = db.transaction('thumbnails', 'readonly');
+      const objStore = tra.objectStore('thumbnails');
+      return makeDbReqPromise<string[]>(objStore.getAllKeys());
+    });
 
     allPages.forEach((pageId) => {
+      if (!availablePagesSet.has(pageId)) {
+        workPages.deletePageData(pageId);
+      }
+    });
+    allPageThumbs.forEach((pageId) => {
       if (!availablePagesSet.has(pageId)) {
         workPages.deletePageData(pageId);
       }

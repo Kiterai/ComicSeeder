@@ -155,9 +155,13 @@ export const useWorkPages = defineStore('workPages', () => {
   };
   const deletePageData = async (id: string) => {
     await connectDb().then((db) => {
-      const tra = db.transaction('workPages', 'readwrite');
-      const objStore = tra.objectStore('workPages');
-      return makeDbReqPromise(objStore.delete(id)); // TODO
+      const tra = db.transaction(['workPages', 'thumbnails'], 'readwrite');
+      const objStorePages = tra.objectStore('workPages');
+      const objStoreThumbs = tra.objectStore('thumbnails');
+      return Promise.all([
+        makeDbReqPromise(objStorePages.delete(id)),
+        makeDbReqPromise(objStoreThumbs.delete(id))
+      ]);
     });
   };
 
