@@ -93,21 +93,26 @@ export const useWorkPages = defineStore('workPages', () => {
     }
   }
 
+  async function updateThumbnail() {
+    const id = currentPage.value.id;
+    const thumbnail = await generateThumbnailDataUrl();
+    if (!thumbnail) return;
+    pageThumbnails.value.set(id, thumbnail);
+    connectDb().then((db) => {
+      const tra = db.transaction('thumbnails', 'readwrite');
+      const objStore = tra.objectStore('thumbnails');
+      return makeDbReqPromise(objStore.put(thumbnail, id));
+    });
+  }
+
   async function saveCurrentPage() {
     currentPage.value.images = [await getImgCompressed(canvas.getImage())];
-    const thumbnail = await generateThumbnailDataUrl();
     await connectDb().then((db) => {
       const tra = db.transaction('workPages', 'readwrite');
       const objStore = tra.objectStore('workPages');
       return makeDbReqPromise(objStore.put(toRaw(currentPage.value))); // TODO
     });
-    if (!thumbnail) return;
-    pageThumbnails.value.set(currentPage.value.id, thumbnail);
-    await connectDb().then((db) => {
-      const tra = db.transaction('thumbnails', 'readwrite');
-      const objStore = tra.objectStore('thumbnails');
-      return makeDbReqPromise(objStore.put(thumbnail, currentPage.value.id));
-    });
+    updateThumbnail();
   }
   async function loadPage(id: string) {
     await getRawPageData(id).then((data) => {
