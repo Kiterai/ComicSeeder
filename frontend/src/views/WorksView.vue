@@ -9,6 +9,7 @@ import streamSaver from 'streamsaver';
 import { getImgDecompressed } from '@/lib/imgCompress';
 import IconCheck from '@/components/icons/IconCheck.vue';
 import IconCheckSmall from '@/components/icons/IconCheckSmall.vue';
+import IconBin from '@/components/icons/IconBin.vue';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
@@ -92,11 +93,24 @@ async function onExport() {
     await writer.write(res.value);
   }
 }
+async function onDelete() {
+  if (!confirm('Checked works will be deleted. OK?')) return;
+  worksStore.deleteWorks(checkedWorksId.value);
+  checkedWorksId.value = [];
+}
 </script>
 
 <template>
   <div>
     <RouterLink v-show="!checkMode" to="/" :class="$style.back"><IconBack /></RouterLink>
+    <button
+      v-show="checkMode"
+      :onclick="onDelete"
+      :class="$style.export"
+      :disabled="checkedWorksId.length === 0"
+    >
+      <IconBin />
+    </button>
     <button
       v-show="checkMode"
       :onclick="onExport"

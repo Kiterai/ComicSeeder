@@ -69,6 +69,19 @@ export const useWorks = defineStore('works', () => {
     });
   };
 
+  const deleteWorks = async (ids: string[]) => {
+    await connectDb().then(async (db) => {
+      const tra = db.transaction('works', 'readwrite');
+      const objStore = tra.objectStore('works');
+      await Promise.all(
+        ids.map(async (id) => {
+          await makeDbReqPromise(objStore.delete(id));
+        })
+      );
+    });
+    works.value = await getAllWorks();
+  };
+
   const loaded = ref(false);
   getAllWorks().then((res) => {
     for (const workOnDb of res) {
@@ -115,6 +128,7 @@ export const useWorks = defineStore('works', () => {
     works,
     addWork,
     updateWork,
+    deleteWorks,
     loaded: computed(() => {
       return loaded.value;
     }),
