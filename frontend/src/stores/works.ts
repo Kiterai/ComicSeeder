@@ -21,8 +21,8 @@ export const useWorks = defineStore('works', () => {
   const getNowDateString = () => {
     const now = new Date();
     const yy = now.getFullYear().toString().padStart(4, '0');
-    const mm = now.getMonth().toString().padStart(2, '0');
-    const dd = now.getDay().toString().padStart(2, '0');
+    const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+    const dd = now.getDate().toString().padStart(2, '0');
     const HH = now.getHours().toString().padStart(2, '0');
     const MM = now.getMinutes().toString().padStart(2, '0');
     const SS = now.getSeconds().toString().padStart(2, '0');
