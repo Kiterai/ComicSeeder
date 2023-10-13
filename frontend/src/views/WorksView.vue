@@ -25,6 +25,7 @@ const sortedWorks = computed(() => {
 const exportMode = ref(false);
 function switchExportMode() {
   exportMode.value = !exportMode.value;
+  if (!exportMode.value) exportWorksId.value = [];
 }
 
 const exportWorksId = ref<string[]>([]);
