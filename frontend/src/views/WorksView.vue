@@ -9,6 +9,7 @@ import JSZip from 'jszip';
 import streamSaver from 'streamsaver';
 import { getImgDecompressed } from '@/lib/imgCompress';
 import IconCheck from '@/components/icons/IconCheck.vue';
+import IconCheckSmall from '@/components/icons/IconCheckSmall.vue';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
@@ -23,16 +24,16 @@ const sortedWorks = computed(() => {
   return works;
 });
 
-const exportMode = ref(false);
-function switchExportMode() {
-  exportMode.value = !exportMode.value;
-  if (!exportMode.value) exportWorksId.value = [];
+const checkMode = ref(false);
+function switchCheckMode() {
+  checkMode.value = !checkMode.value;
+  if (!checkMode.value) checkedWorksId.value = [];
 }
 
-const exportWorksId = ref<string[]>([]);
+const checkedWorksId = ref<string[]>([]);
 
 async function zipExportFiles(zip: JSZip) {
-  const exportWorksSet = new Set(exportWorksId.value);
+  const exportWorksSet = new Set(checkedWorksId.value);
   const worksProcess = worksStore.works
     .filter((work) => exportWorksSet.has(work.id))
     .map(async (work) => {
@@ -92,25 +93,31 @@ async function onExport() {
 
 <template>
   <div>
-    <RouterLink v-show="!exportMode" to="/" :class="$style.back"><IconBack /></RouterLink>
-    <button v-show="exportMode" :onclick="onExport" :class="$style.export"><IconUndo /></button>
-    <button :onclick="switchExportMode" :class="$style.exportSwitch" :data-mode-active="exportMode">
+    <RouterLink v-show="!checkMode" to="/" :class="$style.back"><IconBack /></RouterLink>
+    <button v-show="checkMode" :onclick="onExport" :class="$style.export">
       <IconExport />
+    </button>
+    <button
+      :onclick="switchCheckMode"
+      :class="$style.checkModeSwitch"
+      :data-mode-active="checkMode"
+    >
+      <IconCheck />
     </button>
 
     <div :class="$style.worksContainer">
       <div :class="$style.work" v-for="work in sortedWorks" :key="work.id">
-        <div v-show="exportMode" :class="$style.workExportOptions">
+        <div v-show="checkMode" :class="$style.workExportOptions">
           <input
             :id="`export-${work.id}`"
             type="checkbox"
             :value="work.id"
-            v-model="exportWorksId"
-            :class="$style.exportCheck"
+            v-model="checkedWorksId"
+            :class="$style.workCheck"
           />
-          <div :class="$style.exportCheckSymbol"><IconCheck /></div>
+          <div :class="$style.workCheckSymbol"><IconCheckSmall /></div>
         </div>
-        <label :class="$style.exportCheckLabel" :for="`export-${work.id}`"></label>
+        <label :class="$style.workCheckLabel" :for="`export-${work.id}`"></label>
         <div :class="$style.thumbnailContainer">
           <img :class="$style.pageThumbnail" :src="workPages.pageThumbnail(work.pageIds[0])" />
         </div>
@@ -118,7 +125,7 @@ async function onExport() {
           <div>{{ work.title }} ({{ work.pageIds.length }}P)</div>
           <div>{{ work.updatedAt }}</div>
         </div>
-        <RouterLink v-show="!exportMode" :class="$style.workLink" :to="`/works/${work.id}`">
+        <RouterLink v-show="!checkMode" :class="$style.workLink" :to="`/works/${work.id}`">
         </RouterLink>
       </div>
     </div>
@@ -153,16 +160,20 @@ async function onExport() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  background-color: #fa5;
+  color: #fff;
   box-shadow: 0 0 0.5rem #0008;
-  transition: background-color 0.1s ease;
+  transition:
+    background-color 0.1s ease,
+    color 0.1s ease;
   cursor: pointer;
   border: none;
 }
 .export:hover {
-  background-color: #ddd;
+  background-color: #d93;
+  color: #ddd;
 }
-.exportSwitch {
+.checkModeSwitch {
   position: fixed;
   top: 0;
   right: 0;
@@ -180,15 +191,15 @@ async function onExport() {
     color 0.2s ease;
   cursor: pointer;
 }
-.exportSwitch:hover {
+.checkModeSwitch:hover {
   background-color: #ddd;
 }
-.exportSwitch[data-mode-active='true'] {
-  background-color: #f44;
+.checkModeSwitch[data-mode-active='true'] {
+  background-color: #444;
   color: #fff;
 }
-.exportSwitch[data-mode-active='true']:hover {
-  background-color: #c44;
+.checkModeSwitch[data-mode-active='true']:hover {
+  background-color: #666;
   color: #ccc;
 }
 
@@ -210,10 +221,10 @@ async function onExport() {
 .workExportOptions {
   position: absolute;
 }
-.exportCheck {
+.workCheck {
   visibility: hidden;
 }
-.exportCheck + .exportCheckSymbol {
+.workCheck + .workCheckSymbol {
   position: absolute;
   left: 0.3rem;
   top: 0.3rem;
@@ -230,14 +241,14 @@ async function onExport() {
     background-color ease 0.1s,
     color ease 0.1s;
 }
-.exportCheck:checked + .exportCheckSymbol {
+.workCheck:checked + .workCheckSymbol {
   background-color: #fff;
   color: #3af;
   border-color: #3af;
   font-size: 0.5rem;
 }
 
-.exportCheckLabel {
+.workCheckLabel {
   display: block;
   width: 100%;
   height: 100%;
