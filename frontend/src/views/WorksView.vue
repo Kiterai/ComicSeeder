@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import IconBack from '@/components/icons/IconBack.vue';
 import IconExport from '@/components/icons/IconExport.vue';
-import IconUndo from '@/components/icons/IconUndo.vue';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
 import { computed, ref } from 'vue';
@@ -94,7 +93,12 @@ async function onExport() {
 <template>
   <div>
     <RouterLink v-show="!checkMode" to="/" :class="$style.back"><IconBack /></RouterLink>
-    <button v-show="checkMode" :onclick="onExport" :class="$style.export">
+    <button
+      v-show="checkMode"
+      :onclick="onExport"
+      :class="$style.export"
+      :disabled="checkedWorksId.length === 0"
+    >
       <IconExport />
     </button>
     <button
@@ -173,6 +177,11 @@ async function onExport() {
   background-color: #d93;
   color: #ddd;
 }
+.export[disabled] {
+  background-color: #ccc;
+  color: #ddd;
+  cursor: default;
+}
 .checkModeSwitch {
   position: fixed;
   top: 0;
@@ -234,7 +243,7 @@ async function onExport() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ccc;
+  background-color: #eee;
   border: 0.1rem solid #999;
   color: transparent;
   transition:
@@ -255,6 +264,7 @@ async function onExport() {
   position: absolute;
   top: 0;
   left: 0;
+  cursor: pointer;
 }
 
 .workLink {
