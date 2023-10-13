@@ -14,6 +14,7 @@ import { WordToolHandler } from './tools/WordToolHandler';
 import { useDrawState } from '@/stores/drawState';
 import PageEditWordsView from './PageEditWordsView.vue';
 import IconBin from '../icons/IconBin.vue';
+import PageEditWordHandlerView from './PageEditWordHandlerView.vue';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -277,15 +278,13 @@ const onmousemove = (e: MouseEvent) => {
       :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
+    <PageEditWordHandlerView :word-tool="wordTool"></PageEditWordHandlerView>
     <PageEditWordsView :word-tool="wordTool"></PageEditWordsView>
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
     <div
       :class="$style.surface"
-      :style="{
-        zIndex: drawModeStore.mode === 'word' && wordTool.lastSelectedWord.value ? -1 : 0
-      }"
       :onpointerdown="onpointerdown"
       :onpointermove="onpointermove"
       :onpointerup="onpointerup"

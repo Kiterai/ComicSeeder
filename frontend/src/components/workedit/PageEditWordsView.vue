@@ -29,7 +29,19 @@ const pageWords = computed(() =>
 </script>
 
 <template>
-  <div :style="canvasSizing.canvasStyle" :class="$style.pageWordContainer">
+  <div
+    :class="$style.pageWordContainer"
+    :style="{
+      ...canvasSizing.canvasStyle,
+      position: 'absolute',
+      zIndex: drawModeStore.mode === 'word' && wordTool.lastSelectedWord.value ? 1 : 0
+    }"
+    :onwheel="
+      (e: WheelEvent) => {
+        e.preventDefault();
+      }
+    "
+  >
     <textarea
       v-for="(pageWord, index) in pageWords"
       :key="pageWord.id"
@@ -48,32 +60,6 @@ const pageWords = computed(() =>
       :oninput="() => (workPagesStore.pageUpdated = true)"
     >
     </textarea>
-    <div
-      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
-      :style="{
-        width: `${wordHandleSize}px`,
-        height: `${wordHandleSize}px`,
-        backgroundColor: `#8FF`,
-        transform: `translate(${lastSelectedWord.rect.left + lastSelectedWord.rect.width}px, ${
-          lastSelectedWord.rect.top - wordHandleSize
-        }px)`,
-        border: `${wordHandleBorderThickness}px solid #333`,
-        position: 'absolute'
-      }"
-    ></div>
-    <div
-      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
-      :style="{
-        width: `${wordHandleSize}px`,
-        height: `${wordHandleSize}px`,
-        backgroundColor: `#8FF`,
-        transform: `translate(${lastSelectedWord.rect.left - wordHandleSize}px, ${
-          lastSelectedWord.rect.top + lastSelectedWord.rect.height
-        }px)`,
-        border: `${wordHandleBorderThickness}px solid #333`,
-        position: 'absolute'
-      }"
-    ></div>
   </div>
 </template>
 
