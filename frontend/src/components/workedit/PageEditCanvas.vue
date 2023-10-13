@@ -242,24 +242,6 @@ const onpointerdown = (e: PointerEvent) => {
     }
   }
 };
-
-const onmousemove = (e: MouseEvent) => {
-  const elem = e.target as HTMLElement;
-  if (drawModeStore.mode == 'word')
-    for (const pageWord of pageWords.value) {
-      const pos = canvasSizing.clientToCanvas(e.clientX, e.clientY);
-      if (
-        pageWord.rect.left <= pos.x &&
-        pos.x < pageWord.rect.left + pageWord.rect.width &&
-        pageWord.rect.top <= pos.y &&
-        pos.y < pageWord.rect.top + pageWord.rect.height
-      ) {
-        elem.style.cursor = 'vertical-text';
-        return;
-      }
-    }
-  elem.style.cursor = 'auto';
-};
 </script>
 
 <template>
@@ -291,8 +273,8 @@ const onmousemove = (e: MouseEvent) => {
       :onpointercancel="onpointerup"
       :onpointerout="onpointerup"
       :onpointerleave="onpointerup"
-      :onmousemove="onmousemove"
       :onwheel="canvasSizing.onwheel"
+      :data-grabbable="drawModeStore.mode == 'move'"
     ></div>
     <div v-if="drawModeStore.mode == 'pen'" :class="$style.canvasUnderContainer">
       <div
@@ -455,5 +437,8 @@ const onmousemove = (e: MouseEvent) => {
   height: 100dvh;
   top: 0;
   touch-action: none;
+}
+.surface[data-grabbable='true'] {
+  cursor: grab;
 }
 </style>
