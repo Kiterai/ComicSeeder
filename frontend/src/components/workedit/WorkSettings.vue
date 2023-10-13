@@ -133,8 +133,8 @@ function onDeleteEraser() {
       <dt>Direction</dt>
       <dd>
         <select v-model="drawState.currentWork.pageDirection">
-          <option value="R2L">右から左</option>
-          <option value="L2R">左から右</option>
+          <option value="R2L">Right to Left</option>
+          <option value="L2R">Left to Right</option>
         </select>
       </dd>
     </dl>
@@ -142,8 +142,8 @@ function onDeleteEraser() {
       <dt>Device Mode</dt>
       <dd>
         <select v-model="drawState.deviceMode">
-          <option value="pentouch">ペンタッチデバイス</option>
-          <option value="touch">タッチデバイス</option>
+          <option value="pentouch">Pen & Touch Device</option>
+          <option value="touch">Touch Device</option>
         </select>
       </dd>
     </dl>
