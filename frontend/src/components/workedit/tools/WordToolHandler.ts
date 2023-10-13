@@ -64,6 +64,7 @@ export class WordToolHandler implements ToolHandler {
         this.mode = 'move';
         this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
         this.firstPenInput = penInput;
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         return;
       }
       // resize handle
@@ -83,6 +84,7 @@ export class WordToolHandler implements ToolHandler {
         this.mode = 'resize';
         this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
         this.firstPenInput = penInput;
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         return;
       }
       this.mode = null;
