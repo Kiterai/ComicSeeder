@@ -5,6 +5,8 @@ import IconUndo from '@/components/icons/IconUndo.vue';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
 import { computed, ref } from 'vue';
+import JSZip from 'jszip';
+import streamSaver from 'streamsaver';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
@@ -26,7 +28,23 @@ function switchExportMode() {
 
 const exportWorks = ref([]);
 
-function onExport() {
+async function onExport() {
+  const zipStream = streamSaver.createWriteStream('works-export.zip');
+  const writer = zipStream.getWriter();
+  const zip = new JSZip();
+  zip.file('test.txt', 'hogehoge'); // TODO
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const blobStream = blob.stream();
+  const blobReader = blobStream.getReader();
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const res = await blobReader.read();
+    if (res.done) {
+      writer.close();
+      break;
+    }
+    await writer.write(res.value);
+  }
 }
 </script>
 
