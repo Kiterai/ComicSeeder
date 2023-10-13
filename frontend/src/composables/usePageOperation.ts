@@ -22,6 +22,7 @@ export const usePageOperation = () => {
   }
   async function loadCurrentIndexPage() {
     await workPagesStore.loadPage(drawState.currentWork.pageIds[drawState.currentPageIndex]);
+    workPagesStore.updateThumbnail();
   }
 
   let pageLoading = false;

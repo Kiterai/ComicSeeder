@@ -177,6 +177,7 @@ export const useWorkPages = defineStore('workPages', () => {
     saveCurrentPage,
     loadPage,
     addBlankPage,
+    updateThumbnail,
     pageThumbnail,
     getRawPageData,
     deletePageData
