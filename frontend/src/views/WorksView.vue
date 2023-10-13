@@ -102,30 +102,34 @@ async function onDelete() {
 
 <template>
   <div>
-    <RouterLink v-show="!checkMode" to="/" :class="$style.back"><IconBack /></RouterLink>
-    <button
-      v-show="checkMode"
-      :onclick="onDelete"
-      :class="$style.export"
-      :disabled="checkedWorksId.length === 0"
-    >
-      <IconBin />
-    </button>
-    <button
-      v-show="checkMode"
-      :onclick="onExport"
-      :class="$style.export"
-      :disabled="checkedWorksId.length === 0"
-    >
-      <IconExport />
-    </button>
-    <button
-      :onclick="switchCheckMode"
-      :class="$style.checkModeSwitch"
-      :data-mode-active="checkMode"
-    >
-      <IconCheck />
-    </button>
+    <div :class="$style.toolButtonContainer">
+      <RouterLink v-show="!checkMode" to="/" :class="[$style.toolButton, $style.toolButtonBack]"
+        ><IconBack
+      /></RouterLink>
+      <button
+        v-show="checkMode"
+        :onclick="onDelete"
+        :class="[$style.toolButton, $style.toolButtonDelete]"
+        :disabled="checkedWorksId.length === 0"
+      >
+        <IconBin />
+      </button>
+      <button
+        v-show="checkMode"
+        :onclick="onExport"
+        :class="[$style.toolButton, $style.toolButtonExport]"
+        :disabled="checkedWorksId.length === 0"
+      >
+        <IconExport />
+      </button>
+      <button
+        :onclick="switchCheckMode"
+        :class="$style.checkModeSwitch"
+        :data-mode-active="checkMode"
+      >
+        <IconCheck />
+      </button>
+    </div>
 
     <div :class="$style.worksContainer">
       <div :class="$style.work" v-for="work in sortedWorks" :key="work.id">
@@ -155,51 +159,54 @@ async function onDelete() {
 </template>
 
 <style module>
-.back {
+.toolButtonContainer {
   position: sticky;
-  top: 0;
-  left: 0;
-  width: 4rem;
-  height: 4rem;
-  color: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fff;
+  display: inline-flex;
   box-shadow: 0 0 0.5rem #0008;
-  transition: background-color 0.1s ease;
-  cursor: pointer;
-}
-.back:hover {
-  background-color: #ddd;
 }
 
-.export {
-  position: sticky;
+.toolButton {
   width: 4rem;
   height: 4rem;
-  color: #000;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fa5;
   color: #fff;
-  box-shadow: 0 0 0.5rem #0008;
   transition:
     background-color 0.1s ease,
     color 0.1s ease;
   cursor: pointer;
   border: none;
 }
-.export:hover {
-  background-color: #d93;
-  color: #ddd;
-}
-.export[disabled] {
+.toolButton[disabled] {
   background-color: #ccc;
   color: #ddd;
   cursor: default;
 }
+.toolButtonBack {
+  background-color: #fff;
+  color: #000;
+}
+.toolButtonBack:hover {
+  background-color: #ddd;
+}
+.toolButtonExport {
+  background-color: #fa5;
+  color: #fff;
+}
+.toolButtonExport:hover {
+  background-color: #d93;
+  color: #ddd;
+}
+.toolButtonDelete {
+  background-color: #f44;
+  color: #fff;
+}
+.toolButtonDelete:hover {
+  background-color: #c22;
+  color: #ddd;
+}
+
 .checkModeSwitch {
   position: fixed;
   top: 0;
