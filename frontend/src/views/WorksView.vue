@@ -214,6 +214,7 @@ async function onExport() {
 
 .worksContainer {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .work {
