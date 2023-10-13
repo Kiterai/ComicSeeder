@@ -29,7 +29,7 @@ onUnmounted(() => {
 
 <template>
   <div :class="$style.workedit">
-    <PageEdit :pageId="null"></PageEdit>
+    <PageEdit :pageId="null" style="position: relative; z-index: -1;"></PageEdit>
     <PageList></PageList>
     <WorkSettings v-if="drawState.settingsPanelOpened"></WorkSettings>
     <PageEditTools></PageEditTools>

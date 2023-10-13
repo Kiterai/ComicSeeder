@@ -394,6 +394,7 @@ const onmousemove = (e: MouseEvent) => {
   bottom: 4rem;
   left: 1rem;
   display: flex;
+  z-index: 2;
 }
 
 .penSetting {
