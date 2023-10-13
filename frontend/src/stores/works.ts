@@ -1,6 +1,7 @@
 import { connectDb, makeDbReqPromise } from '@/lib/indexedDb';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { useWorkPages } from './workPages';
 
 export type WorkData = {
   id: string;
@@ -60,19 +61,45 @@ export const useWorks = defineStore('works', () => {
     });
   };
 
-  const loaded = ref(false);
-  connectDb()
-    .then((db) => {
+  const getAllWorks = async () => {
+    return await connectDb().then((db) => {
       const tra = db.transaction('works', 'readonly');
       const objStore = tra.objectStore('works');
       return makeDbReqPromise<WorkData[]>(objStore.getAll());
-    })
-    .then((res) => {
-      for (const workOnDb of res) {
-        works.value.push(workOnDb);
-      }
-      loaded.value = true;
     });
+  };
+
+  const loaded = ref(false);
+  getAllWorks().then((res) => {
+    for (const workOnDb of res) {
+      works.value.push(workOnDb);
+    }
+    loaded.value = true;
+  });
+
+  const workPages = useWorkPages();
+
+  const gabageCollect = async () => {
+    const availablePages: string[] = [];
+    await Promise.all(
+      works.value.map(async (work) => {
+        availablePages.push(...work.pageIds);
+      })
+    );
+    const availablePagesSet = new Set(availablePages);
+
+    const allPages = await connectDb().then((db) => {
+      const tra = db.transaction('workPages', 'readonly');
+      const objStore = tra.objectStore('workPages');
+      return makeDbReqPromise<string[]>(objStore.getAllKeys());
+    });
+
+    allPages.forEach((pageId) => {
+      if (!availablePagesSet.has(pageId)) {
+        workPages.deletePageData(pageId);
+      }
+    });
+  };
 
   return {
     works,
@@ -80,6 +107,7 @@ export const useWorks = defineStore('works', () => {
     updateWork,
     loaded: computed(() => {
       return loaded.value;
-    })
+    }),
+    gabageCollect
   };
 });

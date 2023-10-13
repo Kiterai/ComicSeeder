@@ -3,7 +3,7 @@ import IconBack from '@/components/icons/IconBack.vue';
 import IconExport from '@/components/icons/IconExport.vue';
 import { useWorkPages } from '@/stores/workPages';
 import { useWorks } from '@/stores/works';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import JSZip from 'jszip';
 import streamSaver from 'streamsaver';
 import { getImgDecompressed } from '@/lib/imgCompress';
@@ -12,6 +12,10 @@ import IconCheckSmall from '@/components/icons/IconCheckSmall.vue';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
+
+onMounted(() => {
+  worksStore.gabageCollect();
+});
 
 const sortedWorks = computed(() => {
   const works = worksStore.works.concat();

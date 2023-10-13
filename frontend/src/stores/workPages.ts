@@ -153,6 +153,13 @@ export const useWorkPages = defineStore('workPages', () => {
       return makeDbReqPromise<PageData>(objStore.get(id));
     });
   };
+  const deletePageData = async (id: string) => {
+    await connectDb().then((db) => {
+      const tra = db.transaction('workPages', 'readwrite');
+      const objStore = tra.objectStore('workPages');
+      return makeDbReqPromise(objStore.delete(id)); // TODO
+    });
+  };
 
   return {
     currentPage,
@@ -162,6 +169,7 @@ export const useWorkPages = defineStore('workPages', () => {
     loadPage,
     addBlankPage,
     pageThumbnail,
-    getRawPageData
+    getRawPageData,
+    deletePageData
   };
 });
