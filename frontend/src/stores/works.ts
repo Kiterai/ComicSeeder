@@ -18,9 +18,20 @@ export const useWorks = defineStore('works', () => {
     return new Date().getTime().toString(); // TODO: uuid
   };
 
+  const getNowDateString = () => {
+    const now = new Date();
+    const yy = now.getFullYear().toString().padStart(4, '0');
+    const mm = now.getMonth().toString().padStart(2, '0');
+    const dd = now.getDay().toString().padStart(2, '0');
+    const HH = now.getHours().toString().padStart(2, '0');
+    const MM = now.getMinutes().toString().padStart(2, '0');
+    const SS = now.getSeconds().toString().padStart(2, '0');
+    return `${yy}/${mm}/${dd} ${HH}:${MM}:${SS}`;
+  };
+
   const addWork = async () => {
     const newId = generateNewId();
-    const now = new Date().toLocaleString();
+    const now = getNowDateString();
     const newWork: WorkData = {
       id: newId,
       title: 'untitled',
@@ -42,7 +53,7 @@ export const useWorks = defineStore('works', () => {
 
   const updateWork = async (work: WorkData) => {
     await connectDb().then(async (db) => {
-      work.updatedAt = new Date().toLocaleString();
+      work.updatedAt = getNowDateString();
       const tra = db.transaction('works', 'readwrite');
       const objStore = tra.objectStore('works');
       await makeDbReqPromise(objStore.put(work));
