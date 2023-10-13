@@ -110,15 +110,9 @@ export const useWorkPages = defineStore('workPages', () => {
     });
   }
   async function loadPage(id: string) {
-    await connectDb()
-      .then((db) => {
-        const tra = db.transaction('workPages', 'readonly');
-        const objStore = tra.objectStore('workPages');
-        return makeDbReqPromise<PageData>(objStore.get(id));
-      })
-      .then((data) => {
-        currentPage.value = data;
-      });
+    getRawPageData(id).then((data) => {
+      currentPage.value = data;
+    });
 
     if (currentPage.value.images.length > 0) {
       for (const rawImgData of currentPage.value.images) {
@@ -152,6 +146,14 @@ export const useWorkPages = defineStore('workPages', () => {
     };
   });
 
+  const getRawPageData = async (id: string) => {
+    return await connectDb().then((db) => {
+      const tra = db.transaction('workPages', 'readonly');
+      const objStore = tra.objectStore('workPages');
+      return makeDbReqPromise<PageData>(objStore.get(id));
+    });
+  };
+
   return {
     currentPage,
     currentPageWidth,
@@ -159,6 +161,7 @@ export const useWorkPages = defineStore('workPages', () => {
     saveCurrentPage,
     loadPage,
     addBlankPage,
-    pageThumbnail
+    pageThumbnail,
+    getRawPageData
   };
 });
