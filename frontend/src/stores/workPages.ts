@@ -110,7 +110,7 @@ export const useWorkPages = defineStore('workPages', () => {
     });
   }
   async function loadPage(id: string) {
-    getRawPageData(id).then((data) => {
+    await getRawPageData(id).then((data) => {
       currentPage.value = data;
     });
 
