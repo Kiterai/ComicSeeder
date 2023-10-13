@@ -8,6 +8,7 @@ import { computed, ref } from 'vue';
 import JSZip from 'jszip';
 import streamSaver from 'streamsaver';
 import { getImgDecompressed } from '@/lib/imgCompress';
+import IconCheck from '@/components/icons/IconCheck.vue';
 
 const worksStore = useWorks();
 const workPages = useWorkPages();
@@ -105,8 +106,9 @@ async function onExport() {
             type="checkbox"
             :value="work.id"
             v-model="exportWorksId"
+            :class="$style.exportCheck"
           />
-          Export This
+          <div :class="$style.exportCheckSymbol"><IconCheck /></div>
         </div>
         <label :class="$style.exportCheckLabel" :for="`export-${work.id}`"></label>
         <div :class="$style.thumbnailContainer">
@@ -206,7 +208,33 @@ async function onExport() {
   background-color: #0004;
 }
 .workExportOptions {
-  padding: 0.2rem 0.5rem 0;
+  position: absolute;
+}
+.exportCheck {
+  visibility: hidden;
+}
+.exportCheck + .exportCheckSymbol {
+  position: absolute;
+  left: 0.3rem;
+  top: 0.3rem;
+  border-radius: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  border: 0.1rem solid #999;
+  color: transparent;
+  transition:
+    background-color ease 0.1s,
+    color ease 0.1s;
+}
+.exportCheck:checked + .exportCheckSymbol {
+  background-color: #fff;
+  color: #3af;
+  border-color: #3af;
+  font-size: 0.5rem;
 }
 
 .exportCheckLabel {
