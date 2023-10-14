@@ -53,6 +53,7 @@ const pageWords = computed(() =>
 
 <style module>
 .pageWord {
+  font-family: 'Noto Sans JP', sans-serif;
   background-color: transparent;
   position: absolute;
   left: 0;
