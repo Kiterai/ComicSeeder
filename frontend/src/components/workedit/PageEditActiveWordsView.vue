@@ -52,7 +52,7 @@ const lastSelectedWord = computed(() =>
 
 <style module>
 .pageWord {
-  font-family: 'Noto Serif JP', serif;
+  /* font-family: 'Noto Serif JP', serif; */
   background-color: #fff8;
   position: absolute;
   left: 0;
