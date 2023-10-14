@@ -35,12 +35,13 @@ const pageWords = computed(() =>
       :contenteditable="drawModeStore.mode == 'word'"
       spellcheck="false"
       :class="$style.pageWord"
+      :data-toolactive="drawModeStore.mode === 'word'"
       :style="{
         transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
         fontSize: `${pageWord.fontSize}px`,
         width: `${pageWord.rect.width}px`,
         height: `${pageWord.rect.height}px`,
-        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid #000`,
+        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`,
         visibility: pageWord.id === wordTool.lastSelectedWordId.value ? 'hidden' : 'visible'
       }"
       v-model="pageWords[index].word"
@@ -52,7 +53,7 @@ const pageWords = computed(() =>
 
 <style module>
 .pageWord {
-  background-color: #fff8;
+  background-color: transparent;
   position: absolute;
   left: 0;
   top: 0;
@@ -62,5 +63,9 @@ const pageWords = computed(() =>
   resize: none;
   overflow: hidden;
   cursor: auto;
+}
+.pageWord[data-toolactive='true'] {
+  background-color: #fff8;
+  border-color: #000 !important;
 }
 </style>
