@@ -5,7 +5,7 @@ import { useWorkPages } from '@/stores/workPages';
 import { computed } from 'vue';
 import type { WordToolHandler } from './tools/WordToolHandler';
 
-defineProps<{
+const prop = defineProps<{
   wordTool: WordToolHandler;
 }>();
 
@@ -13,13 +13,16 @@ const canvasSizing = useCanvasSizing();
 const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
-const pageWords = computed(() =>
-  workPagesStore.currentPage ? workPagesStore.currentPage.words : []
+const lastSelectedWord = computed(() =>
+  workPagesStore.currentPage.words.find(
+    (word) => word.id === prop.wordTool.lastSelectedWordId.value
+  )
 );
 </script>
 
 <template>
   <div
+    v-if="lastSelectedWord"
     :class="$style.pageWordContainer"
     :style="canvasSizing.canvasStyle"
     :onwheel="
@@ -29,21 +32,18 @@ const pageWords = computed(() =>
     "
   >
     <textarea
-      v-for="(pageWord, index) in pageWords"
-      :key="pageWord.id"
-      :data-word-id="pageWord.id"
+      :data-word-id="lastSelectedWord.id"
       :contenteditable="drawModeStore.mode == 'word'"
       spellcheck="false"
       :class="$style.pageWord"
       :style="{
-        transform: `translate(${pageWord.rect.left}px, ${pageWord.rect.top}px)`,
-        fontSize: `${pageWord.fontSize}px`,
-        width: `${pageWord.rect.width}px`,
-        height: `${pageWord.rect.height}px`,
-        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid #000`,
-        visibility: pageWord.id === wordTool.lastSelectedWordId.value ? 'hidden' : 'visible'
+        transform: `translate(${lastSelectedWord.rect.left}px, ${lastSelectedWord.rect.top}px)`,
+        fontSize: `${lastSelectedWord.fontSize}px`,
+        width: `${lastSelectedWord.rect.width}px`,
+        height: `${lastSelectedWord.rect.height}px`,
+        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
       }"
-      v-model="pageWords[index].word"
+      v-model="lastSelectedWord.word"
       :oninput="() => (workPagesStore.pageUpdated = true)"
     >
     </textarea>
@@ -62,5 +62,6 @@ const pageWords = computed(() =>
   resize: none;
   overflow: hidden;
   cursor: auto;
+  border-color: #f00 !important;
 }
 </style>

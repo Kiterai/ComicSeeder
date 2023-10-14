@@ -15,6 +15,7 @@ import { useDrawState } from '@/stores/drawState';
 import PageEditWordsView from './PageEditWordsView.vue';
 import IconBin from '../icons/IconBin.vue';
 import PageEditWordHandlerView from './PageEditWordHandlerView.vue';
+import PageEditActiveWordsView from './PageEditActiveWordsView.vue';
 
 // show implementation
 const canvasSizing = useCanvasSizing();
@@ -260,8 +261,8 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
-    <PageEditWordHandlerView :word-tool="wordTool"></PageEditWordHandlerView>
     <PageEditWordsView :word-tool="wordTool"></PageEditWordsView>
+    <PageEditWordHandlerView :word-tool="wordTool"></PageEditWordHandlerView>
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
@@ -276,6 +277,7 @@ const onpointerdown = (e: PointerEvent) => {
       :onwheel="canvasSizing.onwheel"
       :data-grabbable="drawModeStore.mode == 'move'"
     ></div>
+    <PageEditActiveWordsView :word-tool="wordTool"></PageEditActiveWordsView>
     <div v-if="drawModeStore.mode == 'pen'" :class="$style.canvasUnderContainer">
       <div
         v-for="(penSetting, index) in drawState.penSettingList"
@@ -376,7 +378,6 @@ const onpointerdown = (e: PointerEvent) => {
   bottom: 4rem;
   left: 1rem;
   display: flex;
-  z-index: 2;
 }
 
 .penSetting {
