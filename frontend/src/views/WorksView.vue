@@ -68,8 +68,26 @@ async function genExportFilesZip() {
         }
         const pageImageBlob = await tmpPageCanvas.convertToBlob();
 
-        const filename = `${index.toString().padStart(pageStringLen, '0')}.png`;
-        folder.file(filename, pageImageBlob);
+        const filename = `${index.toString().padStart(pageStringLen, '0')}`;
+
+        const imgFilename = `${filename}.png`;
+        folder.file(imgFilename, pageImageBlob);
+
+        const words = page.words
+          .sort((word1, word2) => {
+            const x1 = word1.rect.left + word1.rect.width;
+            const x2 = word2.rect.left + word2.rect.width;
+            const y1 = word1.rect.top;
+            const y2 = word2.rect.top;
+            if (y1 < y2 || (y1 === y2 && x1 > x2)) return -1;
+            if (y1 > y2 || (y1 === y2 && x1 < x2)) return 1;
+            return 0;
+          })
+          .map((word) => word.word)
+          .join('\n\n');
+
+        const wordFilename = `${filename}.txt`;
+        folder.file(wordFilename, words);
       });
       await Promise.all(pagesProcess);
     });
@@ -80,7 +98,7 @@ async function onExport() {
   const zipStream = streamSaver.createWriteStream('works-export.zip');
   const writer = zipStream.getWriter();
   const zip = await genExportFilesZip();
-  
+
   const blob = await zip.generateAsync({ type: 'blob' });
   const blobStream = blob.stream();
   const blobReader = blobStream.getReader();
