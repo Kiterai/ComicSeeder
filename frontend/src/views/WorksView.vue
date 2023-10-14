@@ -36,7 +36,8 @@ function switchCheckMode() {
 
 const checkedWorksId = ref<string[]>([]);
 
-async function zipExportFiles(zip: JSZip) {
+async function genExportFilesZip() {
+  const zip = new JSZip();
   const exportWorksSet = new Set(checkedWorksId.value);
   const worksProcess = worksStore.works
     .filter((work) => exportWorksSet.has(work.id))
@@ -73,13 +74,13 @@ async function zipExportFiles(zip: JSZip) {
       await Promise.all(pagesProcess);
     });
   await Promise.all(worksProcess);
+  return zip;
 }
 async function onExport() {
   const zipStream = streamSaver.createWriteStream('works-export.zip');
   const writer = zipStream.getWriter();
-  const zip = new JSZip();
-  await zipExportFiles(zip);
-
+  const zip = await genExportFilesZip();
+  
   const blob = await zip.generateAsync({ type: 'blob' });
   const blobStream = blob.stream();
   const blobReader = blobStream.getReader();
