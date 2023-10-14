@@ -22,7 +22,7 @@ const lastSelectedWord = computed(() =>
 
 <template>
   <div
-    v-if="lastSelectedWord"
+    v-if="drawModeStore.mode === 'word' && lastSelectedWord"
     :class="$style.pageWordContainer"
     :style="canvasSizing.canvasStyle"
     :onwheel="
