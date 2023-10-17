@@ -63,16 +63,18 @@ export class PenToolHandler implements ToolHandler {
       ctx.lineCap = 'round';
       ctx.lineWidth = nowPenWidth;
       ctx.globalCompositeOperation = 'source-over';
-      ctx.beginPath();
       for (const penInput of nowPenHistory) {
         if (!tmpLastPenInput) {
           tmpLastPenInput = penInput;
           ctx.moveTo(penInput.x, penInput.y);
           continue;
         }
+        ctx.beginPath();
+        ctx.moveTo(tmpLastPenInput.x, tmpLastPenInput.y);
         ctx.lineTo(penInput.x, penInput.y);
+        ctx.stroke();
+        tmpLastPenInput = penInput;
       }
-      ctx.stroke();
     };
     draw();
     this.opeHistory.commitOperation({
