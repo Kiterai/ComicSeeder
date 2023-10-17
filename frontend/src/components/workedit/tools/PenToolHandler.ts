@@ -6,6 +6,13 @@ import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
 import { useCanvasSizing } from '@/stores/canvasSizing';
 
+function drawStrokeElement(ctx: CanvasRenderingContext2D, p1: PenInput, p2: PenInput) {
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.stroke();
+}
+
 export class PenToolHandler implements ToolHandler {
   imgAtBegin: null | ImageData;
   penHistory: PenInput[];
@@ -42,10 +49,7 @@ export class PenToolHandler implements ToolHandler {
   move(e: PointerEvent) {
     const newPenInput = eventToPenInput(e);
     const tmpctx = this.canvas.tmpctx!;
-    tmpctx.beginPath();
-    tmpctx.moveTo(this.lastPenInput!.x, this.lastPenInput!.y);
-    tmpctx.lineTo(newPenInput!.x, newPenInput!.y);
-    tmpctx.stroke();
+    drawStrokeElement(tmpctx, this.lastPenInput!, newPenInput);
     this.lastPenInput = newPenInput;
     this.penHistory.push(this.lastPenInput);
   }
@@ -69,10 +73,7 @@ export class PenToolHandler implements ToolHandler {
           ctx.moveTo(penInput.x, penInput.y);
           continue;
         }
-        ctx.beginPath();
-        ctx.moveTo(tmpLastPenInput.x, tmpLastPenInput.y);
-        ctx.lineTo(penInput.x, penInput.y);
-        ctx.stroke();
+        drawStrokeElement(ctx, tmpLastPenInput, penInput);
         tmpLastPenInput = penInput;
       }
     };
