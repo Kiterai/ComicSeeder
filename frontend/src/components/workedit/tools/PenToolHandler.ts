@@ -57,6 +57,10 @@ export class PenToolHandler implements ToolHandler {
     const ctx = this.canvas.ctx!;
     this.canvas.clearTmp();
     let tmpLastPenInput: PenInput | null = null;
+    if (this.penHistory.length < 2) {
+      this.opeHistory.cancelOperation();
+      return;
+    }
 
     const nowPenColor = this.drawStateStore.penColor;
     const nowPenWidth = this.drawStateStore.penWidth;
