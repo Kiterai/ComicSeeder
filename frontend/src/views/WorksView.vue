@@ -127,7 +127,7 @@ async function onDelete() {
       /></RouterLink>
       <button
         v-show="checkMode"
-        :onclick="onDelete"
+        :onpointerup="onDelete"
         :class="[$style.toolButton, $style.toolButtonDelete]"
         :disabled="checkedWorksId.length === 0"
       >
@@ -135,14 +135,14 @@ async function onDelete() {
       </button>
       <button
         v-show="checkMode"
-        :onclick="onExport"
+        :onpointerup="onExport"
         :class="[$style.toolButton, $style.toolButtonExport]"
         :disabled="checkedWorksId.length === 0"
       >
         <IconExport />
       </button>
       <button
-        :onclick="switchCheckMode"
+        :onpointerup="switchCheckMode"
         :class="$style.checkModeSwitch"
         :data-mode-active="checkMode"
       >

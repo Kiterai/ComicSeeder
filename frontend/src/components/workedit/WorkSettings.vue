@@ -158,9 +158,9 @@ function onDeleteEraser() {
         }"
         :data-current="index == drawState.penSettingIndex"
         :data-index="index"
-        :onclick="onSelectPen"
+        :onpointerup="onSelectPen"
       ></div>
-      <div :class="$style.addButton" :onclick="onAddPen">
+      <div :class="$style.addButton" :onpointerup="onAddPen">
         <IconPlus />
       </div>
     </div>
@@ -180,7 +180,7 @@ function onDeleteEraser() {
           v-model="drawState.penSettingList[drawState.penSettingIndex].enablePressure"
         />
       </dd>
-      <button :class="$style.deleteButton" :onclick="onDeletePen">Delete</button>
+      <button :class="$style.deleteButton" :onpointerup="onDeletePen">Delete</button>
     </dl>
     <div v-if="drawMode.mode == 'eraser'" style="display: flex; flex-wrap: wrap">
       <div
@@ -189,16 +189,16 @@ function onDeleteEraser() {
         :class="$style.eraserSetting"
         :data-current="index == drawState.eraserIndex"
         :data-index="index"
-        :onclick="onSelectEraser"
+        :onpointerup="onSelectEraser"
       ></div>
-      <div :class="$style.addButton" :onclick="onAddEraser">
+      <div :class="$style.addButton" :onpointerup="onAddEraser">
         <IconPlus />
       </div>
     </div>
     <dl v-if="drawMode.mode == 'eraser'">
       <dt>eraser size</dt>
       <dd><input type="number" v-model="drawState.eraserWidthList[drawState.eraserIndex]" /></dd>
-      <button :class="$style.deleteButton" :onclick="onDeleteEraser">Delete</button>
+      <button :class="$style.deleteButton" :onpointerup="onDeleteEraser">Delete</button>
     </dl>
     <dl v-if="drawMode.mode == 'word'">
       <dt>default font size</dt>

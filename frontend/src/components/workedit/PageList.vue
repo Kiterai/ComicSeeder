@@ -52,7 +52,7 @@ const onSelectPage = (e: MouseEvent) => {
       top: drawState.pageListPanelOpened ? '10rem' : '0'
     }"
   >
-    <button :class="$style.button" :onclick="() => pageOperation.tryDeleteNowPage()">
+    <button :class="$style.button" :onpointerup="() => pageOperation.tryDeleteNowPage()">
       <IconBin />
     </button>
     <button :class="$style.button" :onmousedown="() => pageOperation.tryAddPage()"><IconPlus /></button>

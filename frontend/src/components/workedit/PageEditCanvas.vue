@@ -285,7 +285,7 @@ const onpointerdown = (e: PointerEvent) => {
         :class="$style.penSetting"
         :data-index="index"
         :data-current="drawState.penSettingIndex === index"
-        :onclick="onSelectPen"
+        :onpointerup="onSelectPen"
       >
         <div
           :style="{
@@ -304,7 +304,7 @@ const onpointerdown = (e: PointerEvent) => {
         :class="$style.penSetting"
         :data-index="index"
         :data-current="drawState.eraserIndex === index"
-        :onclick="onSelectEraser"
+        :onpointerup="onSelectEraser"
       >
         <div
           :style="{
@@ -321,7 +321,7 @@ const onpointerdown = (e: PointerEvent) => {
       <button
         v-if="wordTool.lastSelectedWordId.value !== null"
         :class="$style.pageWordDelButton"
-        :onclick="tryDeleteWord"
+        :onpointerup="tryDeleteWord"
       >
         <IconBin />
       </button>

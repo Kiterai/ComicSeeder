@@ -40,7 +40,7 @@ const onClickSettings = () => {
 <template>
   <div :class="$style.tools">
     <button
-      :onclick="onClickUndo"
+      :onpointerup="onClickUndo"
       :class="$style.tool"
       :style="{
         color: opeHistory.isUndoAvailable() ? '#000' : '#aaa'
@@ -49,7 +49,7 @@ const onClickSettings = () => {
       <IconUndo />
     </button>
     <button
-      :onclick="onClickRedo"
+      :onpointerup="onClickRedo"
       :class="$style.tool"
       :style="{
         color: opeHistory.isRedoAvailable() ? '#000' : '#aaa'
@@ -58,34 +58,34 @@ const onClickSettings = () => {
       <IconRedo />
     </button>
     <button
-      :onclick="onClickMove"
+      :onpointerup="onClickMove"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'move'"
     >
       <IconMove />
     </button>
     <button
-      :onclick="onClickPen"
+      :onpointerup="onClickPen"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'pen'"
     >
       <IconPencil />
     </button>
     <button
-      :onclick="onClickEraser"
+      :onpointerup="onClickEraser"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'eraser'"
     >
       <IconEraser />
     </button>
     <button
-      :onclick="onClickWord"
+      :onpointerup="onClickWord"
       :class="$style.tool"
       :dat-tool-active="drawModeStore.mode == 'word'"
     >
       <IconDocument />
     </button>
-    <button :class="$style.tool" :onclick="onClickSettings">
+    <button :class="$style.tool" :onpointerup="onClickSettings">
       <IconCog />
     </button>
   </div>

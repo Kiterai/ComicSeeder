@@ -16,7 +16,7 @@ const moveToNewWork = async () => {
     <h1 :class="$style.logo">ComicSeeder</h1>
     <div :class="$style.container">
       <RouterLink to="/works" :class="$style.topButton">Works List</RouterLink>
-      <button :class="$style.topButton" :onclick="moveToNewWork">New Work</button>
+      <button :class="$style.topButton" :onpointerup="moveToNewWork">New Work</button>
     </div>
     <div :class="$style.links">
       <a :class="$style.link" href="https://github.com/Kiterai/ComicSeeder">Repository</a> |
