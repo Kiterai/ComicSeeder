@@ -2,7 +2,7 @@
 import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useDrawMode } from '@/stores/drawMode';
 import { useWorkPages } from '@/stores/workPages';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import type { WordToolHandler } from './tools/WordToolHandler';
 
 const prop = defineProps<{
@@ -19,12 +19,21 @@ const lastSelectedWord = computed(() =>
   )
 );
 
+let updatedText: string | null = null;
+
 const onInput = (e: InputEvent) => {
   workPagesStore.pageUpdated = true;
-  if (!e.isComposing && e.target instanceof HTMLElement && lastSelectedWord.value) {
-    lastSelectedWord.value.word = e.target.innerText;
+  if (!e.isComposing && e.target instanceof HTMLElement) {
+    updatedText = e.target.innerText;
+    console.log(updatedText)
   }
 };
+
+watch(lastSelectedWord, (newState, oldState) => {
+  if (!newState && updatedText && oldState) {
+    oldState.word = updatedText;
+  }
+});
 </script>
 
 <template>
