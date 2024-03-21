@@ -28,11 +28,10 @@ const pageWords = computed(() =>
       }
     "
   >
-    <textarea
+    <div
       v-for="(pageWord, index) in pageWords"
       :key="pageWord.id"
       :data-word-id="pageWord.id"
-      :contenteditable="drawModeStore.mode == 'word'"
       spellcheck="false"
       :class="$style.pageWord"
       :data-toolactive="drawModeStore.mode === 'word'"
@@ -44,23 +43,23 @@ const pageWords = computed(() =>
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`,
         visibility: drawModeStore.mode === 'word' && pageWord.id === wordTool.lastSelectedWordId.value ? 'hidden' : 'visible'
       }"
-      v-model="pageWords[index].word"
+      v-text="pageWords[index].word"
       :oninput="() => (workPagesStore.pageUpdated = true)"
     >
-    </textarea>
+    </div>
   </div>
 </template>
 
 <style module>
 .pageWord {
-  /* font-family: 'Noto Serif JP', serif; */
+  font-family: 'Noto Serif JP', serif;
   background-color: transparent;
   position: absolute;
   left: 0;
   top: 0;
   writing-mode: vertical-rl;
   outline: none;
-  white-space: pre;
+  white-space: pre-wrap;
   resize: none;
   overflow: hidden;
   cursor: auto;

@@ -18,6 +18,13 @@ const lastSelectedWord = computed(() =>
     (word) => word.id === prop.wordTool.lastSelectedWordId.value
   )
 );
+
+const onInput = (e: InputEvent) => {
+  workPagesStore.pageUpdated = true;
+  if (!e.isComposing && e.target instanceof HTMLElement && lastSelectedWord.value) {
+    lastSelectedWord.value.word = e.target.innerText;
+  }
+};
 </script>
 
 <template>
@@ -31,7 +38,7 @@ const lastSelectedWord = computed(() =>
       }
     "
   >
-    <textarea
+    <div
       :data-word-id="lastSelectedWord.id"
       :contenteditable="drawModeStore.mode == 'word'"
       spellcheck="false"
@@ -43,23 +50,22 @@ const lastSelectedWord = computed(() =>
         height: `${lastSelectedWord.rect.height}px`,
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
       }"
-      v-model="lastSelectedWord.word"
-      :oninput="() => (workPagesStore.pageUpdated = true)"
-    >
-    </textarea>
+      v-text="lastSelectedWord.word"
+      :oninput="onInput"
+    ></div>
   </div>
 </template>
 
 <style module>
 .pageWord {
-  /* font-family: 'Noto Serif JP', serif; */
+  font-family: 'Noto Serif JP', serif;
   background-color: #fff8;
   position: absolute;
   left: 0;
   top: 0;
   writing-mode: vertical-rl;
   outline: none;
-  white-space: pre;
+  white-space: pre-wrap;
   resize: none;
   overflow: hidden;
   cursor: auto;
