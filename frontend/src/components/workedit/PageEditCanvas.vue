@@ -437,6 +437,7 @@ const onpointerdown = (e: PointerEvent) => {
   width: 100dvw;
   height: 100dvh;
   top: 0;
+  touch-action: none;
 }
 .surface[data-grabbable='true'] {
   cursor: grab;
