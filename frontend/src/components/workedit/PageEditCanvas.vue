@@ -340,6 +340,7 @@ const onpointerdown = (e: PointerEvent) => {
 .canvasSystem {
   height: 100dvh;
   background-color: #888;
+  user-select: none;
 }
 .mainCanvas,
 .tmpCanvas {
