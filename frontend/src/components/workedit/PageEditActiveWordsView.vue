@@ -19,7 +19,7 @@ const focusingWord = computed(() =>
 
 const onInput = (e: InputEvent) => {
   workPagesStore.pageUpdated = true;
-  if (!e.isComposing && e.target instanceof HTMLElement) {
+  if (e.target instanceof HTMLElement) {
     prop.wordTool.updateDraftInput(e.target.innerText);
   }
 };
