@@ -127,20 +127,13 @@ export class WordToolHandler implements ToolHandler {
     return null;
   }
   onTouchWord(e: PointerEvent, touchedWordId: number) {
-    this.focusingWordId.value = touchedWordId;
-    this.draftInput.value = this.focusingWord.value!.word;
-    const elem = this.getWordElem(touchedWordId);
-    if (elem instanceof HTMLElement) {
-      elem.focus();
-      e.preventDefault();
-    }
+    this.changeFocusingWord(e, touchedWordId);
   }
 
   beginNewWord(penInput: PenInput) {
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
-    this.focusingWordId.value = null;
-    this.draftInput.value = '';
+    this.resetFocusingWord();
 
     const newId = this.pageWords.value.length;
     this.pageWords.value.push({
@@ -163,18 +156,14 @@ export class WordToolHandler implements ToolHandler {
       height: Math.abs(penInput.y - this.lastPenInput!.y)
     };
   }
-  endNewWord() {
+  endNewWord(e: PointerEvent) {
     const working = this.pageWords.value[this.pageWords.value.length - 1];
     if (working.rect.width < 30 || working.rect.height < 30) {
       this.pageWords.value.pop();
       this.opeHistory.cancelOperation();
       return;
     }
-    const elem = this.getWordElem(working.id);
-    if (elem instanceof HTMLElement) {
-      this.focusingWordId.value = working.id;
-      elem.focus();
-    }
+    this.changeFocusingWord(e, working.id);
 
     this.opeHistory.commitOperation({
       undo: async () => {
@@ -185,6 +174,20 @@ export class WordToolHandler implements ToolHandler {
         this.pageWords.value.push(working);
       }
     });
+  }
+
+  resetFocusingWord() {
+    this.focusingWordId.value = null;
+    this.draftInput.value = '';
+  }
+  changeFocusingWord(e: PointerEvent, id: number) {
+    this.focusingWordId.value = id;
+    this.draftInput.value = this.focusingWord.value!.word;
+    const elem = this.getWordElem(id);
+    if (elem instanceof HTMLElement) {
+      elem.focus();
+      e.preventDefault();
+    }
   }
 
   constructor(getWordElem: (id: number) => HTMLElement | null) {
@@ -239,7 +242,7 @@ export class WordToolHandler implements ToolHandler {
     if (this.mode === 'move' || this.mode === 'resize') {
       this.onTouchEndWordHandle();
     } else {
-      this.endNewWord();
+      this.endNewWord(e);
     }
   }
 
