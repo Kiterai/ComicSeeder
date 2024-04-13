@@ -52,6 +52,17 @@ export class WordToolHandler implements ToolHandler {
     this.firstPenInput = penInput;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
+  onMoveMoveWordHandle(penInput: PenInput, pageWord: PageWord) {
+    const x2 = penInput.x + (this.oldRect!.left + this.oldRect!.width - this.firstPenInput!.x);
+    const y2 = penInput.y + (this.oldRect!.top - this.firstPenInput!.y);
+
+    pageWord.rect = {
+      left: x2 - this.oldRect!.width,
+      top: y2,
+      width: this.oldRect!.width,
+      height: this.oldRect!.height
+    };
+  }
   isTouchingResizeWordHandle(penInput: PenInput, pageWord: PageWord) {
     const resizeHandleRect: Rect = {
       left: pageWord.rect.left - this.wordHandleSize(),
@@ -72,6 +83,34 @@ export class WordToolHandler implements ToolHandler {
     this.oldRect = structuredClone(toRaw(focusingWord.rect));
     this.firstPenInput = penInput;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  onMoveResizeWordHandle(penInput: PenInput, pageWord: PageWord) {
+    const x2 = penInput.x + (this.oldRect!.left - this.firstPenInput!.x);
+    const y2 = penInput.y + (this.oldRect!.top + this.oldRect!.height - this.firstPenInput!.y);
+    pageWord.rect = {
+      left: x2,
+      top: Math.min(this.oldRect!.top, y2),
+      width: Math.max(this.oldRect!.left + this.oldRect!.width - x2, 0),
+      height: Math.max(y2 - this.oldRect!.top, 0)
+    };
+  }
+  onTouchEndWordHandle() {
+    const id = this.focusingWordId.value;
+    const oldRect = this.oldRect!;
+    const newRect = this.focusingWord.value!.rect;
+    this.opeHistory.commitOperation({
+      undo: async () => {
+        this.pageWords.value.find((word) => {
+          return word.id === id;
+        })!.rect = oldRect;
+      },
+      redo: async () => {
+        this.pageWords.value.find((word) => {
+          return word.id === id;
+        })!.rect = newRect;
+      }
+    });
+    this.mode = null;
   }
   findTouchedWordId(penInput: PenInput) {
     for (const pageWord of this.pageWords.value) {
@@ -109,6 +148,37 @@ export class WordToolHandler implements ToolHandler {
         height: 0
       },
       word: ''
+    });
+  }
+  moveNewWord(penInput: PenInput, pageWord: PageWord) {
+    pageWord.rect = {
+      left: Math.min(penInput.x, this.lastPenInput!.x),
+      top: Math.min(penInput.y, this.lastPenInput!.y),
+      width: Math.abs(penInput.x - this.lastPenInput!.x),
+      height: Math.abs(penInput.y - this.lastPenInput!.y)
+    };
+  }
+  endNewWord() {
+    const working = this.pageWords.value[this.pageWords.value.length - 1];
+    if (working.rect.width < 30 || working.rect.height < 30) {
+      this.pageWords.value.pop();
+      this.opeHistory.cancelOperation();
+      return;
+    }
+    const elem = this.getWordElem(working.id);
+    if (elem instanceof HTMLElement) {
+      this.focusingWordId.value = working.id;
+      elem.focus();
+    }
+
+    this.opeHistory.commitOperation({
+      undo: async () => {
+        const targetIndex = this.pageWords.value.findIndex((val) => val.id == working.id);
+        this.pageWords.value.splice(targetIndex, 1);
+      },
+      redo: async () => {
+        this.pageWords.value.push(working);
+      }
     });
   }
 
@@ -149,77 +219,20 @@ export class WordToolHandler implements ToolHandler {
     if (!this.opeHistory.isOperating()) return;
     const penInput = eventToPenInput(e);
     if (this.mode === 'move') {
-      const x2 = penInput.x + (this.oldRect!.left + this.oldRect!.width - this.firstPenInput!.x);
-      const y2 = penInput.y + (this.oldRect!.top - this.firstPenInput!.y);
-
-      this.focusingWord.value!.rect = {
-        left: x2 - this.oldRect!.width,
-        top: y2,
-        width: this.oldRect!.width,
-        height: this.oldRect!.height
-      };
+      this.onMoveMoveWordHandle(penInput, this.focusingWord.value!);
     } else if (this.mode === 'resize') {
-      const x2 = penInput.x + (this.oldRect!.left - this.firstPenInput!.x);
-      const y2 = penInput.y + (this.oldRect!.top + this.oldRect!.height - this.firstPenInput!.y);
-      this.focusingWord.value!.rect = {
-        left: x2,
-        top: Math.min(this.oldRect!.top, y2),
-        width: Math.max(this.oldRect!.left + this.oldRect!.width - x2, 0),
-        height: Math.max(y2 - this.oldRect!.top, 0)
-      };
+      this.onMoveResizeWordHandle(penInput, this.focusingWord.value!);
     } else {
-      this.pageWords.value[this.pageWords.value.length - 1].rect = {
-        left: Math.min(penInput.x, this.lastPenInput!.x),
-        top: Math.min(penInput.y, this.lastPenInput!.y),
-        width: Math.abs(penInput.x - this.lastPenInput!.x),
-        height: Math.abs(penInput.y - this.lastPenInput!.y)
-      };
+      this.moveNewWord(penInput, this.pageWords.value[this.pageWords.value.length - 1]);
     }
   }
   up(e: PointerEvent) {
     if (!this.opeHistory.isOperating()) return;
-
     if (this.mode === 'move' || this.mode === 'resize') {
-      const id = this.focusingWordId.value;
-      const oldRect = this.oldRect!;
-      const newRect = this.focusingWord.value!.rect;
-      this.opeHistory.commitOperation({
-        undo: async () => {
-          this.pageWords.value.find((word) => {
-            return word.id === id;
-          })!.rect = oldRect;
-        },
-        redo: async () => {
-          this.pageWords.value.find((word) => {
-            return word.id === id;
-          })!.rect = newRect;
-        }
-      });
-      this.mode = null;
-      return;
+      this.onTouchEndWordHandle();
+    } else {
+      this.endNewWord();
     }
-
-    const working = this.pageWords.value[this.pageWords.value.length - 1];
-    if (working.rect.width < 30 || working.rect.height < 30) {
-      this.pageWords.value.pop();
-      this.opeHistory.cancelOperation();
-      return;
-    }
-    const elem = this.getWordElem(working.id);
-    if (elem instanceof HTMLElement) {
-      this.focusingWordId.value = working.id;
-      elem.focus();
-    }
-
-    this.opeHistory.commitOperation({
-      undo: async () => {
-        const targetIndex = this.pageWords.value.findIndex((val) => val.id == working.id);
-        this.pageWords.value.splice(targetIndex, 1);
-      },
-      redo: async () => {
-        this.pageWords.value.push(working);
-      }
-    });
   }
 
   tryDeleteWord() {
