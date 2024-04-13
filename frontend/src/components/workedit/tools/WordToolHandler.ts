@@ -31,6 +31,51 @@ export class WordToolHandler implements ToolHandler {
     return this.pageWords.value.find((word) => word.id === this.focusingWordId.value);
   });
 
+  isTouchingMoveWordHandle(penInput: PenInput) {
+    if (!this.focusingWord.value) return false;
+    const moveHandleRect: Rect = {
+      left: this.focusingWord.value.rect.left + this.focusingWord.value.rect.width,
+      top: this.focusingWord.value.rect.top - this.wordHandleSize(),
+      width: this.wordHandleSize(),
+      height: this.wordHandleSize()
+    };
+    return (
+      moveHandleRect.left <= penInput.x &&
+      penInput.x < moveHandleRect.left + moveHandleRect.width &&
+      moveHandleRect.top <= penInput.y &&
+      penInput.y < moveHandleRect.top + moveHandleRect.height
+    );
+  }
+  onTouchMoveWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
+    this.opeHistory.beginOperation();
+    this.mode = 'move';
+    this.oldRect = structuredClone(toRaw(focusingWord.rect));
+    this.firstPenInput = penInput;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  isTouchingResizeWordHandle(penInput: PenInput) {
+    if (!this.focusingWord.value) return false;
+    const resizeHandleRect: Rect = {
+      left: this.focusingWord.value.rect.left - this.wordHandleSize(),
+      top: this.focusingWord.value.rect.top + this.focusingWord.value.rect.height,
+      width: this.wordHandleSize(),
+      height: this.wordHandleSize()
+    };
+    return (
+      resizeHandleRect.left <= penInput.x &&
+      penInput.x < resizeHandleRect.left + resizeHandleRect.width &&
+      resizeHandleRect.top <= penInput.y &&
+      penInput.y < resizeHandleRect.top + resizeHandleRect.height
+    );
+  }
+  onTouchResizeWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
+    this.opeHistory.beginOperation();
+    this.mode = 'resize';
+    this.oldRect = structuredClone(toRaw(focusingWord.rect));
+    this.firstPenInput = penInput;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
   constructor(getWordElem: (id: number) => HTMLElement | null) {
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
@@ -47,47 +92,14 @@ export class WordToolHandler implements ToolHandler {
     const penInput = eventToPenInput(e);
 
     if (this.focusingWord.value) {
-      // move handle
-      const moveHandleRect: Rect = {
-        left: this.focusingWord.value.rect.left + this.focusingWord.value.rect.width,
-        top: this.focusingWord.value.rect.top - this.wordHandleSize(),
-        width: this.wordHandleSize(),
-        height: this.wordHandleSize()
-      };
-      if (
-        moveHandleRect.left <= penInput.x &&
-        penInput.x < moveHandleRect.left + moveHandleRect.width &&
-        moveHandleRect.top <= penInput.y &&
-        penInput.y < moveHandleRect.top + moveHandleRect.height
-      ) {
-        this.opeHistory.beginOperation();
-        this.mode = 'move';
-        this.oldRect = structuredClone(toRaw(this.focusingWord.value.rect));
-        this.firstPenInput = penInput;
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      if (this.isTouchingMoveWordHandle(penInput)) {
+        this.onTouchMoveWordHandle(e, penInput, this.focusingWord.value);
         return;
       }
-      // resize handle
-      const resizeHandleRect: Rect = {
-        left: this.focusingWord.value.rect.left - this.wordHandleSize(),
-        top: this.focusingWord.value.rect.top + this.focusingWord.value.rect.height,
-        width: this.wordHandleSize(),
-        height: this.wordHandleSize()
-      };
-      if (
-        resizeHandleRect.left <= penInput.x &&
-        penInput.x < resizeHandleRect.left + resizeHandleRect.width &&
-        resizeHandleRect.top <= penInput.y &&
-        penInput.y < resizeHandleRect.top + resizeHandleRect.height
-      ) {
-        this.opeHistory.beginOperation();
-        this.mode = 'resize';
-        this.oldRect = structuredClone(toRaw(this.focusingWord.value.rect));
-        this.firstPenInput = penInput;
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      if (this.isTouchingResizeWordHandle(penInput)) {
+        this.onTouchResizeWordHandle(e, penInput, this.focusingWord.value);
         return;
       }
-      this.mode = null;
     }
 
     let touchedWordId: number | null = null;
