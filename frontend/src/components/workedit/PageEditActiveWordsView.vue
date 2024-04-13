@@ -14,26 +14,15 @@ const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
 const focusingWord = computed(() =>
-  workPagesStore.currentPage.words.find(
-    (word) => word.id === prop.wordTool.focusingWordId.value
-  )
+  workPagesStore.currentPage.words.find((word) => word.id === prop.wordTool.focusingWordId.value)
 );
-
-let updatedText: string | null = null;
 
 const onInput = (e: InputEvent) => {
   workPagesStore.pageUpdated = true;
   if (!e.isComposing && e.target instanceof HTMLElement) {
-    updatedText = e.target.innerText;
-    console.log(updatedText)
+    prop.wordTool.updateDraftInput(e.target.innerText);
   }
 };
-
-watch(focusingWord, (newState, oldState) => {
-  if (!newState && updatedText && oldState) {
-    oldState.word = updatedText;
-  }
-});
 </script>
 
 <template>

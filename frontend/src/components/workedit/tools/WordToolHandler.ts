@@ -30,6 +30,7 @@ export class WordToolHandler implements ToolHandler {
   focusingWord = computed(() => {
     return this.pageWords.value.find((word) => word.id === this.focusingWordId.value);
   });
+  draftInput = ref<string>('');
 
   isTouchingMoveWordHandle(penInput: PenInput, pageWord: PageWord) {
     const moveHandleRect: Rect = {
@@ -127,6 +128,7 @@ export class WordToolHandler implements ToolHandler {
   }
   onTouchWord(e: PointerEvent, touchedWordId: number) {
     this.focusingWordId.value = touchedWordId;
+    this.draftInput.value = this.focusingWord.value!.word;
     const elem = this.getWordElem(touchedWordId);
     if (elem instanceof HTMLElement) {
       elem.focus();
@@ -210,6 +212,9 @@ export class WordToolHandler implements ToolHandler {
       }
     }
 
+    if (this.focusingWord.value) {
+      this.focusingWord.value.word = this.draftInput.value;
+    }
     const touchedWordId = this.findTouchedWordId(penInput);
     if (touchedWordId !== null) {
       this.onTouchWord(e, touchedWordId);
@@ -268,5 +273,8 @@ export class WordToolHandler implements ToolHandler {
     }
 
     this.opeHistory.cancelOperation();
+  }
+  updateDraftInput(s: string) {
+    this.draftInput.value = s;
   }
 }
