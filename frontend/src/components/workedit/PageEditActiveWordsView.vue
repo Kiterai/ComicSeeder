@@ -13,9 +13,9 @@ const canvasSizing = useCanvasSizing();
 const drawModeStore = useDrawMode();
 const workPagesStore = useWorkPages();
 
-const lastSelectedWord = computed(() =>
+const focusingWord = computed(() =>
   workPagesStore.currentPage.words.find(
-    (word) => word.id === prop.wordTool.lastSelectedWordId.value
+    (word) => word.id === prop.wordTool.focusingWordId.value
   )
 );
 
@@ -29,7 +29,7 @@ const onInput = (e: InputEvent) => {
   }
 };
 
-watch(lastSelectedWord, (newState, oldState) => {
+watch(focusingWord, (newState, oldState) => {
   if (!newState && updatedText && oldState) {
     oldState.word = updatedText;
   }
@@ -38,7 +38,7 @@ watch(lastSelectedWord, (newState, oldState) => {
 
 <template>
   <div
-    v-if="drawModeStore.mode === 'word' && lastSelectedWord"
+    v-if="drawModeStore.mode === 'word' && focusingWord"
     :class="$style.pageWordContainer"
     :style="canvasSizing.canvasStyle"
     :onwheel="
@@ -48,18 +48,18 @@ watch(lastSelectedWord, (newState, oldState) => {
     "
   >
     <div
-      :data-word-id="lastSelectedWord.id"
+      :data-word-id="focusingWord.id"
       :contenteditable="drawModeStore.mode == 'word'"
       spellcheck="false"
       :class="$style.pageWord"
       :style="{
-        transform: `translate(${lastSelectedWord.rect.left}px, ${lastSelectedWord.rect.top}px)`,
-        fontSize: `${lastSelectedWord.fontSize}px`,
-        width: `${lastSelectedWord.rect.width}px`,
-        height: `${lastSelectedWord.rect.height}px`,
+        transform: `translate(${focusingWord.rect.left}px, ${focusingWord.rect.top}px)`,
+        fontSize: `${focusingWord.fontSize}px`,
+        width: `${focusingWord.rect.width}px`,
+        height: `${focusingWord.rect.height}px`,
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
       }"
-      v-text="lastSelectedWord.word"
+      v-text="focusingWord.word"
       :oninput="onInput"
     ></div>
   </div>

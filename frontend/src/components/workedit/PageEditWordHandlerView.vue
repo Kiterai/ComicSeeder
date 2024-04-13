@@ -14,8 +14,8 @@ const wordHandleSize = computed(() => {
 const wordHandleBorderThickness = computed(() => {
   return prop.wordTool.wordHandleBorderThickness();
 });
-const lastSelectedWord = computed(() => {
-  return prop.wordTool.lastSelectedWord.value;
+const focusingWord = computed(() => {
+  return prop.wordTool.focusingWord.value;
 });
 
 const canvasSizing = useCanvasSizing();
@@ -25,26 +25,26 @@ const drawModeStore = useDrawMode();
 <template>
   <div :style="canvasSizing.canvasStyle">
     <div
-      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
+      v-if="focusingWord && drawModeStore.mode == 'word'"
       :style="{
         width: `${wordHandleSize}px`,
         height: `${wordHandleSize}px`,
         backgroundColor: `#8FF`,
-        transform: `translate(${lastSelectedWord.rect.left + lastSelectedWord.rect.width}px, ${
-          lastSelectedWord.rect.top - wordHandleSize
+        transform: `translate(${focusingWord.rect.left + focusingWord.rect.width}px, ${
+          focusingWord.rect.top - wordHandleSize
         }px)`,
         border: `${wordHandleBorderThickness}px solid #333`,
         position: 'absolute'
       }"
     ></div>
     <div
-      v-if="lastSelectedWord && drawModeStore.mode == 'word'"
+      v-if="focusingWord && drawModeStore.mode == 'word'"
       :style="{
         width: `${wordHandleSize}px`,
         height: `${wordHandleSize}px`,
         backgroundColor: `#8FF`,
-        transform: `translate(${lastSelectedWord.rect.left - wordHandleSize}px, ${
-          lastSelectedWord.rect.top + lastSelectedWord.rect.height
+        transform: `translate(${focusingWord.rect.left - wordHandleSize}px, ${
+          focusingWord.rect.top + focusingWord.rect.height
         }px)`,
         border: `${wordHandleBorderThickness}px solid #333`,
         position: 'absolute'

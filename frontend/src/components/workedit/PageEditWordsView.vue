@@ -41,7 +41,7 @@ const pageWords = computed(() =>
         width: `${pageWord.rect.width}px`,
         height: `${pageWord.rect.height}px`,
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`,
-        visibility: drawModeStore.mode === 'word' && pageWord.id === wordTool.lastSelectedWordId.value ? 'hidden' : 'visible'
+        visibility: drawModeStore.mode === 'word' && pageWord.id === wordTool.focusingWordId.value ? 'hidden' : 'visible'
       }"
       v-text="pageWords[index].word"
       :oninput="() => (workPagesStore.pageUpdated = true)"

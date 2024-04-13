@@ -319,17 +319,17 @@ const onpointerdown = (e: PointerEvent) => {
     </div>
     <div v-if="drawModeStore.mode == 'word'" :class="$style.canvasUnderContainer">
       <button
-        v-if="wordTool.lastSelectedWordId.value !== null"
+        v-if="wordTool.focusingWordId.value !== null"
         :class="$style.pageWordDelButton"
         :onpointerup="tryDeleteWord"
       >
         <IconBin />
       </button>
       <input
-        v-if="wordTool.lastSelectedWord.value !== undefined"
+        v-if="wordTool.focusingWord.value !== undefined"
         type="number"
         step="0.5"
-        v-model="wordTool.lastSelectedWord.value.fontSize"
+        v-model="wordTool.focusingWord.value.fontSize"
         :class="$style.pageWordFontSizeInput"
       />
     </div>

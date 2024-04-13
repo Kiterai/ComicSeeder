@@ -26,9 +26,9 @@ export class WordToolHandler implements ToolHandler {
     return Math.max(2, 2 / this.canvasSizing.getCanvasScale());
   }
 
-  lastSelectedWordId = ref<number | null>(null);
-  lastSelectedWord = computed(() => {
-    return this.pageWords.value.find((word) => word.id === this.lastSelectedWordId.value);
+  focusingWordId = ref<number | null>(null);
+  focusingWord = computed(() => {
+    return this.pageWords.value.find((word) => word.id === this.focusingWordId.value);
   });
 
   constructor(getWordElem: (id: number) => HTMLElement | null) {
@@ -46,11 +46,11 @@ export class WordToolHandler implements ToolHandler {
   down(e: PointerEvent) {
     const penInput = eventToPenInput(e);
 
-    if (this.lastSelectedWord.value) {
+    if (this.focusingWord.value) {
       // move handle
       const moveHandleRect: Rect = {
-        left: this.lastSelectedWord.value.rect.left + this.lastSelectedWord.value.rect.width,
-        top: this.lastSelectedWord.value.rect.top - this.wordHandleSize(),
+        left: this.focusingWord.value.rect.left + this.focusingWord.value.rect.width,
+        top: this.focusingWord.value.rect.top - this.wordHandleSize(),
         width: this.wordHandleSize(),
         height: this.wordHandleSize()
       };
@@ -62,15 +62,15 @@ export class WordToolHandler implements ToolHandler {
       ) {
         this.opeHistory.beginOperation();
         this.mode = 'move';
-        this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
+        this.oldRect = structuredClone(toRaw(this.focusingWord.value.rect));
         this.firstPenInput = penInput;
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         return;
       }
       // resize handle
       const resizeHandleRect: Rect = {
-        left: this.lastSelectedWord.value.rect.left - this.wordHandleSize(),
-        top: this.lastSelectedWord.value.rect.top + this.lastSelectedWord.value.rect.height,
+        left: this.focusingWord.value.rect.left - this.wordHandleSize(),
+        top: this.focusingWord.value.rect.top + this.focusingWord.value.rect.height,
         width: this.wordHandleSize(),
         height: this.wordHandleSize()
       };
@@ -82,7 +82,7 @@ export class WordToolHandler implements ToolHandler {
       ) {
         this.opeHistory.beginOperation();
         this.mode = 'resize';
-        this.oldRect = structuredClone(toRaw(this.lastSelectedWord.value.rect));
+        this.oldRect = structuredClone(toRaw(this.focusingWord.value.rect));
         this.firstPenInput = penInput;
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         return;
@@ -90,7 +90,7 @@ export class WordToolHandler implements ToolHandler {
       this.mode = null;
     }
 
-    let tmpPageWordId: number | null = null;
+    let touchedWordId: number | null = null;
     for (const pageWord of this.pageWords.value) {
       if (
         pageWord.rect.left <= penInput.x &&
@@ -98,11 +98,11 @@ export class WordToolHandler implements ToolHandler {
         pageWord.rect.top <= penInput.y &&
         penInput.y < pageWord.rect.top + pageWord.rect.height
       )
-        tmpPageWordId = pageWord.id;
+        touchedWordId = pageWord.id;
     }
-    if (tmpPageWordId !== null) {
-      this.lastSelectedWordId.value = tmpPageWordId;
-      const elem = this.getWordElem(tmpPageWordId);
+    if (touchedWordId !== null) {
+      this.focusingWordId.value = touchedWordId;
+      const elem = this.getWordElem(touchedWordId);
       if (elem instanceof HTMLElement) {
         elem.focus();
         e.preventDefault();
@@ -111,7 +111,7 @@ export class WordToolHandler implements ToolHandler {
     }
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
-    this.lastSelectedWordId.value = null;
+    this.focusingWordId.value = null;
 
     const newId = this.pageWords.value.length;
     this.pageWords.value.push({
@@ -133,7 +133,7 @@ export class WordToolHandler implements ToolHandler {
       const x2 = penInput.x + (this.oldRect!.left + this.oldRect!.width - this.firstPenInput!.x);
       const y2 = penInput.y + (this.oldRect!.top - this.firstPenInput!.y);
 
-      this.lastSelectedWord.value!.rect = {
+      this.focusingWord.value!.rect = {
         left: x2 - this.oldRect!.width,
         top: y2,
         width: this.oldRect!.width,
@@ -142,7 +142,7 @@ export class WordToolHandler implements ToolHandler {
     } else if (this.mode === 'resize') {
       const x2 = penInput.x + (this.oldRect!.left - this.firstPenInput!.x);
       const y2 = penInput.y + (this.oldRect!.top + this.oldRect!.height - this.firstPenInput!.y);
-      this.lastSelectedWord.value!.rect = {
+      this.focusingWord.value!.rect = {
         left: x2,
         top: Math.min(this.oldRect!.top, y2),
         width: Math.max(this.oldRect!.left + this.oldRect!.width - x2, 0),
@@ -161,9 +161,9 @@ export class WordToolHandler implements ToolHandler {
     if (!this.opeHistory.isOperating()) return;
 
     if (this.mode === 'move' || this.mode === 'resize') {
-      const id = this.lastSelectedWordId.value;
+      const id = this.focusingWordId.value;
       const oldRect = this.oldRect!;
-      const newRect = this.lastSelectedWord.value!.rect;
+      const newRect = this.focusingWord.value!.rect;
       this.opeHistory.commitOperation({
         undo: async () => {
           this.pageWords.value.find((word) => {
@@ -188,7 +188,7 @@ export class WordToolHandler implements ToolHandler {
     }
     const elem = this.getWordElem(working.id);
     if (elem instanceof HTMLElement) {
-      this.lastSelectedWordId.value = working.id;
+      this.focusingWordId.value = working.id;
       elem.focus();
     }
 
@@ -204,7 +204,7 @@ export class WordToolHandler implements ToolHandler {
   }
 
   tryDeleteWord() {
-    const targetId = this.lastSelectedWordId.value;
+    const targetId = this.focusingWordId.value;
     const index = this.pageWords.value.findIndex((word) => word.id === targetId);
     if (index !== -1) {
       this.opeHistory.beginOperation();
@@ -223,7 +223,7 @@ export class WordToolHandler implements ToolHandler {
   }
   cancel() {
     if (this.mode === 'move' || this.mode === 'resize') {
-      const id = this.lastSelectedWordId.value;
+      const id = this.focusingWordId.value;
       const oldRect = this.oldRect!;
       this.pageWords.value.find((word) => {
         return word.id === id;
