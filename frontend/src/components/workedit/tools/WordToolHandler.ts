@@ -145,7 +145,8 @@ export class WordToolHandler implements ToolHandler {
         width: 0,
         height: 0
       },
-      word: ''
+      word: '',
+      dir: 'V'
     });
   }
   moveNewWord(penInput: PenInput, pageWord: PageWord) {
@@ -260,6 +261,29 @@ export class WordToolHandler implements ToolHandler {
         },
         undo: async () => {
           this.pageWords.value.push(word);
+        }
+      });
+    }
+  }
+  tryChangeWordDir() {
+    if (this.focusingWord.value) {
+      this.opeHistory.beginOperation();
+
+      const id = this.focusingWordId.value;
+      const before = this.focusingWord.value.dir;
+      const after = this.focusingWord.value.dir !== 'H' ? 'H' : 'V';
+      this.focusingWord.value.dir = after;
+
+      this.opeHistory.commitOperation({
+        undo: async () => {
+          this.pageWords.value.find((word) => {
+            return word.id === id;
+          })!.dir = before;
+        },
+        redo: async () => {
+          this.pageWords.value.find((word) => {
+            return word.id === id;
+          })!.dir = after;
         }
       });
     }

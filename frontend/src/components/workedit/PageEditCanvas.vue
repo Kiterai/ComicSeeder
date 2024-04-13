@@ -73,6 +73,10 @@ const tryDeleteWord = () => {
   wordTool.tryDeleteWord();
 };
 
+const changeWordDir = () => {
+  wordTool.tryChangeWordDir();
+};
+
 let tmpOldDrawMode: DrawMode | null = null;
 
 useKeyboard(
@@ -325,6 +329,13 @@ const onpointerdown = (e: PointerEvent) => {
       >
         <IconBin />
       </button>
+      <button
+        v-if="wordTool.focusingWord.value !== undefined"
+        :class="$style.pageWordVHButton"
+        :onpointerup="changeWordDir"
+      >
+        {{ wordTool.focusingWord.value.dir !== 'H' ? 'V' : 'H' }}
+      </button>
       <input
         v-if="wordTool.focusingWord.value !== undefined"
         type="number"
@@ -403,7 +414,7 @@ const onpointerdown = (e: PointerEvent) => {
 .pageWordFontSizeInput {
   width: 7rem;
   font-size: 2rem;
-  margin-left: 1rem;
+  margin-left: 0.5rem;
   border-radius: 1rem;
   padding: 0.5rem;
   border: 0.2rem solid #000;
@@ -422,6 +433,22 @@ const onpointerdown = (e: PointerEvent) => {
 }
 .pageWordDelButton:hover {
   background-color: #c44;
+}
+
+.pageWordVHButton {
+  background-color: #55c;
+  color: #fff;
+  width: 5rem;
+  height: 5rem;
+  margin-left: 0.5rem;
+  border: 0.2rem solid #000;
+  outline: none;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.pageWordVHButton:hover {
+  background-color: #446;
 }
 
 .pageNumber {

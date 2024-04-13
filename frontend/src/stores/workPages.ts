@@ -10,6 +10,7 @@ export type PageWord = {
   rect: Rect;
   word: string;
   fontSize: number;
+  dir: 'H' | 'V';
 };
 
 export type PageData = {

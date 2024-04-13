@@ -41,7 +41,8 @@ const pageWords = computed(() =>
         width: `${pageWord.rect.width}px`,
         height: `${pageWord.rect.height}px`,
         border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`,
-        visibility: drawModeStore.mode === 'word' && pageWord.id === wordTool.focusingWordId.value ? 'hidden' : 'visible'
+        visibility: drawModeStore.mode === 'word' && pageWord.id === wordTool.focusingWordId.value ? 'hidden' : 'visible',
+        writingMode: pageWord.dir !== 'H' ? 'vertical-rl' : 'horizontal-tb'
       }"
       v-text="pageWords[index].word"
       :oninput="() => (workPagesStore.pageUpdated = true)"
@@ -57,7 +58,6 @@ const pageWords = computed(() =>
   position: absolute;
   left: 0;
   top: 0;
-  writing-mode: vertical-rl;
   outline: none;
   white-space: pre-wrap;
   resize: none;

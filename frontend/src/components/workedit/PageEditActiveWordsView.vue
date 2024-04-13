@@ -46,7 +46,8 @@ const onInput = (e: InputEvent) => {
         fontSize: `${focusingWord.fontSize}px`,
         width: `${focusingWord.rect.width}px`,
         height: `${focusingWord.rect.height}px`,
-        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`
+        border: `${Math.max(1, 1 / canvasSizing.getCanvasScale())}px solid transparent`,
+        writingMode: focusingWord.dir !== 'H' ? 'vertical-rl' : 'horizontal-tb'
       }"
       v-text="focusingWord.word"
       :oninput="onInput"
@@ -61,7 +62,6 @@ const onInput = (e: InputEvent) => {
   position: absolute;
   left: 0;
   top: 0;
-  writing-mode: vertical-rl;
   outline: none;
   white-space: pre-wrap;
   resize: none;
