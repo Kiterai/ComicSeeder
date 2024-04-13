@@ -140,6 +140,7 @@ export class WordToolHandler implements ToolHandler {
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
     this.focusingWordId.value = null;
+    this.draftInput.value = '';
 
     const newId = this.pageWords.value.length;
     this.pageWords.value.push({
