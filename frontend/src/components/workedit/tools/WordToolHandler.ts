@@ -45,14 +45,14 @@ export class WordToolHandler implements ToolHandler {
       penInput.y < moveHandleRect.top + moveHandleRect.height
     );
   }
-  onTouchMoveWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
+  onBeginTouchMoveWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
     this.opeHistory.beginOperation();
     this.mode = 'move';
     this.oldRect = structuredClone(toRaw(focusingWord.rect));
     this.firstPenInput = penInput;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
-  onMoveMoveWordHandle(penInput: PenInput, pageWord: PageWord) {
+  onMoveTouchMoveWordHandle(penInput: PenInput, pageWord: PageWord) {
     const x2 = penInput.x + (this.oldRect!.left + this.oldRect!.width - this.firstPenInput!.x);
     const y2 = penInput.y + (this.oldRect!.top - this.firstPenInput!.y);
 
@@ -77,14 +77,14 @@ export class WordToolHandler implements ToolHandler {
       penInput.y < resizeHandleRect.top + resizeHandleRect.height
     );
   }
-  onTouchResizeWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
+  onBeginTouchResizeWordHandle(e: PointerEvent, penInput: PenInput, focusingWord: PageWord) {
     this.opeHistory.beginOperation();
     this.mode = 'resize';
     this.oldRect = structuredClone(toRaw(focusingWord.rect));
     this.firstPenInput = penInput;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
-  onMoveResizeWordHandle(penInput: PenInput, pageWord: PageWord) {
+  onMoveTouchResizeWordHandle(penInput: PenInput, pageWord: PageWord) {
     const x2 = penInput.x + (this.oldRect!.left - this.firstPenInput!.x);
     const y2 = penInput.y + (this.oldRect!.top + this.oldRect!.height - this.firstPenInput!.y);
     pageWord.rect = {
@@ -112,6 +112,7 @@ export class WordToolHandler implements ToolHandler {
     });
     this.mode = null;
   }
+
   findTouchedWordId(penInput: PenInput) {
     for (const pageWord of this.pageWords.value) {
       if (
@@ -132,7 +133,8 @@ export class WordToolHandler implements ToolHandler {
       e.preventDefault();
     }
   }
-  beginCreateNewWord(penInput: PenInput) {
+
+  beginNewWord(penInput: PenInput) {
     this.opeHistory.beginOperation();
     this.lastPenInput = penInput;
     this.focusingWordId.value = null;
@@ -199,11 +201,11 @@ export class WordToolHandler implements ToolHandler {
 
     if (this.focusingWord.value) {
       if (this.isTouchingMoveWordHandle(penInput, this.focusingWord.value)) {
-        this.onTouchMoveWordHandle(e, penInput, this.focusingWord.value);
+        this.onBeginTouchMoveWordHandle(e, penInput, this.focusingWord.value);
         return;
       }
       if (this.isTouchingResizeWordHandle(penInput, this.focusingWord.value)) {
-        this.onTouchResizeWordHandle(e, penInput, this.focusingWord.value);
+        this.onBeginTouchResizeWordHandle(e, penInput, this.focusingWord.value);
         return;
       }
     }
@@ -213,15 +215,15 @@ export class WordToolHandler implements ToolHandler {
       this.onTouchWord(e, touchedWordId);
       return;
     }
-    this.beginCreateNewWord(penInput);
+    this.beginNewWord(penInput);
   }
   move(e: PointerEvent) {
     if (!this.opeHistory.isOperating()) return;
     const penInput = eventToPenInput(e);
     if (this.mode === 'move') {
-      this.onMoveMoveWordHandle(penInput, this.focusingWord.value!);
+      this.onMoveTouchMoveWordHandle(penInput, this.focusingWord.value!);
     } else if (this.mode === 'resize') {
-      this.onMoveResizeWordHandle(penInput, this.focusingWord.value!);
+      this.onMoveTouchResizeWordHandle(penInput, this.focusingWord.value!);
     } else {
       this.moveNewWord(penInput, this.pageWords.value[this.pageWords.value.length - 1]);
     }
