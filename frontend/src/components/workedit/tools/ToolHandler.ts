@@ -3,4 +3,6 @@ export interface ToolHandler {
   move: (e: PointerEvent) => void;
   up: (e: PointerEvent) => void;
   cancel: () => void;
+  init?: () => void;
+  deinit?: () => void;
 }
