@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useDrawMode, type DrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/stores/canvasSizing';
@@ -151,20 +151,19 @@ const toolHandlers = {
   word: wordTool
 };
 
-let toolHandler = toolHandlers[drawModeStore.mode];
+const toolHandler = computed(() => toolHandlers[drawModeStore.mode]);
 
 const penDownHandler = (e: PointerEvent) => {
-  toolHandler = toolHandlers[drawModeStore.mode];
-  toolHandler.down(e);
+  toolHandler.value.down(e);
 };
 const penMoveHandler = (e: PointerEvent) => {
-  toolHandler.move(e);
+  toolHandler.value.move(e);
 };
 const penUpHandler = (e: PointerEvent) => {
-  toolHandler.up(e);
+  toolHandler.value.up(e);
 };
 const penCancelHandler = (e: PointerEvent) => {
-  toolHandler.cancel();
+  toolHandler.value.cancel();
 };
 
 let nowPenDown = false;
