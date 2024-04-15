@@ -190,7 +190,7 @@ const onpencancel = (e: PointerEvent) => {
 
 // event handlers
 let touchDeviceState: 'operate' | 'pinchmove' | null = null;
-let touches = new Map<number, PointerEvent>();
+const touches = new Map<number, PointerEvent>();
 
 const onpointerup = (e: PointerEvent) => {
   touches.delete(e.pointerId);
