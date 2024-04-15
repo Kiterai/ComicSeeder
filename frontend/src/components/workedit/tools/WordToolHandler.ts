@@ -12,7 +12,6 @@ export class WordToolHandler implements ToolHandler {
   opeHistory: ReturnType<typeof useOpeHistory>;
   canvasSizing: ReturnType<typeof useCanvasSizing>;
   pageWords: ComputedRef<PageWord[]>;
-  getWordElem: (id: number) => HTMLElement | null;
   drawStateStore: ReturnType<typeof useDrawState>;
 
   mode: 'move' | 'resize' | null = null;
@@ -177,6 +176,11 @@ export class WordToolHandler implements ToolHandler {
     });
   }
 
+  getWordElem(id: number) {
+    const elem = document.querySelector(`[data-word-id="${id}"]`);
+    if (elem instanceof HTMLElement) return elem;
+    return null;
+  }
   resetFocusingWord() {
     this.focusingWordId.value = null;
     this.draftInput.value = '';
@@ -191,7 +195,7 @@ export class WordToolHandler implements ToolHandler {
     }
   }
 
-  constructor(getWordElem: (id: number) => HTMLElement | null) {
+  constructor() {
     this.lastPenInput = null;
     this.opeHistory = useOpeHistory();
     this.canvasSizing = useCanvasSizing();
@@ -201,7 +205,6 @@ export class WordToolHandler implements ToolHandler {
     this.pageWords = computed(() =>
       workPagesStore.currentPage ? workPagesStore.currentPage.words : []
     );
-    this.getWordElem = getWordElem;
   }
   down(e: PointerEvent) {
     const penInput = eventToPenInput(e);

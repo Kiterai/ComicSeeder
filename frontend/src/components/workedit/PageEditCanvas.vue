@@ -6,9 +6,6 @@ import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/stores/opeHistory';
 import { usePageOperation } from '@/composables/usePageOperation';
-import { MoveToolHandler } from './tools/MoveToolHandler';
-import { PenToolHandler } from './tools/PenToolHandler';
-import { EraserToolHandler } from './tools/EraserToolHandler';
 import { WordToolHandler } from './tools/WordToolHandler';
 import { useDrawState } from '@/stores/drawState';
 import PageEditWordsView from './PageEditWordsView.vue';
@@ -52,12 +49,6 @@ function onSelectEraser(e: MouseEvent) {
   drawState.eraserIndex = Number(e.currentTarget.dataset.index);
 }
 
-function getWordElem(id: number) {
-  const elem = document.querySelector(`[data-word-id="${id}"]`);
-  if (elem instanceof HTMLElement) return elem;
-  return null;
-}
-
 const isInputEditing = () => {
   if (!document.activeElement) return false;
   if (!(document.activeElement instanceof HTMLElement)) return false;
@@ -68,11 +59,13 @@ const isInputEditing = () => {
 };
 
 const tryDeleteWord = () => {
-  wordTool.tryDeleteWord();
+  if (drawModeStore.currentToolHandler instanceof WordToolHandler)
+    drawModeStore.currentToolHandler.tryDeleteWord();
 };
 
 const changeWordDir = () => {
-  wordTool.tryChangeWordDir();
+  if (drawModeStore.currentToolHandler instanceof WordToolHandler)
+    drawModeStore.currentToolHandler.tryChangeWordDir();
 };
 
 let tmpOldDrawMode: DrawMode | null = null;
@@ -142,28 +135,17 @@ useKeyboard(
   }
 );
 
-const wordTool = new WordToolHandler(getWordElem);
-
-const toolHandlers = {
-  move: new MoveToolHandler(),
-  pen: new PenToolHandler(),
-  eraser: new EraserToolHandler(),
-  word: wordTool
-};
-
-const toolHandler = computed(() => toolHandlers[drawModeStore.mode]);
-
 const penDownHandler = (e: PointerEvent) => {
-  toolHandler.value.down(e);
+  drawModeStore.currentToolHandler.down(e);
 };
 const penMoveHandler = (e: PointerEvent) => {
-  toolHandler.value.move(e);
+  drawModeStore.currentToolHandler.move(e);
 };
 const penUpHandler = (e: PointerEvent) => {
-  toolHandler.value.up(e);
+  drawModeStore.currentToolHandler.up(e);
 };
 const penCancelHandler = (e: PointerEvent) => {
-  toolHandler.value.cancel();
+  drawModeStore.currentToolHandler.cancel();
 };
 
 let nowPenDown = false;
@@ -258,8 +240,8 @@ const onpointerdown = (e: PointerEvent) => {
       :height="canvasSizing.canvasHeight"
       ref="tmpCanvasRef"
     ></canvas>
-    <PageEditWordsView :word-tool="wordTool"></PageEditWordsView>
-    <PageEditWordHandlerView :word-tool="wordTool"></PageEditWordHandlerView>
+    <!-- <PageEditWordsView :word-tool="wordTool"></PageEditWordsView>
+    <PageEditWordHandlerView :word-tool="wordTool"></PageEditWordHandlerView>-->
     <div :class="$style.pageNumber">
       {{ pageOperation.currentPageIndex.value + 1 }} / {{ pageOperation.currentWorkPagesNum.value }}
     </div>
@@ -274,7 +256,7 @@ const onpointerdown = (e: PointerEvent) => {
       :onwheel="canvasSizing.onwheel"
       :data-grabbable="drawModeStore.mode == 'move'"
     ></div>
-    <PageEditActiveWordsView :word-tool="wordTool"></PageEditActiveWordsView>
+    <!-- <PageEditActiveWordsView :word-tool="wordTool"></PageEditActiveWordsView> -->
     <div v-if="drawModeStore.mode == 'pen'" :class="$style.canvasUnderContainer">
       <div
         v-for="(penSetting, index) in drawState.penSettingList"
@@ -314,7 +296,7 @@ const onpointerdown = (e: PointerEvent) => {
         ></div>
       </div>
     </div>
-    <div v-if="drawModeStore.mode == 'word'" :class="$style.canvasUnderContainer">
+    <!-- <div v-if="drawModeStore.mode == 'word'" :class="$style.canvasUnderContainer">
       <button
         v-if="wordTool.focusingWordId.value !== null"
         :class="$style.pageWordDelButton"
@@ -336,7 +318,7 @@ const onpointerdown = (e: PointerEvent) => {
         v-model="wordTool.focusingWord.value.fontSize"
         :class="$style.pageWordFontSizeInput"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
