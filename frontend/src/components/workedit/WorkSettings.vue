@@ -290,9 +290,4 @@ input {
 h3 {
   margin-top: 1rem;
 }
-
-.titleInput {
-}
-.pageSizeInput {
-}
 </style>

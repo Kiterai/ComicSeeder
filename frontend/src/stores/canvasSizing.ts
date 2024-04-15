@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue';
 import { useKeyboard } from '../composables/useKeyboard';
-import { useResize } from '../composables/useResize';
 import { useCanvasTouchGesture } from '@/composables/useCanvasTouchGesture';
 import { useWorkPages } from '@/stores/workPages';
 import { defineStore } from 'pinia';

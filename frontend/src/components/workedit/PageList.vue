@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { usePageOperation } from '@/composables/usePageOperation';
 import { useDrawState } from '@/stores/drawState';
-import { ref } from 'vue';
 import IconBin from '../icons/IconBin.vue';
 import IconPlus from '../icons/IconPlus.vue';
 import IconTriangleLeft from '../icons/IconTriangleLeft.vue';

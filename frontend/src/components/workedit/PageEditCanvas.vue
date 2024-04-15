@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, readonly, ref, toRaw, toValue } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useDrawMode, type DrawMode } from '@/stores/drawMode';
 import { useCanvas } from '@/stores/canvas';
 import { useCanvasSizing } from '@/stores/canvasSizing';
 import { useKeyboard } from '@/composables/useKeyboard';
 import { useOpeHistory } from '@/stores/opeHistory';
-import { useWorkPages } from '@/stores/workPages';
 import { usePageOperation } from '@/composables/usePageOperation';
 import { MoveToolHandler } from './tools/MoveToolHandler';
 import { PenToolHandler } from './tools/PenToolHandler';
@@ -42,7 +41,6 @@ onMounted(() => {
 });
 
 const drawModeStore = useDrawMode();
-const workPagesStore = useWorkPages();
 
 function onSelectPen(e: MouseEvent) {
   if (!(e.currentTarget instanceof HTMLElement)) return;
@@ -142,10 +140,6 @@ useKeyboard(
       tmpOldDrawMode = null;
     }
   }
-);
-
-const pageWords = computed(() =>
-  workPagesStore.currentPage ? workPagesStore.currentPage.words : []
 );
 
 const wordTool = new WordToolHandler(getWordElem);

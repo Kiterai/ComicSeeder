@@ -1,6 +1,6 @@
 import { useDrawState } from '@/stores/drawState';
 import { useWorkPages } from '@/stores/workPages';
-import { useWorks, type WorkData } from '@/stores/works';
+import { useWorks } from '@/stores/works';
 import { computed, toRaw } from 'vue';
 
 export const usePageOperation = () => {
