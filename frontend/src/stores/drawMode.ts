@@ -5,5 +5,10 @@ export type DrawMode = 'move' | 'pen' | 'eraser' | 'word';
 
 export const useDrawMode = defineStore('drawMode', () => {
   const mode = ref<DrawMode>('pen');
-  return { mode };
+  const changeMode = (newmode: DrawMode) => {
+    if (mode.value == newmode) return;
+    
+    mode.value = newmode;
+  };
+  return { mode, changeMode };
 });

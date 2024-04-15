@@ -21,16 +21,16 @@ const onClickRedo = async () => {
   await opeHistory.tryRedo();
 };
 const onClickMove = () => {
-  drawModeStore.mode = 'move';
+  drawModeStore.changeMode('move');
 };
 const onClickPen = () => {
-  drawModeStore.mode = 'pen';
+  drawModeStore.changeMode('pen');
 };
 const onClickEraser = () => {
-  drawModeStore.mode = 'eraser';
+  drawModeStore.changeMode('eraser');
 };
 const onClickWord = () => {
-  drawModeStore.mode = 'word';
+  drawModeStore.changeMode('word');
 };
 const onClickSettings = () => {
   drawStateStore.settingsPanelOpened = !drawStateStore.settingsPanelOpened;

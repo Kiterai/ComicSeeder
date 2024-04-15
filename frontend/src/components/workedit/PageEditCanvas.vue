@@ -114,16 +114,16 @@ useKeyboard(
       canvasSizing.initView();
     }
     if (e.key == 'v') {
-      drawModeStore.mode = 'move';
+      drawModeStore.changeMode('move');
     }
     if (e.key == 'b') {
-      drawModeStore.mode = 'pen';
+      drawModeStore.changeMode('pen');
     }
     if (e.key == 'e') {
-      drawModeStore.mode = 'eraser';
+      drawModeStore.changeMode('eraser');
     }
     if (e.key == 'w') {
-      drawModeStore.mode = 'word';
+      drawModeStore.changeMode('word');
     }
     if (e.key == 'c') {
       drawState.settingsPanelOpened = !drawState.settingsPanelOpened;
@@ -133,12 +133,12 @@ useKeyboard(
     }
     if (e.key == ' ' && !e.repeat) {
       tmpOldDrawMode = drawModeStore.mode;
-      drawModeStore.mode = 'move';
+      drawModeStore.changeMode('move');
     }
   },
   async (e) => {
     if (e.key == ' ' && tmpOldDrawMode !== null) {
-      drawModeStore.mode = tmpOldDrawMode;
+      drawModeStore.changeMode(tmpOldDrawMode);
       tmpOldDrawMode = null;
     }
   }
