@@ -56,10 +56,12 @@ export class EraserToolHandler implements ToolHandler {
         ctx.lineWidth = this.drawStateStore.eraserWidth;
         ctx.globalCompositeOperation = 'destination-out';
         for (const penInput of nowPenHistory) {
-          ctx.beginPath();
-          ctx.moveTo(tmpLastPenInput!.x, tmpLastPenInput!.y);
-          ctx.lineTo(penInput!.x, penInput!.y);
-          ctx.stroke();
+          if (tmpLastPenInput !== null) {
+            ctx.beginPath();
+            ctx.moveTo(tmpLastPenInput.x, tmpLastPenInput.y);
+            ctx.lineTo(penInput!.x, penInput!.y);
+            ctx.stroke();
+          }
           tmpLastPenInput = penInput;
         }
       },
