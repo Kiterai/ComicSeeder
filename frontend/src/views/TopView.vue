@@ -76,4 +76,9 @@ const moveToNewWork = async () => {
 .link:hover {
   text-decoration: none;
 }
+@media (hover: hover) {
+  .link:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
 </style>
