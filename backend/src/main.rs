@@ -49,7 +49,8 @@ async fn main() -> std::io::Result<()> {
                     .service(works::delete_work)
                     .service(id::login)
                     .service(id::logout)
-                    .service(id::signup),
+                    .service(id::signup)
+                    .service(id::verification),
             )
             .service(
                 actix_files::Files::new("/", "../comicseeder-front/dist")

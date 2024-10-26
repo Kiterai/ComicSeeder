@@ -14,6 +14,17 @@ services:
       POSTGRES_USER: comicseeder
       POSTGRES_PASSWORD: comicseeder
       POSTGRES_DB: comicseeder_data
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
+    volumes:
+      - maildir:/tmp
 
 volumes:
   data:
+  maildir:
