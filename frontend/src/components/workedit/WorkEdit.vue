@@ -15,7 +15,7 @@ const workPage = useWorkPages();
 let saveTimer = -1;
 
 onMounted(() => {
-  saveTimer = setInterval(() => {
+  saveTimer = window.setInterval(() => {
     workPage.saveCurrentPage();
   }, 15000);
 });
