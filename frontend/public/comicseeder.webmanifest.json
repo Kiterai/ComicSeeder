@@ -1,0 +1,13 @@
+{
+    "short_name": "ComicSeeder",
+    "name": "ComicSeeder",
+    "display": "standalone",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "icons/512x512.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}
