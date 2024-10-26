@@ -1,7 +1,9 @@
 {
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
     "short_name": "ComicSeeder",
     "name": "ComicSeeder",
     "display": "standalone",
+    "background_color": "#fff",
     "start_url": "/",
     "icons": [
         {
