@@ -1,8 +1,7 @@
 use std::env;
 
 use actix_session::storage::RedisSessionStore;
-use actix_web::middleware::Logger;
-use sqlx::{migrate::MigrateError, postgres::PgPoolOptions, Postgres};
+use sqlx::{postgres::PgPoolOptions, Postgres};
 
 pub type MainDbPooledConnection = sqlx::Pool<Postgres>;
 pub type SessionStore = RedisSessionStore;
@@ -19,8 +18,6 @@ pub async fn establish_database_pool() -> MainDbPooledConnection {
         "postgres://{}:{}@{}:{}/{}",
         user, password, host, port, database
     );
-
-    println!("{}", database_url);
 
     PgPoolOptions::new()
         .max_connections(20)
