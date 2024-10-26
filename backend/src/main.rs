@@ -7,7 +7,7 @@ use actix_web::{
     cookie::Key, dev::{fn_service, ServiceRequest, ServiceResponse}, middleware::Logger, web, App, HttpServer
 };
 use comicseeder_backend::{
-    db::{establish_database_pool, establish_session_db},
+    db::{establish_database_pool, establish_session_db, migrate_db},
     id, works,
 };
 use dotenv::dotenv;
@@ -24,6 +24,8 @@ async fn main() -> std::io::Result<()> {
 
     let pool = establish_database_pool().await;
     println!("Connected to database");
+
+    migrate_db(pool.clone()).await;
 
     let secret_key = Key::generate();
     let redis_store = establish_session_db().await;

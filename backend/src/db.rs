@@ -2,7 +2,7 @@ use std::env;
 
 use actix_session::storage::RedisSessionStore;
 use actix_web::middleware::Logger;
-use sqlx::{postgres::PgPoolOptions, Postgres};
+use sqlx::{migrate::MigrateError, postgres::PgPoolOptions, Postgres};
 
 pub type MainDbPooledConnection = sqlx::Pool<Postgres>;
 pub type SessionStore = RedisSessionStore;
@@ -35,4 +35,11 @@ pub async fn establish_session_db() -> SessionStore {
     RedisSessionStore::new(session_database_url)
         .await
         .expect("Failed to establish connection to redis")
+}
+
+pub async fn migrate_db(pool: MainDbPooledConnection) {
+    sqlx::migrate!()
+        .run(&pool)
+        .await
+        .expect("Failed to migrate DB")
 }
