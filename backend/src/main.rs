@@ -1,56 +1,69 @@
-use actix_web::{delete, get, patch, post, web, App, HttpResponse, HttpServer, Responder};
+use std::{env, time::Duration};
 
-#[post("/works")]
-async fn create_work() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[get("/works/{id}")]
-async fn get_work() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[patch("/works/{id}")]
-async fn update_work() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[delete("/works/{id}")]
-async fn delete_work() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/login")]
-async fn login() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[get("/logout")]
-async fn logout() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/signup")]
-async fn signup() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
+use actix_files::NamedFile;
+use actix_identity::IdentityMiddleware;
+use actix_session::SessionMiddleware;
+use actix_web::{
+    cookie::Key, dev::{fn_service, ServiceRequest, ServiceResponse}, middleware::Logger, web, App, HttpServer
+};
+use comicseeder_backend::{
+    db::{establish_database_pool, establish_session_db},
+    id, works,
+};
+use dotenv::dotenv;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    dotenv().ok();
+
+    let host_self = env::var("HOST").expect("HOST must be set");
+    let port_self = env::var("PORT")
+        .expect("PORT must be set")
+        .parse::<u16>()
+        .expect("PORT must be a valid unsigned 16-bit integer");
+
+    let pool = establish_database_pool().await;
+    println!("Connected to database");
+
+    let secret_key = Key::generate();
+    let redis_store = establish_session_db().await;
+    println!("Connected to session db");
+
+    HttpServer::new(move || {
+        let identity_middleware = IdentityMiddleware::builder()
+            .login_deadline(Some(Duration::new(3600 * 3, 0)))
+            .build();
+
+        let session_middleware = SessionMiddleware::new(redis_store.clone(), secret_key.clone());
+
         App::new()
+            .app_data(web::Data::new(pool.clone()))
+            .wrap(Logger::default())
+            .wrap(identity_middleware)
+            .wrap(session_middleware)
             .service(
                 web::scope("/api/v1")
-                    .service(get_work)
-                    .service(create_work)
-                    .service(update_work)
-                    .service(delete_work)
-                    .service(login)
-                    .service(logout)
-                    .service(signup)
+                    .service(works::get_work)
+                    .service(works::create_work)
+                    .service(works::update_work)
+                    .service(works::delete_work)
+                    .service(id::login)
+                    .service(id::logout)
+                    .service(id::signup),
+            )
+            .service(
+                actix_files::Files::new("/", "../comicseeder-front/dist")
+                    .index_file("index.html")
+                    .default_handler(fn_service(|req: ServiceRequest| async {
+                        let (http_req, _payload) = req.into_parts();
+                        let response = NamedFile::open_async("../comicseeder-front/dist/index.html")
+                            .await?
+                            .into_response(&http_req);
+                        Ok(ServiceResponse::new(http_req, response))
+                    })),
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((host_self, port_self))?
     .run()
     .await
 }

@@ -1,0 +1,19 @@
+version: "3"
+services:
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: comicseeder
+      POSTGRES_PASSWORD: comicseeder
+      POSTGRES_DB: comicseeder_data
+
+volumes:
+  data:
