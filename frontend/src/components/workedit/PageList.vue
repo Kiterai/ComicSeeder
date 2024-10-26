@@ -130,6 +130,9 @@ const onSelectPage = (e: MouseEvent) => {
   background-color: #ddd;
   transition: background-color 0.1s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .button:hover {
   background-color: #bbb;
