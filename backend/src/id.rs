@@ -3,8 +3,10 @@ use std::env;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpMessage, HttpRequest, HttpResponse, Responder};
 use lettre::{
-    message::Mailbox, transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport,
+    message::Mailbox, transport::smtp::authentication::Credentials, Message, SmtpTransport,
+    Transport,
 };
+use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -74,7 +76,7 @@ async fn send_verification_main(email: &str, token: &str) -> AppResult<()> {
     let smtp_encryption = env::var("SMTP_ENCRYPTION")?;
     let smtp_host = env::var("SMTP_HOST")?;
 
-    let verification_url = format!("{}/api/v1/verification?{}", site_url, token);
+    let verification_url = format!("{}/verification?{}", site_url, token);
 
     let email = Message::builder()
         .header(lettre::message::header::ContentType::TEXT_PLAIN)
@@ -114,25 +116,33 @@ async fn send_verification_main(email: &str, token: &str) -> AppResult<()> {
 
 #[post("/signup")]
 pub async fn signup(
+    request: HttpRequest,
     db: web::Data<MainDbPooledConnection>,
     login_data: web::Json<SignupRequest>,
 ) -> AppResult<impl Responder> {
     let SignupRequest { email, password } = login_data.0;
 
     let hash = bcrypt::hash(&password, 8)?;
-    let verification_token = ""; // TODO
+
+    let mut rng = rand::thread_rng();
+    let random_code = Alphanumeric.sample_string(&mut rng, 32);
+    let now_time = chrono::Utc::now().timestamp();
+    let expire_time = now_time + 600;
+
+    let verification_token = format!("{}_{}", random_code, expire_time);
 
     sqlx::query(
         "INSERT INTO users (email, password_hash, verification_token) VALUES ($1, $2, $3);",
     )
     .bind(&email)
-    .bind(hash)
-    .bind(verification_token)
-    .execute(db.get_ref())
+    .bind(&hash)
+    .bind(&verification_token)
+    .execute(db.as_ref())
     .await?;
 
     send_verification_main(&email, &verification_token).await?;
 
+    Identity::login(&request.extensions(), email.into()).unwrap();
     Ok(HttpResponse::Ok().json(json! {
         {
             "message": "temporary user successfully registered"
@@ -141,6 +151,45 @@ pub async fn signup(
 }
 
 #[get("/verification")]
-pub async fn verification() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
+pub async fn verification(
+    request: HttpRequest,
+    db: web::Data<MainDbPooledConnection>,
+    identity: Option<Identity>,
+) -> AppResult<impl Responder> {
+    let identity = identity.ok_or(AppError::AuthErr("not logined".to_string()))?;
+    let email_from_session = identity.id()?;
+
+    let verification_token = request.query_string();
+
+    let (_, token_timestamp) = verification_token
+        .split_once('_')
+        .ok_or(AppError::AuthErr("invalid token".to_string()))?;
+    let token_timestamp = token_timestamp.parse::<i64>()?;
+
+    if chrono::Utc::now().timestamp() > token_timestamp {
+        return Err(AppError::AuthErr("invalid token".to_string()));
+    }
+
+    let res = sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+        .bind(&verification_token)
+        .fetch_one(db.as_ref())
+        .await
+        .ok();
+
+    let email_from_token: String = res.ok_or(AppError::AuthErr("invalid token".to_string()))?;
+
+    if email_from_token != email_from_session {
+        return Err(AppError::AuthErr("invalid token".to_string()));
+    }
+
+    sqlx::query("UPDATE users SET verification_token = NULL WHERE email = $1;")
+        .bind(&email_from_token)
+        .execute(db.as_ref())
+        .await?;
+
+    Ok(HttpResponse::Ok().json(json! {
+        {
+            "message": "user verified"
+        }
+    }))
 }
