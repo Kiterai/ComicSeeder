@@ -209,20 +209,110 @@ struct PasswordResetTryRequest {
     email: String,
 }
 
-#[post("/password_reset")]
+async fn send_password_reset_mail(email: &str, token: &str) -> AppResult<()> {
+    let site_url = env::var("FRONT_ORIGIN")?;
+    let verification_url = format!("{}/password_reset?{}", site_url, token);
+
+    send_mail(
+        email,
+        "パスワードリセット",
+        format!(
+            "パスワードリセットを行うためには10分以内に以下のURLにアクセスしてください。\n\
+            {}\n\
+            このメールに心当たりがない場合は破棄して頂くようお願いします。",
+            verification_url
+        )
+        .as_str(),
+    )
+    .await
+}
+
+#[post("/password_reset_try")]
 pub async fn password_reset_try(
-    request: HttpRequest,
     db: web::Data<MainDbPooledConnection>,
-    login_data: web::Json<PasswordResetTryRequest>,
+    password_reset_data: web::Json<PasswordResetTryRequest>,
 ) -> AppResult<impl Responder> {
-    Ok("")
+    let mut rng = rand::thread_rng();
+    let random_code = Alphanumeric.sample_string(&mut rng, 32);
+    let now_time = chrono::Utc::now().timestamp();
+    let expire_time = now_time;
+
+    let password_reset_token = format!("{}_{}", random_code, expire_time);
+
+    sqlx::query("UPDATE users SET password_reset_token = $1 WHERE email = $2;")
+        .bind(&password_reset_token)
+        .bind(&password_reset_data.email)
+        .execute(db.as_ref())
+        .await?;
+
+    send_password_reset_mail(&password_reset_data.email, &password_reset_token).await?;
+
+    Ok(HttpResponse::Ok().json(json! {
+        {
+            "message": "check mail was sent"
+        }
+    }))
+}
+
+async fn verify_password_reset_token(token: &str, db: &MainDbPooledConnection) -> bool {
+    let Some((_, token_timestamp)) = token.split_once('_') else {
+        return false;
+    };
+    let Ok(token_timestamp) = token_timestamp.parse::<i64>() else {
+        return false;
+    };
+
+    if chrono::Utc::now().timestamp() > token_timestamp + 600 {
+        return false;
+    }
+
+    sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+        .bind(token)
+        .fetch_one(db)
+        .await
+        .is_ok()
 }
 
 #[get("/password_reset")]
 pub async fn password_reset_verification(
     request: HttpRequest,
     db: web::Data<MainDbPooledConnection>,
-    login_data: web::Json<PasswordResetTryRequest>,
 ) -> AppResult<impl Responder> {
-    Ok("")
+    if !verify_password_reset_token(request.query_string(), db.as_ref()).await {
+        return Err(AppError::AuthErr("invalid token".to_string()));
+    }
+
+    Ok(HttpResponse::Ok().json(json! {
+        {
+            "message": "token is valid"
+        }
+    }))
+}
+
+#[derive(Deserialize)]
+struct PasswordResetRequest {
+    password_reset_token: String,
+    password: String,
+}
+
+#[post("/password_reset")]
+pub async fn password_reset(
+    db: web::Data<MainDbPooledConnection>,
+    reset_data: web::Json<PasswordResetRequest>,
+) -> AppResult<impl Responder> {
+    if !verify_password_reset_token(&reset_data.password_reset_token, db.as_ref()).await {
+        return Err(AppError::AuthErr("invalid token".to_string()));
+    }
+
+    sqlx::query("UPDATE users SET password_hash = $1 WHERE password_reset_token = $2;")
+        .bind(bcrypt::hash(&reset_data.password, 8)?)
+        .bind(&reset_data.password_reset_token)
+        .execute(db.as_ref())
+        .await?;
+
+    Ok(HttpResponse::Ok().json(json! {
+        {
+            "message": "new password was successfully set"
+        }
+    }))
 }
