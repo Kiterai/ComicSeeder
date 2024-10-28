@@ -4,7 +4,10 @@ use actix_files::NamedFile;
 use actix_identity::IdentityMiddleware;
 use actix_session::SessionMiddleware;
 use actix_web::{
-    cookie::Key, dev::{fn_service, ServiceRequest, ServiceResponse}, middleware::Logger, web, App, HttpServer
+    cookie::Key,
+    dev::{fn_service, ServiceRequest, ServiceResponse},
+    middleware::Logger,
+    web, App, HttpServer,
 };
 use comicseeder_backend::{
     db::{establish_database_pool, establish_session_db, migrate_db},
@@ -52,16 +55,20 @@ async fn main() -> std::io::Result<()> {
                     .service(id::login)
                     .service(id::logout)
                     .service(id::signup)
-                    .service(id::verification),
+                    .service(id::verification)
+                    .service(id::password_reset)
+                    .service(id::password_reset_try)
+                    .service(id::password_reset_verification),
             )
             .service(
                 actix_files::Files::new("/", "../comicseeder-front/dist")
                     .index_file("index.html")
                     .default_handler(fn_service(|req: ServiceRequest| async {
                         let (http_req, _payload) = req.into_parts();
-                        let response = NamedFile::open_async("../comicseeder-front/dist/index.html")
-                            .await?
-                            .into_response(&http_req);
+                        let response =
+                            NamedFile::open_async("../comicseeder-front/dist/index.html")
+                                .await?
+                                .into_response(&http_req);
                         Ok(ServiceResponse::new(http_req, response))
                     })),
             )
