@@ -1,52 +1,42 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import router from '@/router';
+import { ref } from 'vue';
 
+const email = ref('');
 const password = ref('');
-const passwordCheck = ref('');
-const passwordMatched = computed(() => password.value == passwordCheck.value);
-const passwordValid = computed(() => password.value.length > 0 && passwordMatched.value);
 const sending = ref(false);
 
-const updatePassword = (e: Event) => {
-  const token = '';
-
-  fetch('/api/v1/password-reset', {
+const login = () => {
+  fetch('/api/v1/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      password_reset_token: token,
+      email: email.value,
       password: password.value
     })
-  });
+  })
+    .then(() => {
+      router.push('/');
+    })
+    .catch(() => {
+      alert('Login failed.');
+    });
 };
 </script>
 
 <template>
   <div :class="$style.outerContainer">
     <div :class="$style.container">
-      <h1>Password Reset</h1>
+      <h1>Login</h1>
       <dl>
-        <dt>New password</dt>
+        <dt>Email</dt>
+        <dd><input :class="$style.input" type="text" v-model="email" /></dd>
+        <dt>Password</dt>
         <dd><input :class="$style.input" type="password" v-model="password" /></dd>
-        <dt>New password (confirm)</dt>
-        <dd>
-          <input
-            :class="$style.input"
-            :style="{ borderColor: !passwordMatched ? 'red' : undefined }"
-            type="password"
-            v-model="passwordCheck"
-          />
-        </dd>
       </dl>
-      <button
-        :disabled="sending || !passwordValid"
-        :class="$style.button"
-        :onclick="updatePassword"
-      >
-        password update
-      </button>
+      <button :disabled="sending" :class="$style.button" :onclick="login">Login</button>
     </div>
   </div>
 </template>
@@ -82,7 +72,9 @@ const updatePassword = (e: Event) => {
   height: 2rem;
   box-sizing: border-box;
   width: 100%;
-  transition: background-color ease 0.1s, color ease 0.1s;
+  transition:
+    background-color ease 0.1s,
+    color ease 0.1s;
 }
 .button:hover {
   background-color: #484;

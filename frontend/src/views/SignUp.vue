@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+const email = ref('');
 const password = ref('');
 const passwordCheck = ref('');
 const passwordMatched = computed(() => password.value == passwordCheck.value);
 const passwordValid = computed(() => password.value.length > 0 && passwordMatched.value);
 const sending = ref(false);
 
-const updatePassword = (e: Event) => {
-  const token = '';
-
-  fetch('/api/v1/password-reset', {
+const signup = () => {
+  fetch('/api/v1/signup', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      password_reset_token: token,
+      email: email.value,
       password: password.value
     })
+  }).then(() => {
+    alert('Confirmation mail was sent. Please check it.');
   });
 };
 </script>
@@ -26,8 +27,10 @@ const updatePassword = (e: Event) => {
 <template>
   <div :class="$style.outerContainer">
     <div :class="$style.container">
-      <h1>Password Reset</h1>
+      <h1>Account Registration</h1>
       <dl>
+        <dt>Email</dt>
+        <dd><input :class="$style.input" type="text" v-model="email" /></dd>
         <dt>New password</dt>
         <dd><input :class="$style.input" type="password" v-model="password" /></dd>
         <dt>New password (confirm)</dt>
@@ -40,12 +43,8 @@ const updatePassword = (e: Event) => {
           />
         </dd>
       </dl>
-      <button
-        :disabled="sending || !passwordValid"
-        :class="$style.button"
-        :onclick="updatePassword"
-      >
-        password update
+      <button :disabled="sending || !passwordValid" :class="$style.button" :onclick="signup">
+        Register
       </button>
     </div>
   </div>
@@ -82,7 +81,9 @@ const updatePassword = (e: Event) => {
   height: 2rem;
   box-sizing: border-box;
   width: 100%;
-  transition: background-color ease 0.1s, color ease 0.1s;
+  transition:
+    background-color ease 0.1s,
+    color ease 0.1s;
 }
 .button:hover {
   background-color: #484;
