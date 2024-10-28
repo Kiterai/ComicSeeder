@@ -266,11 +266,13 @@ async fn verify_password_reset_token(token: &str, db: &MainDbPooledConnection) -
         return false;
     }
 
-    sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
-        .bind(token)
-        .fetch_one(db)
-        .await
-        .is_ok()
+    let email: Result<String, sqlx::Error> =
+        sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+            .bind(token)
+            .fetch_one(db)
+            .await;
+
+    email.is_ok()
 }
 
 #[get("/password_reset")]
