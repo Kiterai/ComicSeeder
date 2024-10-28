@@ -315,7 +315,7 @@ pub async fn password_reset(
         return Err(AppError::AuthErr("invalid token".to_string()));
     }
 
-    sqlx::query("UPDATE users SET password_hash = $1 WHERE password_reset_token = $2;")
+    sqlx::query("UPDATE users SET password_hash = $1, password_reset_token = NULL WHERE password_reset_token = $2;")
         .bind(bcrypt::hash(&reset_data.password, 8)?)
         .bind(&reset_data.password_reset_token)
         .execute(db.as_ref())
