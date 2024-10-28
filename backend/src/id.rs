@@ -79,7 +79,7 @@ pub async fn login(
     };
 
     if let Ok(true) = bcrypt::verify(password, &hash) {
-        Identity::login(&request.extensions(), email.into()).unwrap();
+        Identity::login(&request.extensions(), email.into())?;
         Ok(HttpResponse::Ok().json(json! {
             {
                 "message": "successfully logged in"
