@@ -137,9 +137,8 @@ pub async fn signup(
     let mut rng = rand::thread_rng();
     let random_code = Alphanumeric.sample_string(&mut rng, 32);
     let now_time = chrono::Utc::now().timestamp();
-    let expire_time = now_time + 600;
 
-    let verification_token = format!("{}_{}", random_code, expire_time);
+    let verification_token = format!("{}_{}", random_code, now_time);
 
     sqlx::query(
         "INSERT INTO users (email, password_hash, verification_token) VALUES ($1, $2, $3);",
@@ -160,6 +159,34 @@ pub async fn signup(
     }))
 }
 
+async fn verify_verification_token(
+    token: &str,
+    email_from_session: &str,
+    db: &MainDbPooledConnection,
+) -> bool {
+    let Some((_, token_timestamp)) = token.split_once('_') else {
+        return false;
+    };
+    let Ok(token_timestamp) = token_timestamp.parse::<i64>() else {
+        return false;
+    };
+
+    if chrono::Utc::now().timestamp() > token_timestamp + 600 {
+        return false;
+    }
+
+    let Ok(email_from_token): Result<String, sqlx::Error> =
+        sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+            .bind(token)
+            .fetch_one(db)
+            .await
+    else {
+        return false;
+    };
+
+    email_from_token == email_from_session
+}
+
 #[get("/verification")]
 pub async fn verification(
     request: HttpRequest,
@@ -171,29 +198,12 @@ pub async fn verification(
 
     let verification_token = request.query_string();
 
-    let (_, token_timestamp) = verification_token
-        .split_once('_')
-        .ok_or(AppError::AuthErr("invalid token".to_string()))?;
-    let token_timestamp = token_timestamp.parse::<i64>()?;
-
-    if chrono::Utc::now().timestamp() > token_timestamp {
+    if !verify_verification_token(verification_token, &email_from_session, db.as_ref()).await {
         return Err(AppError::AuthErr("invalid token".to_string()));
     }
 
-    let res = sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+    sqlx::query("UPDATE users SET verification_token = NULL WHERE verification_token = $1;")
         .bind(&verification_token)
-        .fetch_one(db.as_ref())
-        .await
-        .ok();
-
-    let email_from_token: String = res.ok_or(AppError::AuthErr("invalid token".to_string()))?;
-
-    if email_from_token != email_from_session {
-        return Err(AppError::AuthErr("invalid token".to_string()));
-    }
-
-    sqlx::query("UPDATE users SET verification_token = NULL WHERE email = $1;")
-        .bind(&email_from_token)
         .execute(db.as_ref())
         .await?;
 
@@ -235,9 +245,8 @@ pub async fn password_reset_try(
     let mut rng = rand::thread_rng();
     let random_code = Alphanumeric.sample_string(&mut rng, 32);
     let now_time = chrono::Utc::now().timestamp();
-    let expire_time = now_time;
 
-    let password_reset_token = format!("{}_{}", random_code, expire_time);
+    let password_reset_token = format!("{}_{}", random_code, now_time);
 
     sqlx::query("UPDATE users SET password_reset_token = $1 WHERE email = $2;")
         .bind(&password_reset_token)
@@ -267,7 +276,7 @@ async fn verify_password_reset_token(token: &str, db: &MainDbPooledConnection) -
     }
 
     let email: Result<String, sqlx::Error> =
-        sqlx::query_scalar("SELECT email FROM users WHERE verification_token = $1;")
+        sqlx::query_scalar("SELECT email FROM users WHERE password_reset_token = $1;")
             .bind(token)
             .fetch_one(db)
             .await;
