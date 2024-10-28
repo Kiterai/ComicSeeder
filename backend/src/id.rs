@@ -15,6 +15,43 @@ use crate::{
     error::{AppError, AppResult},
 };
 
+async fn send_mail(send_to: &str, title: &str, text: &str) -> AppResult<()> {
+    let site_name = env::var("SITE_NAME").unwrap_or("ComicSeeder".into());
+    let mailaddr_from = env::var("SMTP_MAILADDR")?;
+    let smtp_encryption = env::var("SMTP_ENCRYPTION")?;
+    let smtp_host = env::var("SMTP_HOST")?;
+
+    let email = Message::builder()
+        .header(lettre::message::header::ContentType::TEXT_PLAIN)
+        .from(mailaddr_from.parse()?)
+        .to(Mailbox::new(None, send_to.parse()?))
+        .subject(format!("{}: {}", site_name, title))
+        .body(text.to_string())?;
+
+    let mut mailer = match smtp_encryption.as_str() {
+        "starttls" => SmtpTransport::starttls_relay(&smtp_host).unwrap(),
+        "tls" => SmtpTransport::relay(&smtp_host).unwrap(),
+        "plain" => SmtpTransport::builder_dangerous(&smtp_host),
+        x => {
+            panic!("invalid SMTP_ENCRYPTION value: {}", x);
+        }
+    };
+
+    if let Ok(smtp_port) = env::var("SMTP_PORT") {
+        mailer = mailer.port(smtp_port.parse()?);
+    }
+    if let (Ok(smtp_user), Ok(smtp_password)) = (env::var("SMTP_USER"), env::var("SMTP_PASSWORD")) {
+        let cred = Credentials::new(smtp_user, smtp_password);
+        mailer = mailer.credentials(cred);
+    }
+
+    let mailer = mailer.build();
+
+    mailer.send(&email)?;
+
+    Ok(())
+}
+
 #[derive(Deserialize)]
 struct LoginRequest {
     email: String,
@@ -192,4 +229,27 @@ pub async fn verification(
             "message": "user verified"
         }
     }))
+}
+
+#[derive(Deserialize)]
+struct PasswordResetTryRequest {
+    email: String,
+}
+
+#[post("/password_reset")]
+pub async fn password_reset_try(
+    request: HttpRequest,
+    db: web::Data<MainDbPooledConnection>,
+    login_data: web::Json<PasswordResetTryRequest>,
+) -> AppResult<impl Responder> {
+    Ok("")
+}
+
+#[get("/password_reset")]
+pub async fn password_reset_verification(
+    request: HttpRequest,
+    db: web::Data<MainDbPooledConnection>,
+    login_data: web::Json<PasswordResetTryRequest>,
+) -> AppResult<impl Responder> {
+    Ok("")
 }
