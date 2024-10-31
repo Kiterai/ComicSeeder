@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useWorks } from '@/stores/works';
 import { useRouter } from 'vue-router';
-import { Workbox } from 'workbox-window';
 
 const router = useRouter();
 
@@ -10,29 +9,11 @@ const moveToNewWork = async () => {
   const newId = await works.addWork();
   router.push(`/works/${newId}`);
 };
-
-const reload = () => {
-  const wb = new Workbox('/sw.js');
-  wb.addEventListener('waiting', () => {
-    const userConsent = window.confirm(
-      'New version is available. Update?'
-    );
-
-    if (userConsent) {
-      wb.messageSW({ type: 'SKIP_WAITING' });
-    }
-  });
-
-  wb.addEventListener('controlling', () => {
-    window.location.reload();
-  });
-  wb.register();
-};
 </script>
 
 <template>
   <div :class="$style.outerContainer">
-    <h1 :class="$style.logo">ComicSeeder <small>v0.5</small></h1>
+    <h1 :class="$style.logo">ComicSeeder <small>v0.6</small></h1>
     <div :class="$style.container">
       <RouterLink to="/works" :class="$style.topButton">Works List</RouterLink>
       <button :class="$style.topButton" :onpointerup="moveToNewWork">New Work</button>
