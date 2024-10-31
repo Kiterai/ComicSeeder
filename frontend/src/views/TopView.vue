@@ -13,7 +13,7 @@ const moveToNewWork = async () => {
 
 <template>
   <div :class="$style.outerContainer">
-    <h1 :class="$style.logo">ComicSeeder <small>v0.6</small></h1>
+    <h1 :class="$style.logo">ComicSeeder <small>v0.6.1</small></h1>
     <div :class="$style.container">
       <RouterLink to="/works" :class="$style.topButton">Works List</RouterLink>
       <button :class="$style.topButton" :onpointerup="moveToNewWork">New Work</button>
