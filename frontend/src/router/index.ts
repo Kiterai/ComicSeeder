@@ -4,7 +4,7 @@ import WorksViewVue from '@/views/WorksView.vue';
 import WorkEditViewVue from '@/views/WorkEditView.vue';
 import PasswordResetVue from '@/views/PasswordReset.vue';
 import LogInVue from '@/views/LogIn.vue';
-import SignUpVue from '@/views/Signup.vue';
+import SignUpVue from '@/views/SignUp.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
