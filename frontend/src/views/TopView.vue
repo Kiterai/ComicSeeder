@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorks } from '@/stores/works';
 import { useRouter } from 'vue-router';
+import { Workbox } from 'workbox-window';
 
 const router = useRouter();
 
@@ -8,6 +9,24 @@ const works = useWorks();
 const moveToNewWork = async () => {
   const newId = await works.addWork();
   router.push(`/works/${newId}`);
+};
+
+const reload = () => {
+  const wb = new Workbox('/sw.js');
+  wb.addEventListener('waiting', () => {
+    const userConsent = window.confirm(
+      'New version is available. Update?'
+    );
+
+    if (userConsent) {
+      wb.messageSW({ type: 'SKIP_WAITING' });
+    }
+  });
+
+  wb.addEventListener('controlling', () => {
+    window.location.reload();
+  });
+  wb.register();
 };
 </script>
 
